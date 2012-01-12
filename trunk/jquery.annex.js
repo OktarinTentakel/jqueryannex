@@ -37,9 +37,9 @@ $.extend({
 		}
 	
 		if( this.isSet(content) ){
-			return $('<'+tag+(this.isSet(attrString) ? attrString : '')+'>'+content+'</'+tag+'>');
+			return $('<'+tag+(this.isSet(attrString) ? attrString : '')+'>'+content+'<\/'+tag+'>');
 		} else {
-			return $('<'+tag+(this.isSet(attrString) ? attrString : '')+'/>');
+			return $('<'+tag+(this.isSet(attrString) ? attrString : '')+'\/>');
 		}
 	},
 
