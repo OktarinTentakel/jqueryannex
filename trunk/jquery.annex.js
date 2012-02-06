@@ -635,6 +635,37 @@ $.extend({
 		}else if( document.getSelection ){
 			document.getSelection().removeAllRanges();
 		}
+	},
+	
+	
+	
+	/**
+	 * Detects if the current JavaScript-context runs on a (dedicated) touch device.
+	 * 
+	 * @param {Boolean} inspectUserAgent defines if the user agent should be inspected additionally to identifying touch events
+	 * @param {Array} additionalUserAgentIds list of string-ids to search for in the user agent additionally to the basic ones
+	 * @param {Boolean} onlyConsiderUserAgent tells the algorithm to ignore feature checks and just go by the user-agent-ids
+	 * @return {Boolean} true / false
+	 **/
+	contextIsTouchDevice : function(inspectUserAgent, additionalUserAgentIds, onlyConsiderUserAgent){
+		var that = this;
+		var touchEventsPresent = 'createTouch' in document;
+		var res = onlyConsiderUserAgent ? true : touchEventsPresent;
+		var ua = navigator.userAgent;
+		
+		if( this.isSet(inspectUserAgent) && inspectUserAgent ){
+			res = touchEventsPresent && (this.isSet(ua.match(/(iPhone|iPod|iPad)/i)) || this.isSet(ua.match(/BlackBerry/i)) || this.isSet(ua.match(/Android/i)) || this.isSet(ua.match(/IE\sMobile\s[0-9]{0,2}/i)));
+			
+			if( !res && this.isSet(additionalUserAgentIds) && $.isArray(additionalUserAgentIds) ){
+				$.each(additionalUserAgentIds, function(index, value){
+					var rex = new RegExp(value, 'i');
+					var matches = rex.exec(ua);
+					res = (touchEventsPresent && res) || (touchEventsPresent && that.isSet(matches));
+				});			
+			}
+		}
+	
+		return res;
 	}
 	
 });
