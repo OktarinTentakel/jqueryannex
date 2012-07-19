@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl
- * @version 0.75 alpha
+ * @version 0.76 alpha
  **/
 
 
@@ -18,7 +18,22 @@
 //--|JQUERY-$-GENERAL-FUNCTIONS----------
 
 $.extend({
-
+	
+	/**
+	 * Logs a message to the console. Prevents errors in browsers, that don't support this feature.
+	 *
+	 * @param {*} .. OPTIONAL add any number of arguments you wish to log
+	 **/
+	log : function(){
+		if( this.exists('console') && $.isFunction(console.log) ){
+			$.each(arguments, function(index, obj){
+				console.log(obj);
+			});
+		}
+	},
+	
+	
+	
 	/**
 	 * Creates jQuery-enabled DOM-elements on the fly.
 	 *
@@ -86,7 +101,17 @@ $.extend({
 			context = window;
 		}
 		
-		return (undefined !== context[''+varName]);
+		var res = true;
+		$.each(varName.split("."), function(index, value){
+			res = res && (undefined !== context[''+value])
+			if( res ){
+				context = context[''+value];
+			} else {
+				return false;
+			}
+		});
+		
+		return res;
 	},
 	
 	
@@ -255,8 +280,10 @@ $.extend({
 	 * @param {String} url OPTIONAL the location to load, if null current location is reloaded
 	 * @param {Object} params OPTIONAL parameters to add to the url
 	 * @param {String} anchor OPTIONAL site anchor to set for called url, must be set via parameter, won't work reliably in URL only
+	 * @param {Object} postParams OPTIONAL a dictionary of postParameters to send with the redirect, solved with a hidden form
+	 * @param {String} target OPTIONAL name of the window to perform the redirect to/in
 	 **/
-	redirect : function(url, params, anchor){
+	redirect : function(url, params, anchor, postParams, target){
 		var reload = !this.isSet(url); 
 		if( !this.isSet(url) ){
 			url = window.location.href;
@@ -311,7 +338,28 @@ $.extend({
 			anchor = reload ? this.urlAnchor(true) : null;
 		}
 		
-		window.location.href = url+((paramString.length > 0) ? paramString : '')+(this.isSet(anchor) ? '#'+anchor : '');
+		var finalUrl = url+((paramString.length > 0) ? paramString : '')+(this.isSet(anchor) ? '#'+anchor : '');
+		if( !this.isSet(postParams) && !this.isSet(target) ){
+			window.location.href = finalUrl;
+		} else {
+			if( !this.isSet(postParams) ){
+				postParams = {};
+			}
+		
+			var formAttributes = {method : 'post', action : finalUrl, 'data-ajax' : 'false'};
+			if( this.isSet(target) ){
+				$.extend(formAttributes, {target : ''+target});
+			}
+			
+			var redirectForm = this.elem('form', formAttributes);
+			$.each(postParams, function(index, value){
+				redirectForm.append($.elem('input', {type : 'hidden', name : ''+index, value : ''+value}));
+			});
+			$('body').append(redirectForm);
+			
+			redirectForm.submit();
+			redirectForm.remove();
+		}
 	},
 	
 	
@@ -322,7 +370,7 @@ $.extend({
 	 * @param {Boolean} quickLoad OPTIONAL defines if cache-data should be ignored
 	 **/
 	reload : function(quickLoad){
-		window.location.reload(this.isSet(quickload) && quickload);
+		window.location.reload(this.isSet(quickLoad) && quickLoad);
 	},
 	
 	
