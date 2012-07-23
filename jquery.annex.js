@@ -78,13 +78,22 @@ $.extend({
 	
 	
 	/**
-	 * Check if variable is set at all.
+	 * Check if variable(s) is set at all.
 	 * 
-	 * @param {*} target variable to check
+	 * @param {*} .. OPTIONAL add any number of targets you wish to check
 	 * @return {Boolean} true / false
 	 **/
-	isSet : function(target){
-		return ((target !== undefined) && (target !== null));
+	isSet : function(){
+		var res = true;
+		
+		$.each(arguments, function(index, obj){
+			res = res && ((obj !== undefined) && (obj !== null));
+			if( !res ){
+				return false;
+			}
+		});
+		
+		return res;
 	},
 	
 	
