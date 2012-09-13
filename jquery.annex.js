@@ -47,7 +47,7 @@ $.extend({
 		
 		if( this.isSet(attributes) ){
 			for( var attribute in attributes ){
-				attrString += ' '+attribute+'="'+attributes[attribute]+'"'
+				attrString += ' '+attribute+'="'+attributes[attribute]+'"';
 			}
 		}
 	
@@ -112,7 +112,7 @@ $.extend({
 		
 		var res = true;
 		$.each(varName.split("."), function(index, value){
-			res = res && (undefined !== context[''+value])
+			res = res && (undefined !== context[''+value]);
 			if( res ){
 				context = context[''+value];
 			} else {
@@ -490,26 +490,6 @@ $.extend({
 	
 	
 	/**
-	 * Returns the currently set URL-Anchor.
-	 * 
-	 * @param {Boolean} withoutCaret OPTIONAL defines if anchor value should contain leading "#"
-	 * @return {String|null} current anchor value or null if no anchor in url
-	 **/
-	urlAnchor : function(withoutCaret){
-		var anchor = '';
-		
-		if( this.isSet(withoutCaret) && withoutCaret ){
-			anchor = window.location.hash.replace('#', '');
-		} else {
-			anchor = window.location.hash;
-		}
-		
-		return (anchor != '') ? anchor : null;
-	},
-	
-	
-	
-	/**
 	 * Sets cookies and retrieves them again.
 	 * 
 	 * @param {String} name name of the cookie
@@ -731,406 +711,533 @@ $.extend({
 
 //--|JQUERY-OBJECT-GENERAL-FUNCTIONS----------
 
-/**
- * Sets an option selected or selects the text in a text-field/textarea.
- * 
- * @return {Object} the target object
- **/
-$.fn.doselect = function(){
-	if( $(this).is('option, :text, textarea') ){
-		if( $(this).is(':text, textarea') ){
-			$(this).each(function(){
-				this.focus();
-				this.select();
-			});
-		} else {
-			$(this).attr('selected', 'selected');
+$.fn.extend({
+	/**
+	 * Sets an option selected or selects the text in a text-field/textarea.
+	 * 
+	 * @return {Object} the target object
+	 **/
+	doselect : function(){
+		if( $(this).is('option, :text, textarea') ){
+			if( $(this).is(':text, textarea') ){
+				$(this).each(function(){
+					this.focus();
+					this.select();
+				});
+			} else {
+				$(this).attr('selected', 'selected');
+			}
 		}
-	}
+		
+		return $(this);
+	},
 	
-	return $(this);
-};
-
-
-
-/**
- * Removes a selection from an option or deselects the text in a text-field/textarea.
- * 
- * @return {Object} the target object
- **/
-$.fn.deselect = function(){
-	if( $(this).is(':text, textarea') ){
-		var tmpVal = $(this).val();
-		var stopperFunc = function(e){ return false; };
-		$(this)
-			.on('change', stopperFunc)
-			.val('')
-			.val(tmpVal)
-			.off('change', stopperFunc)
-		;
-	} else {
-		$(this).removeAttr('selected');
-	}
 	
-	return $(this);
-};
-
-
-
-/**
- * Checks a checkbox or radiobutton.
- * 
- * @return {Object} the target object
- **/
-$.fn.check = function(){
-	if( $(this).is(':checkbox, :radio') ){
-		$(this).attr('checked', 'checked');
-	}
 	
-	return $(this);
-};
-
-
-
-/**
- * Removes a check from a checkbox or radiobutton.
- * 
- * @return {Object} the target object
- **/
-$.fn.uncheck = function(){
-	$(this).removeAttr('checked');
+	/**
+	 * Removes a selection from an option or deselects the text in a text-field/textarea.
+	 * 
+	 * @return {Object} the target object
+	 **/
+	deselect : function(){
+		if( $(this).is(':text, textarea') ){
+			var tmpVal = $(this).val();
+			var stopperFunc = function(e){ return false; };
+			$(this)
+				.on('change', stopperFunc)
+				.val('')
+				.val(tmpVal)
+				.off('change', stopperFunc)
+			;
+		} else {
+			$(this).removeAttr('selected');
+		}
+		
+		return $(this);
+	},
 	
-	return $(this);
-};
-
-
-
-/**
- * Enables a form-element.
- * 
- * @return {Object} the target object
- **/
-$.fn.enable = function(){
-	$(this).removeAttr('disabled');
 	
-	return $(this);
-};
-
-
-
-/**
- * Disables a form-element.
- * 
- * @return {Object} the target object
- **/
-$.fn.disable = function(){
-	if( $(this).is(':input') ){
-		$(this).attr('disabled', 'disabled');
-	}
 	
-	return $(this);
-};
-
-
-
-/**
- * Adds a css-class to an element, but only when not already present.
- * 
- * @param {String} uClass the css-class to add
- * @return {Object} the target object
- **/
-$.fn.addClassUnique = function(uClass){
-	if( !$(this).hasClass(''+uClass) ){
-		$(this).addClass(''+uClass);
-	}
+	/**
+	 * Checks a checkbox or radiobutton.
+	 * 
+	 * @return {Object} the target object
+	 **/
+	check : function(){
+		if( $(this).is(':checkbox, :radio') ){
+			$(this).attr('checked', 'checked');
+		}
+		
+		return $(this);
+	},
 	
-	return $(this);
-};
-
-
-
-/**
- * Creates the basic attributes for a DOM-element that define it's DOM- and CSS-identity.
- * Namely id, class and style. An element may be used a source to inherit values from.
- * If identity is inherited from another element html5-data-attributes are also transferred.
- *
- * @param {String} id OPTIONAL the html-id the element should have
- * @param {String|Array} classes OPTIONAL the html-classes the element should have
- * @param {String|Object} style OPTIONAL the html-style properties the element should have
- * @param {Object} $inheritFrom OPTIONAL the element to inherit identity values from
- * @return {Object} the target object
- */
-$.fn.setElementIdentity = function(id, classes, style, $inheritFrom){
-	var that = this;
-	var copyAttrs = ['id', 'class', 'style'];
 	
-	if( $.isSet($inheritFrom) && $.isA($inheritFrom, 'object') ){			
-		$.each($inheritFrom[0].attributes, function(index, attribute){
-			if( attribute.specified ){
-				if( $.inArray(attribute.name, copyAttrs) != -1 ){
-					$(that).attr(attribute.name, attribute.value);
-				} else if( attribute.name.indexOf('data-') == 0 ){
-					$(that)
-						.attr(attribute.name, attribute.value)
-						.data($.strReplace('data-', '', attribute.name), attribute.value)
-					;
+	
+	/**
+	 * Removes a check from a checkbox or radiobutton.
+	 * 
+	 * @return {Object} the target object
+	 **/
+	uncheck : function(){
+		$(this).removeAttr('checked');
+		
+		return $(this);
+	},
+	
+	
+	
+	/**
+	 * Enables a form-element.
+	 * 
+	 * @return {Object} the target object
+	 **/
+	enable : function(){
+		$(this).removeAttr('disabled');
+		
+		return $(this);
+	},
+	
+	
+	
+	/**
+	 * Disables a form-element.
+	 * 
+	 * @return {Object} the target object
+	 **/
+	disable : function(){
+		if( $(this).is(':input') ){
+			$(this).attr('disabled', 'disabled');
+		}
+		
+		return $(this);
+	},
+	
+	
+	
+	/**
+	 * Adds a css-class to an element, but only when not already present.
+	 * 
+	 * @param {String} uClass the css-class to add
+	 * @return {Object} the target object
+	 **/
+	addClassUnique : function(uClass){
+		if( !$(this).hasClass(''+uClass) ){
+			$(this).addClass(''+uClass);
+		}
+		
+		return $(this);
+	},
+	
+	
+	
+	/**
+	 * Creates the basic attributes for a DOM-element that define it's DOM- and CSS-identity.
+	 * Namely id, class and style. An element may be used a source to inherit values from.
+	 * If identity is inherited from another element html5-data-attributes are also transferred.
+	 *
+	 * @param {String} id OPTIONAL the html-id the element should have
+	 * @param {String|Array} classes OPTIONAL the html-classes the element should have
+	 * @param {String|Object} style OPTIONAL the html-style properties the element should have
+	 * @param {Object} $inheritFrom OPTIONAL the element to inherit identity values from
+	 * @return {Object} the target object
+	 */
+	setElementIdentity : function(id, classes, style, $inheritFrom){
+		var that = this;
+		var copyAttrs = ['id', 'class', 'style'];
+		
+		if( $.isSet($inheritFrom) && $.isA($inheritFrom, 'object') ){			
+			$.each($inheritFrom[0].attributes, function(index, attribute){
+				if( attribute.specified ){
+					if( $.inArray(attribute.name, copyAttrs) != -1 ){
+						$(that).attr(attribute.name, attribute.value);
+					} else if( attribute.name.indexOf('data-') == 0 ){
+						$(that)
+							.attr(attribute.name, attribute.value)
+							.data($.strReplace('data-', '', attribute.name), attribute.value)
+						;
+					}
+				}
+			});
+		}
+	
+		if( $.isSet(id) ){
+			$(this).attr('id', ''+id);
+		}
+		
+		if( $.isSet(classes) ){
+			if( $.isArray(classes) ){
+				$.each(classes, function(index, value){
+					$(that).addClassUnique(value);
+				});
+			} else {
+				$(this).attr('class', ($.isSet($(this).attr('class')) ? $(this).attr('class')+' ' : '')+classes);
+			}
+		}
+		
+		if( $.isSet(style) ){
+			if( $.isPlainObject(style) ){
+				$(that).css(style);
+			} else {
+				$(this).attr('style', ($.isSet($(this).attr('style')) ? $(this).attr('style')+' ' : '')+style);
+			}
+		}
+		
+		return $(this);
+	},
+	
+	
+	
+	/**
+	 * Searches for and returns parameters embedded in URLs, either in the document(-url) or elements
+	 * having a src- or href-attributes.
+	 *
+	 * @param {String} paramName the name of the parameter to extract
+	 * @return {*} null in case the parameter doesn't exist, true in case it exists but has no value, a string in case the parameter has one value, or an array of strings
+	 */
+	urlParameter : function(paramName){
+		paramName = ''+paramName;
+	  
+		var paramExists = false;
+		var res = [];
+		var qString = null;
+		
+		if( $(this).prop('nodeName') == '#document' ){
+			if( window.location.search.search(paramName) > -1 ){
+				qString = window.location.search.substr(1, window.location.search.length).split('&');
+			}
+		} else if( $.isSet($(this).attr('src')) ){
+			var url = $(this).attr('src');
+			if( url.indexOf('?') > -1 ){
+				qString = url.substr(url.indexOf('?') + 1).split('&');
+			}
+		} else if( $.isSet($(this).attr('href')) ){
+			var url = $(this).attr('href');
+			if ( url.indexOf('?') > -1 ){
+				qString = url.substr(url.indexOf('?') + 1).split('&');
+			}
+		} else {
+			return null;
+		}
+		
+		if( qString === null ){
+			return null;
+		}
+	  
+		var paramPair = null;
+		for( var i = 0; i < qString.length; i++ ){
+			paramPair = qString[i].split('=');
+			if( paramPair[0] == paramName ){
+				paramExists = true;
+				if( paramPair.length > 1 ){
+					res.push(paramPair[1]);
 				}
 			}
-		});
-	}
-
-	if( $.isSet(id) ){
-		$(this).attr('id', ''+id);
-	}
-	
-	if( $.isSet(classes) ){
-		if( $.isArray(classes) ){
-			$.each(classes, function(index, value){
-				$(that).addClassUnique(value);
-			});
-		} else {
-			$(this).attr('class', ($.isSet($(this).attr('class')) ? $(this).attr('class')+' ' : '')+classes);
-		}
-	}
-	
-	if( $.isSet(style) ){
-		if( $.isPlainObject(style) ){
-			$(that).css(style);
-		} else {
-			$(this).attr('style', ($.isSet($(this).attr('style')) ? $(this).attr('style')+' ' : '')+style);
-		}
-	}
-	
-	return $(this);
-};
-
-
-
-/**
- * Parses form-element-values inside the target-object into a simple object.
- * Basically an extension of jQuery's own serializeArray() with the difference that
- * this function can handle form-arrays, which are returned under their name without bracket
- * as an actual JS-Array.
- * 
- * @return {Object} form-data-object {name:val, name:[val, val]}
- **/
-$.fn.formDataToObject = function(){
-	var fields = $(this).serializeArray();
-	var targetObj = {};
-	var currentFieldIsArray = false;
-	
-	for( var i = 0; i < fields.length; i++ ){
-		currentFieldIsArray = false;
-		if( fields[i].name.indexOf('[]') != -1 ){
-			fields[i].name = fields[i].name.slice(0, fields[i].name.indexOf('[]'));
-			currentFieldIsArray = true;
 		}
 		
-		if( !$.isSet(targetObj[fields[i].name]) ){
-			if( !currentFieldIsArray ){
-				targetObj[fields[i].name] = fields[i].value;
-			} else {
-				targetObj[fields[i].name] = [fields[i].value];
+		if( !paramExists ){
+			return null;
+		} else if( res.length == 0 ){
+			return true;
+		} else if( res.length == 1 ){
+			return res[0];
+		} else {
+			return res;
+		}
+	},
+	
+	
+	
+	/**
+	 * Returns the currently set URL-Anchor on the document(-url) or elements having a src- or href-attribute.
+	 * 
+	 * @param {Boolean} withoutCaret OPTIONAL defines if anchor value should contain leading "#"
+	 * @return {String|null} current anchor value or null if no anchor in url
+	 **/
+	urlAnchor : function(withoutCaret){
+		var anchor = null;
+		
+		if( $(this).prop('nodeName') == '#document' ){
+			anchor = window.location.hash;
+		} else if( $.isSet($(this).attr('src')) ){
+			var anchorParts = $(this).attr('src').split('#');
+			if( anchorParts.length > 1 ){
+				anchor = '#'+anchorParts[1];
 			}
-		} else if( !$.isArray(targetObj[fields[i].name]) ){
-			targetObj[fields[i].name] = [targetObj[fields[i].name], fields[i].value];
+		} else if( $.isSet($(this).attr('href')) ){
+			var anchorParts = $(this).attr('href').split('#');
+			if( anchorParts.length > 1 ){
+				anchor = '#'+anchorParts[1];
+			}
 		} else {
-			targetObj[fields[i].name].push(fields[i].value);
+			return null;
 		}
-	}
-	
-	return targetObj;
-};
-
-
-
-/**
- * Replaces hidden-class with the jQuery-state hidden, which is a little different :D
- * 
- * @return {Object} the target object
- **/
-$.fn.rehide = function(){
-	$(this).each(function(){
-		if( $(this).hasClass('hidden') ){
-			$(this).removeClass('hidden').hide();
+		
+		if( $.isSet(withoutCaret) && withoutCaret ){
+			anchor = anchor.replace('#', '');
 		}
-	});
+		
+		return anchor;
+	},
 	
-	return $(this);
-};
-
-
-
-/**
- * Measures hidden elements by using a sandbox div.
- *
- * @param {String} functionName name of the function to call on target
- * @param {String} selector OPTIONAL selector to apply to element to find target
- * @param {Object} context OPTIONAL context to use as container for measurement, normally body
- * @return {*} result of function applied to target
- */
-$.fn.measureHidden = function(functionName, selector, $context){
-	var res = null;
 	
-	if( !$.isSet($context) ){
-		$context = $('body');
-	}
 	
-	$context.sandbox();
-	
-	var $measureClone = $(this).clone();
-	$context.children('#sandbox').append($measureClone);
-	
-	var $target = null;
-	if( $.isSet(selector) ){
-		$target = $measureClone.find(''+selector);
-	} else {
-		$target = $measureClone;
-	}
-	
-	res = $.proxy($.fn[''+functionName], $target)();
-	
-	$context.removeSandbox();
-	
-	return res;
-};
-
-
-
-/**
- * Fixes cross-browser problems with image-loads and fires the event even in case the image is already loaded.
- * 
- * @return {Object} the target object
- */
-$.fn.imgLoad = function(callback){
-	var targets = this.filter('img');
-	var targetCount = targets.length;
-
-	targets.load(function(){
-		if (--targetCount <= 0){
-			callback.call(targets, this);
+	/**
+	 * Parses form-element-values inside the target-object into a simple object.
+	 * Basically an extension of jQuery's own serializeArray() with the difference that
+	 * this function can handle form-arrays, which are returned under their name without bracket
+	 * as an actual JS-Array.
+	 * 
+	 * @return {Object} form-data-object {name:val, name:[val, val]}
+	 **/
+	formDataToObject : function(){
+		var fields = $(this).serializeArray();
+		var targetObj = {};
+		var currentFieldIsArray = false;
+		
+		for( var i = 0; i < fields.length; i++ ){
+			currentFieldIsArray = false;
+			if( fields[i].name.indexOf('[]') != -1 ){
+				fields[i].name = fields[i].name.slice(0, fields[i].name.indexOf('[]'));
+				currentFieldIsArray = true;
+			}
+			
+			if( !$.isSet(targetObj[fields[i].name]) ){
+				if( !currentFieldIsArray ){
+					targetObj[fields[i].name] = fields[i].value;
+				} else {
+					targetObj[fields[i].name] = [fields[i].value];
+				}
+			} else if( !$.isArray(targetObj[fields[i].name]) ){
+				targetObj[fields[i].name] = [targetObj[fields[i].name], fields[i].value];
+			} else {
+				targetObj[fields[i].name].push(fields[i].value);
+			}
 		}
-	}).each(function(){
-		if( this.complete || this.complete === undefined ){
-			var src = this.src;
-			this.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
-			this.src = src;
+		
+		return targetObj;
+	},
+	
+	
+	
+	/**
+	 * Replaces hidden-class with the jQuery-state hidden, which is a little different :D
+	 * 
+	 * @return {Object} the target object
+	 **/
+	rehide : function(){
+		$(this).each(function(){
+			if( $(this).hasClass('hidden') ){
+				$(this).removeClass('hidden').hide();
+			}
+		});
+		
+		return $(this);
+	},
+	
+	
+	
+	/**
+	 * Measures hidden elements by using a sandbox div.
+	 *
+	 * @param {String} functionName name of the function to call on target
+	 * @param {String} selector OPTIONAL selector to apply to element to find target
+	 * @param {Object} context OPTIONAL context to use as container for measurement, normally body
+	 * @return {*} result of function applied to target
+	 */
+	measureHidden : function(functionName, selector, $context){
+		var res = null;
+		
+		if( !$.isSet($context) ){
+			$context = $('body');
 		}
-	});
-
-	return this;
-};
-
-
-
-/**
- * Disables selectability as far as possible for elements.
- *
- * @return {Object} the target object
- */
-$.fn.disableSelection = function(){ 
-	$(this).each(function(){
-		this.onselectstart = function(){ return false; }; 
-		this.unselectable = 'on'; 
-		$(this).css({
-			'user-select' : 'none',
-			'-o-user-select' : 'none',
-			'-moz-user-select' : 'none',
-			'-khtml-user-select' : 'none',
-			'-webkit-user-select' : 'none'
+		
+		$context.sandbox();
+		
+		var $measureClone = $(this).clone();
+		$context.children('#sandbox').append($measureClone);
+		
+		var $target = null;
+		if( $.isSet(selector) ){
+			$target = $measureClone.find(''+selector);
+		} else {
+			$target = $measureClone;
+		}
+		
+		res = $.proxy($.fn[''+functionName], $target)();
+		
+		$context.removeSandbox();
+		
+		return res;
+	},
+	
+	
+	
+	/**
+	 * Fixes cross-browser problems with image-loads and fires the event even in case the image is already loaded.
+	 * 
+	 * @return {Object} the target object
+	 */
+	imgLoad : function(callback){
+		var targets = this.filter('img');
+		var targetCount = targets.length;
+	
+		targets.load(function(){
+			if (--targetCount <= 0){
+				callback.call(targets, this);
+			}
+		}).each(function(){
+			if( this.complete || this.complete === undefined ){
+				var src = this.src;
+				this.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+				this.src = src;
+			}
+		});
+	
+		return this;
+	},
+	
+	
+	
+	/**
+	 * Loops an animation-based (needs to build an animation queue) closure indefinitely.
+	 * Kills other animations on element if nothing else is declared.
+	 * Cancel animation with .stop(true).
+	 * The animationClosure needs to take a parameter, which is filled with the jQuery-element, this method is called upon.
+	 *
+	 * @param {Function} closure in which all animation is included, takes the jQuery-Element as first parameter, needs to do something queue-building
+	 * @return {Object} the target object
+	 */
+	loopAnimation : function(animationClosure, killAnimations){
+		var killAnimations = !$.isSet(killAnimations) || ($.isSet(killAnimations) && killAnimations);
+		
+		if( $.isFunction(animationClosure) ){
+			if( killAnimations ){
+				$(this).stop(true, true);
+			}
+			
+			$(this)
+				.queue(function(next){
+					animationClosure($(this));
+					$(this).queue(arguments.callee);
+					next();
+				})
+			;
+		}
+		
+		return this;
+	},
+	
+	
+	
+	/**
+	 * Disables selectability as far as possible for elements.
+	 *
+	 * @return {Object} the target object
+	 */
+	disableSelection : function(){ 
+		$(this).each(function(){
+			this.onselectstart = function(){ return false; }; 
+			this.unselectable = 'on'; 
+			$(this).css({
+				'user-select' : 'none',
+				'-o-user-select' : 'none',
+				'-moz-user-select' : 'none',
+				'-khtml-user-select' : 'none',
+				'-webkit-user-select' : 'none'
+			}); 
 		}); 
-	}); 
-	
-	return $(this);
-};
-
-
-
-/**
- * Create a Popup-Message in a Box-Element.
- * 
- * @param {String} message the message to display in the overlay
- * @param {String} style OPTIONAL additional element-style for the message-text
- * @param {String|Integer} animationDuration OPTIONAL time for fade-in-animation in ms
- * @param {Boolean} unclosable OPTIONAL makes message manually unclosable if set to true
- * @return {Object} the target object
- **/
-$.fn.boxMessage = function(message, style, animationDuration, unclosable){
-	var msgContainer = null;
-	if( $(this).children('div.boxmessage').length > 0 ){
-		msgContainer = $(this).children('div.boxmessage:first');
-	} else {
-		msgContainer = this.elem('div', {'class' : 'boxmessage'})
-			.append(this.elem('div', {'class' : 'boxmessagebg'}))
-			.append(this.elem('div', {'class' : 'boxmessagetextcontainer'}))
-			.children('.boxmessagetextcontainer')
-				.append(this.elem('div', {'class' : 'boxmessagetext'}))
-			.end()
-		;
-		msgContainer.hide();
 		
-		$(this).append(msgContainer);
+		return $(this);
+	},
+	
+	
+	
+	/**
+	 * Create a Popup-Message in a Box-Element.
+	 * 
+	 * @param {String} message the message to display in the overlay
+	 * @param {String} style OPTIONAL additional element-style for the message-text
+	 * @param {String|Integer} animationDuration OPTIONAL time for fade-in-animation in ms
+	 * @param {Boolean} unclosable OPTIONAL makes message manually unclosable if set to true
+	 * @return {Object} the target object
+	 **/
+	boxMessage : function(message, style, animationDuration, unclosable){
+		var msgContainer = null;
+		if( $(this).children('div.boxmessage').length > 0 ){
+			msgContainer = $(this).children('div.boxmessage:first');
+		} else {
+			msgContainer = this.elem('div', {'class' : 'boxmessage'})
+				.append(this.elem('div', {'class' : 'boxmessagebg'}))
+				.append(this.elem('div', {'class' : 'boxmessagetextcontainer'}))
+				.children('.boxmessagetextcontainer')
+					.append(this.elem('div', {'class' : 'boxmessagetext'}))
+				.end()
+			;
+			msgContainer.hide();
+			
+			$(this).append(msgContainer);
+			
+			msgContainer.click(function(){ $(this).fadeOut(); });
+		}
 		
-		msgContainer.click(function(){ $(this).fadeOut(); });
+		if( !this.isSet(style) ){
+			msgContainer.find('.boxmessagetext:first').attr('style', ''+style);
+		}
+		
+		if( this.isSet(unclosable) ){
+			msgContainer.off('click');
+			msgContainer.css('cursor', 'default');
+		}
+		
+		msgContainer.find('.boxmessagetext:first').html(''+message);
+		msgContainer.fadeIn(this.isSet(animationDuration) ? animationDuration : 400);
+		
+		return $(this);
+	},
+	
+	
+	
+	/**
+	 * Removes a boxmessage completely from a container-element.
+	 * 
+	 * @param {String|Integer} animationDuration OPTIONAL time for fade-in-animation in ms
+	 * @return {Object} the target object
+	 **/
+	removeBoxMessage : function(animationDuration){
+		$(this).children('div.boxmessage').fadeOut(
+			this.isSet(animationDuration) ? animationDuration : 400,
+			function(){ $(this).remove(); }
+		);
+		
+		return $(this);
+	},
+	
+	
+	
+	/**
+	 * Creates a neutral, invisible sandbox in the given context, to mess around with.
+	 *
+	 * @return {Object} the target object
+	 */
+	sandbox : function(){
+		$(this).append($.elem('div', {'id' : 'sandbox', 'style' : 'position:absolute; visibility:hidden; display:block;'}));
+		
+		return $(this);
+	},
+	
+	
+	
+	/**
+	 * Removes the sandbox from given context.
+	 *
+	 * @return {Object} the target object
+	 */
+	removeSandbox : function(){
+		$(this).find('#sandbox').remove();
+		
+		return $(this);
 	}
-	
-	if( !this.isSet(style) ){
-		msgContainer.find('.boxmessagetext:first').attr('style', ''+style);
-	}
-	
-	if( this.isSet(unclosable) ){
-		msgContainer.off('click');
-		msgContainer.css('cursor', 'default');
-	}
-	
-	msgContainer.find('.boxmessagetext:first').html(''+message);
-	msgContainer.fadeIn(this.isSet(animationDuration) ? animationDuration : 400);
-	
-	return $(this);
-};
-
-
-
-/**
- * Removes a boxmessage completely from a container-element.
- * 
- * @param {String|Integer} animationDuration OPTIONAL time for fade-in-animation in ms
- * @return {Object} the target object
- **/
-$.fn.removeBoxMessage = function(animationDuration){
-	$(this).children('div.boxmessage').fadeOut(
-		this.isSet(animationDuration) ? animationDuration : 400,
-		function(){ $(this).remove(); }
-	);
-	
-	return $(this);
-};
-
-
-
-/**
- * Creates a neutral, invisible sandbox in the given context, to mess around with.
- *
- * @return {Object} the target object
- */
-$.fn.sandbox = function(){
-	$(this).append($.elem('div', {'id' : 'sandbox', 'style' : 'position:absolute; visibility:hidden; display:block;'}));
-	
-	return $(this);
-};
-
-
-
-/**
- * Removes the sandbox from given context.
- *
- * @return {Object} the target object
- */
-$.fn.removeSandbox = function(){
-	$(this).find('#sandbox').remove();
-	
-	return $(this);
-};
+});
 
 
 
