@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl
- * @version 0.76 alpha
+ * @version 0.78 alpha
  **/
 
 
@@ -18,6 +18,16 @@
 //--|JQUERY-$-GENERAL-FUNCTIONS----------
 
 $.extend({
+	
+	jqueryAnnexData : {
+		polls: {
+			defaultLoop : null,
+			activePollCount : 0,
+			activePolls : {}
+		}
+	},
+	
+	
 	
 	/**
 	 * Logs a message to the console. Prevents errors in browsers, that don't support this feature.
@@ -198,6 +208,37 @@ $.extend({
 	
 	
 	/**
+	 * Special form of Math.random, returning an int value between two ints, where floor and ceiling are included in the range.
+	 * 
+	 * @param {Integer} floor the lower end of random range
+	 * @param {Integer} ceiling the upper end of random range
+	 * @return {Integer} random int between floor and ceiling
+	 * @throws random value exception
+	 **/
+	randomInt : function(floor, ceiling){
+		if( !this.isSet(floor) ){
+			floor = 0;
+		} else {
+			parseInt(floor);
+		}
+		
+		if( !this.isSet(ceiling) ){
+			ceiling = 10;
+		} else {
+			parseInt(ceiling);
+		}
+		
+		if( ceiling < floor){
+			throw 'random value exception: ceiling may not be smaller than floor';
+			return null;
+		}
+		
+		return Math.round(Math.random() * (ceiling - floor) + floor);
+	},
+	
+	
+	
+	/**
 	 * Setup a timer for one-time execution of a callback, kills old timer if wished
 	 * to prevent overlapping timers.
 	 * 
@@ -278,6 +319,121 @@ $.extend({
 					window.clearInterval(timer);
 				}
 			}
+		}
+	},
+	
+	
+	
+	/**
+	 * Waits for a certain program- or DOM-state before executing a certain action. Waiting is implemented via
+	 * a global timer (and optionally locals as well). If you need to react to a certain case, that's not
+	 * defined by standard events and reaction does not have to be razor sharp, this is your method.
+	 * Pick a name for the state/event you want to poll, define a condition closure and an action closure that
+	 * holds what is to be done in case the condition works out.
+	 * Polls end or are repeated after an execution of the action depending on the result of the action closure.
+	 * There can always be only one poll of a certain name, redefining it overwrites the first one.
+	 * 
+	 * @param {String} name name of the state or event you are waiting/polling for
+	 * @param {Function} fCondition closure to define the state to wait for, returns true if state exists and false if not
+	 * @param {Function} fAction closure to define action to take place if contition exists, poll removes itself if this doesn't evaluate to true e.g.
+	 * @param {Integer} newLoopMs OPTIONAL new loop wait time in ms, resets global timer if useOwnTimer is not set, otherwise sets local timer for poll
+	 * @param {Boolean} useOwnTimer OPTIONAL has to be set and true to tell the poll to use an independent local timer instead of the global one.
+	 * @return {Object|null} new poll or null in case of param error
+	 **/
+	poll : function(name, fCondition, fAction, newLoopMs, useOwnTimer){
+		name = $.trim(''+name);
+		
+		if( (name != '') && $.isFunction(fCondition) && $.isFunction(fAction) ){
+			var newPoll = {
+				name : name,
+				condition: fCondition,
+				action : fAction,
+				loop : null
+			};
+			
+			if( this.isSet(useOwnTimer) && useOwnTimer ){
+				newPoll.loop = this.loop(!this.isSet(newLoopMs) ? 250 : parseInt(newLoopMs), function(){
+					if( newPoll.condition() ){
+						if( newPoll.action() ){
+							$.countermand(newPoll.loop);
+							newPoll.loop = null;
+							delete this.jqueryAnnexData.polls.activePolls[newPoll.name];
+							this.jqueryAnnexData.polls.activePollCount--;
+						}
+					}
+				});
+			}
+			if( this.isSet(this.jqueryAnnexData.polls.activePolls[name]) ){
+				this.unpoll(name);
+			}
+			
+			this.jqueryAnnexData.polls.activePolls[name] = newPoll;
+			this.jqueryAnnexData.polls.activePollCount++;
+			
+			if(
+				(
+					!this.isSet(this.jqueryAnnexData.polls.defaultLoop)
+					|| (this.isSet(newLoopMs) && !this.isSet(useOwnTimer))
+				) && (this.jqueryAnnexData.polls.activePollCount > 0)
+			){
+				if( this.isSet(this.jqueryAnnexData.polls.defaultLoop) ){
+					this.countermand(this.jqueryAnnexData.polls.defaultLoop);
+				}
+				
+				this.jqueryAnnexData.polls.defaultLoop = this.loop(!this.isSet(newLoopMs) ? 250 : parseInt(newLoopMs), function(){
+					if( $.jqueryAnnexData.polls.activePollCount > 0 ){
+						$.each($.jqueryAnnexData.polls.activePolls, function(name, poll){
+							if( !$.isSet(poll.loop) && poll.condition() ){
+								if( poll.action() ){
+									delete $.jqueryAnnexData.polls.activePolls[name];
+									$.jqueryAnnexData.polls.activePollCount--;
+								}
+							}
+						});
+					} else {
+						$.countermand($.jqueryAnnexData.polls.defaultLoop);
+						$.jqueryAnnexData.polls.defaultLoop = null;
+					}
+				});
+			}
+			
+			return newPoll;
+		} else {
+			return null;
+		}
+	},
+	
+	
+	
+	/**
+	 * Removes an active poll from the poll stack via given name.
+	 * 
+	 * @param {String} name name of the state or event you are waiting/polling for
+	 * @return {Boolean} true if poll has been removed, false if nothing has changed
+	 **/
+	unpoll : function(name){
+		name = $.trim(''+name);
+		
+		if( name != '' ){
+			if( this.isSet(this.jqueryAnnexData.polls.activePolls[name].loop) ){
+				this.countermand(this.jqueryAnnexData.polls.activePolls[name].loop);
+			}
+			
+			if( this.isSet(this.jqueryAnnexData.polls.activePolls[name]) ){
+				delete this.jqueryAnnexData.polls.activePolls[name];
+				this.jqueryAnnexData.polls.activePollCount--;
+				
+				if( this.jqueryAnnexData.polls.activePollCount <= 0 ){
+					this.countermand(this.jqueryAnnexData.polls.defaultLoop);
+					this.jqueryAnnexData.polls.defaultLoop = null;
+				}
+				
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
 		}
 	},
 	
@@ -1146,68 +1302,6 @@ $.fn.extend({
 				'-webkit-user-select' : 'none'
 			}); 
 		}); 
-		
-		return $(this);
-	},
-	
-	
-	
-	/**
-	 * Create a Popup-Message in a Box-Element.
-	 * 
-	 * @param {String} message the message to display in the overlay
-	 * @param {String} style OPTIONAL additional element-style for the message-text
-	 * @param {String|Integer} animationDuration OPTIONAL time for fade-in-animation in ms
-	 * @param {Boolean} unclosable OPTIONAL makes message manually unclosable if set to true
-	 * @return {Object} the target object
-	 **/
-	boxMessage : function(message, style, animationDuration, unclosable){
-		var msgContainer = null;
-		if( $(this).children('div.boxmessage').length > 0 ){
-			msgContainer = $(this).children('div.boxmessage:first');
-		} else {
-			msgContainer = this.elem('div', {'class' : 'boxmessage'})
-				.append(this.elem('div', {'class' : 'boxmessagebg'}))
-				.append(this.elem('div', {'class' : 'boxmessagetextcontainer'}))
-				.children('.boxmessagetextcontainer')
-					.append(this.elem('div', {'class' : 'boxmessagetext'}))
-				.end()
-			;
-			msgContainer.hide();
-			
-			$(this).append(msgContainer);
-			
-			msgContainer.click(function(){ $(this).fadeOut(); });
-		}
-		
-		if( !this.isSet(style) ){
-			msgContainer.find('.boxmessagetext:first').attr('style', ''+style);
-		}
-		
-		if( this.isSet(unclosable) ){
-			msgContainer.off('click');
-			msgContainer.css('cursor', 'default');
-		}
-		
-		msgContainer.find('.boxmessagetext:first').html(''+message);
-		msgContainer.fadeIn(this.isSet(animationDuration) ? animationDuration : 400);
-		
-		return $(this);
-	},
-	
-	
-	
-	/**
-	 * Removes a boxmessage completely from a container-element.
-	 * 
-	 * @param {String|Integer} animationDuration OPTIONAL time for fade-in-animation in ms
-	 * @return {Object} the target object
-	 **/
-	removeBoxMessage : function(animationDuration){
-		$(this).children('div.boxmessage').fadeOut(
-			this.isSet(animationDuration) ? animationDuration : 400,
-			function(){ $(this).remove(); }
-		);
 		
 		return $(this);
 	},
