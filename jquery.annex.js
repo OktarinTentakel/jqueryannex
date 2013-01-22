@@ -142,13 +142,12 @@ $.extend({
 	 * @param {*} target variable to check the type of
 	 * @param {String} typeName the name of the type to check for, has to be a standard JS-type
 	 * @return {Boolean} true / false
-	 * @throws type-identification exception
 	 **/
 	isA : function(target, typeName){
 		if( $.inArray(typeName, ['boolean', 'number', 'string', 'function', 'array', 'date', 'regexp', 'object']) ){
 			return $.type(target) == ''+typeName;
 		} else {
-			throw 'type-identification exception: not asked for valid JS-type';
+			this.log('type-identification exception: not asked for valid JS-type');
 			return false;
 		}
 	},
@@ -213,7 +212,6 @@ $.extend({
 	 * @param {Integer} floor the lower end of random range
 	 * @param {Integer} ceiling the upper end of random range
 	 * @return {Integer} random int between floor and ceiling
-	 * @throws random value exception
 	 **/
 	randomInt : function(floor, ceiling){
 		if( !this.isSet(floor) ){
@@ -229,7 +227,7 @@ $.extend({
 		}
 		
 		if( ceiling < floor){
-			throw 'random value exception: ceiling may not be smaller than floor';
+			this.log('random value exception: ceiling may not be smaller than floor');
 			return null;
 		}
 		
@@ -335,7 +333,7 @@ $.extend({
 	 * 
 	 * @param {String} name name of the state or event you are waiting/polling for
 	 * @param {Function} fCondition closure to define the state to wait for, returns true if state exists and false if not
-	 * @param {Function} fAction closure to define action to take place if contition exists, poll removes itself if this doesn't evaluate to true e.g.
+	 * @param {Function} fAction closure to define action to take place if contition exists, poll removes itself if this evaluates to true e.g.
 	 * @param {Integer} newLoopMs OPTIONAL new loop wait time in ms, resets global timer if useOwnTimer is not set, otherwise sets local timer for poll
 	 * @param {Boolean} useOwnTimer OPTIONAL has to be set and true to tell the poll to use an independent local timer instead of the global one.
 	 * @return {Object|null} new poll or null in case of param error
@@ -762,22 +760,21 @@ $.extend({
 	 * @param {Object} obj the object to check
 	 * @param {Array} memberNames the names of the members to check
 	 * @return {Boolean} true / false
-	 * @throws type exception / param exception / validity exception
 	 **/
 	validate : function(obj, memberNames){
 		if( !this.isSet(obj) || !this.isA(obj, 'object') ){
-			throw 'type exception: obj not an Object';
+			this.log('type exception: obj not an Object');
 			return false;
 		}
 		
-		if( !this.isSet(memberNames) || !$.isArray(memberNames) ){
-			throw 'param exception: no valid memberNames';
+		if( !this.isSet(memberNames) || !this.isArray(memberNames) ){
+			this.log('param exception: no valid memberNames');
 			return false;
 		}
 		
 		for( var i = 0; i < memberNames.length; i++ ){
 			if( !this.isSet(obj[memberNames[i]]) ){
-				throw 'validity exception: missing member '+memberNames[i];
+				this.log('validity exception: missing member '+memberNames[i]);
 				return false;
 			}
 		}
@@ -792,7 +789,6 @@ $.extend({
 	 * 
 	 * @param {String} baseString the string to isolate an id from
 	 * @return {String|null} either the isolated id or null
-	 * @throws id-isolation exception
 	 **/
 	isolateId : function(baseString){
 		var occurrences = String(baseString).match(/[0-9]+/);
@@ -800,7 +796,7 @@ $.extend({
 		if( this.isSet(occurrences) && occurrences.length > 0 ){
 			return occurrences[0];
 		} else {
-			throw 'id-isolation exception: no valid id in string';
+			this.log('id-isolation exception: no valid id in string');
 			return null;
 		}
 	},
