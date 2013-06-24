@@ -6,19 +6,17 @@
 		
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 		
-		<style type="text/css">
-			
-		</style>
+		<style type="text/css"></style>
 		
-		<script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+		<script type="text/javascript" src="jquery-1.9.1.min.js"></script>
 		<script type="text/javascript" src="jquery.annex.js"></script>
+		<script type="text/javascript" src="jquery.annex.validation-plugin.js"></script>
 		<script type="text/javascript">
-			$(document).ready(function(){
-				
-			});
+			$(document).ready(function(){});
 		</script>
 	</head>
 	
 	<body>
+		
 	</body>
 </html>

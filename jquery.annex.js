@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl
- * @version 0.78 alpha
+ * @version Revision 11 developed with jQuery 1.9.1
  **/
 
 
@@ -19,11 +19,28 @@
 
 $.extend({
 	
+	// general dictionary to hold internal data and offer data space for plugins
 	jqueryAnnexData : {
-		polls: {
+		logging : {
+			originalLoggingFunction : ( console != undefined && $.isFunction(console.log) ) ? console.log : $.noop,
+			enabled : true
+		},
+		polls : {
 			defaultLoop : null,
 			activePollCount : 0,
 			activePolls : {}
+		},
+		touch : {
+			types : {
+				touchstart : 'mousedown',
+				touchmove : 'mousemove',
+				touchend: 'mouseup'
+			},
+			inputs : ['input', 'textarea', 'select', 'option']
+		},
+		preloadedImages : {
+			unnamed : [],
+			named : {}
 		}
 	},
 	
@@ -32,9 +49,25 @@ $.extend({
 	/**
 	 * Logs a message to the console. Prevents errors in browsers, that don't support this feature.
 	 *
+	 * @param {Boolean} enabled OPTIONAL enable/disable logging globally, including console.log
 	 * @param {*} .. OPTIONAL add any number of arguments you wish to log
 	 **/
-	log : function(){
+	log : function(enabled){
+		if( this.isSet(enabled) && this.isA(enabled, 'boolean') ){
+			arguments = Array.prototype.slice.call(arguments, 1);
+
+			if( enabled ){
+				if( !$.jqueryAnnexData.logging.enabled ){
+					console.log = $.jqueryAnnexData.logging.originalLoggingFunction;
+				}
+			} else {
+				$.jqueryAnnexData.logging.originalLoggingFunction = console.log;
+				console.log = $.noop;
+			}
+
+			$.jqueryAnnexData.logging.enabled = enabled;
+		}
+
 		if( this.exists('console') && $.isFunction(console.log) ){
 			$.each(arguments, function(index, obj){
 				console.log(obj);
@@ -111,25 +144,32 @@ $.extend({
 	/**
 	 * Check if a variable is defined in a certain context (normally globally in window).
 	 *
-	 * @param {String} varName name of the variable to look for, not the variable itself
-	 * @param {*} context OPTIONAL the context in which to look for the variable, window by default
+	 * @param {String|Object} target name of the variable to look for, not the variable itself, or a jquery Object
+	 * @param {*} context OPTIONAL the context in which to look for the variable, window by default, holds no meaning for jquery objects
 	 * @return {Boolean} true / false
 	 */
-	exists : function(varName, context){
-		if( !this.isSet(context) ){
-			context = window;
-		}
-		
+	exists : function(target, context){
 		var res = true;
-		$.each(varName.split("."), function(index, value){
-			res = res && (undefined !== context[''+value]);
-			if( res ){
-				context = context[''+value];
-			} else {
-				return false;
+
+		if( this.isA(target, 'object') && this.isSet(target.jquery) ){
+			return target.length > 0;
+		} else {
+			target = ''+target;
+
+			if( !this.isSet(context) ){
+				context = window;
 			}
-		});
-		
+			
+			$.each(target.split("."), function(index, value){
+				res = res && (undefined !== context[''+value]);
+				if( res ){
+					context = context[''+value];
+				} else {
+					return false;
+				}
+			});
+		}
+
 		return res;
 	},
 	
@@ -144,7 +184,7 @@ $.extend({
 	 * @return {Boolean} true / false
 	 **/
 	isA : function(target, typeName){
-		if( $.inArray(typeName, ['boolean', 'number', 'string', 'function', 'array', 'date', 'regexp', 'object']) ){
+		if( $.inArray(typeName, ['boolean', 'number', 'string', 'function', 'array', 'date', 'regexp', 'object']) >= 0 ){
 			return $.type(target) == ''+typeName;
 		} else {
 			this.log('type-identification exception: not asked for valid JS-type');
@@ -207,6 +247,40 @@ $.extend({
 	
 	
 	/**
+	 * Removes Elements from an Array. Removes Elements from an Array. Modifies the original array.
+	 *
+	 * @param {Array} array the array to remove elements from
+	 * @param {Integer} from index to start removing (can also be negative to start from back)
+	 * @param {Integer} to OPTIONAL index to end removing (can also be negative to start from back)
+	 * @return {Array} the modified array
+	 */
+	removeFromArray : function(array, from, to){
+	  var rest = array.slice((to || from) + 1 || array.length);
+	  array.length = (from < 0) ? (array.length + from) : from;
+	  return array.push.apply(array, rest);
+	},
+
+
+
+	/**
+	 * Counts enumerable properties of (plain) objects.
+	 * 
+	 * @param {Objects} object the object to count properties in
+	 * @return {Integer} number of enumerable properties
+	 **/
+	objectLength : function(object){
+		var count = 0;
+
+		$.each(object, function(key, value){
+			count++;
+		});
+
+		return count;
+	},
+	
+	
+	
+	/**
 	 * Special form of Math.random, returning an int value between two ints, where floor and ceiling are included in the range.
 	 * 
 	 * @param {Integer} floor the lower end of random range
@@ -232,6 +306,42 @@ $.extend({
 		}
 		
 		return Math.round(Math.random() * (ceiling - floor) + floor);
+	},
+
+
+
+	/**
+	 * Returns a UUID, as close as possible with JavaScript.
+	 * 
+	 * @param {Boolean} withoutDashes OPTIONAL defines if UUID shall include dashes or not, default is true
+	 * @return {String} a UUID
+	 **/
+	randomUUID : function(withoutDashes){
+		if( !this.isSet(withoutDashes) ){
+			withoutDashes = false;
+		}
+
+		var uuidLength = 36;
+		if( withoutDashes ){
+			uuidLength = 32;
+		}
+
+		var s = [];
+		var itoh = '0123456789ABCDEF';
+
+		for (var i = 0; i < uuidLength; i++) s[i] = Math.floor(Math.random()*0x10);
+
+		// Conform to RFC-4122, section 4.4
+		s[withoutDashes ? 12 : 14] = 4;
+		s[withoutDashes ? 16 : 19] = (s[19] & 0x3) | 0x8;
+
+		for (var i = 0; i < uuidLength; i++) s[i] = itoh[s[i]];
+
+		if( !withoutDashes ){
+			s[8] = s[13] = s[18] = s[23] = '-';
+		}
+
+		return s.join('');
 	},
 	
 	
@@ -452,7 +562,7 @@ $.extend({
 			url = window.location.href;
 		}
 		
-		if( this.isSet(this.urlAnchor()) ){
+		if( this.isSet($(document).urlAnchor()) ){
 			url = url.replace(/\#.+$/, '');
 		}
 		
@@ -498,7 +608,7 @@ $.extend({
 		}
 		
 		if( !this.isSet(anchor) ){
-			anchor = reload ? this.urlAnchor(true) : null;
+			anchor = reload ? $(document).urlAnchor(true) : null;
 		}
 		
 		var finalUrl = url+((paramString.length > 0) ? paramString : '')+(this.isSet(anchor) ? '#'+anchor : '');
@@ -581,6 +691,18 @@ $.extend({
 	getCSS : function(url, options, callback){
 		var that = this;
 		var $res = null;
+
+		var defaultOptions = {
+			styletag : false,
+			media : 'all',
+			charset : 'utf-8'
+		};
+
+		if( this.isSet(options) ){
+			$.extend(defaultOptions, options);
+		}
+		
+		options = defaultOptions;
 		
 		$.get(url, function(data){
 			if( !options.styletag ){
@@ -599,7 +721,7 @@ $.extend({
 		    }
 	
 		    if( that.isSet(options.id) ){
-		    	if( that.isSet(callback) ){
+		    	if( $.isFunction(callback) ){
 		    		callback = (function(callback){
 		    			return function(){
 		    				$res.attr('data-id', ''+options.id);
@@ -622,7 +744,7 @@ $.extend({
 			    	$('head').append($res);
 			    }
 			    
-			    if( that.isSet(callback) ){
+			    if( $.isFunction(callback) ){
 			    	that.schedule(100, function(){ callback($res); });
 			    }
 			} else {
@@ -634,7 +756,7 @@ $.extend({
 			    	$('head').append($res);
 			    }
 				
-				if( that.isSet(callback) ){
+				if( $.isFunction(callback) ){
 					callback($res);
 				}
 			}
@@ -735,21 +857,80 @@ $.extend({
 	
 	
 	/**
-	 * Basic reimplementation and extension on jQuery's own proxy.
-	 * Accepts any number of parameters for the closure, lacks the higher
-	 * reverse functionality of proxy()
+	 * Preloads images by URL. Images can be preloaded by name and are thereby retrievable afterwards or anonymously.
 	 * 
-	 * @param {Function} func function to call in the closure function
-	 * @param {*} context context to call func in
-	 * @param {*} .. OPTIONAL add any number of arguments you wish to add to the closure call of func
-	 * @return {Function} constructed closure function
+	 * @param {String|Array|Object} images an URL, and array of URLS or a plain object containing named URLs. In case the string is a used name, the image-object is returned.
+	 * @param {Function} callback OPTIONAL callback to call when all images have loaded, this also fires on already loaded images if inserted again
+	 * @return {Image|Object} either returns a requested cached image or the currently added named/unnamed images as saved
 	 **/
-	argproxy : function(func, context){
-		var args = Array.prototype.slice.call(arguments, 2);
+	preloadImages : function(images, callback){
+		var res = null;
+	
+		if( !$.isPlainObject(images) && !$.isArray(images) ){
+			image = ''+images;
 		
-		return function(){
-			func.apply(context, args);
-		};
+			if( this.exists(image, this.jqueryAnnexData.preloadedImages.named) ){
+				return this.jqueryAnnexData.preloadedImages.named[image];
+			} else {
+				images = [image];
+			}
+		}
+		
+	
+		if( $.isPlainObject(images) ){
+			var newImages = {};
+			$.each(images, function(key, value){
+				key = ''+key;
+				value = ''+value;
+				
+				if( !$.exists(key, $.jqueryAnnexData.preloadedImages.named) ){
+					newImages[key] = new Image();
+					newImages[key].src = value;
+				}
+			});
+		
+			$.extend(this.jqueryAnnexData.preloadedImages.named, newImages);
+			
+			res = this.jqueryAnnexData.preloadedImages.named;
+		} else if( $.isArray(images) ){
+			$.each(images, function(index, value){
+				var newImage = new Image();
+				newImage.src = ''+value;
+				$.jqueryAnnexData.preloadedImages.unnamed.push(newImage);
+			});
+			
+			res = this.jqueryAnnexData.preloadedImages.unnamed;
+		}
+		
+		var imageList = [];
+		$.each(this.jqueryAnnexData.preloadedImages.named, function(key, value){
+			imageList.push(value);
+		});
+		$.merge(imageList, this.jqueryAnnexData.preloadedImages.unnamed);
+		
+		var targetCount = imageList.length;
+		var blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+		$.each(imageList, function(index, value){
+			$(value).on('load.preload', function(e){
+				if( this.src != blank ){
+					if( (--targetCount <= 0) && $.isFunction(callback) ){
+						$.each(imageList, function(index, value){ $(this).off('load.preload'); });
+						callback(imageList, e);
+					}
+				} else {
+					var $target = $(this);
+					$.schedule(10, function(){ $target.trigger('load.preload'); });
+				}
+			})
+			
+			if( value.complete || value.complete === undefined ){
+				var src = value.src;
+				value.src = blank;
+				value.src = src;
+			}
+		});
+		
+		return res;
 	},
 	
 	
@@ -812,6 +993,57 @@ $.extend({
 	maskForSelector : function(string){
 		return string.replace(/([\#\;\&\,\.\+\*\~\'\:\"\!\^\$\[\]\(\)\=\>\ß\|\/\@])/, '\\$1');
 	},
+
+
+
+	/**
+	 * Binds a callback to a cursor key, internally identified by keycode.
+	 * 
+	 * @param {String} keyName the key to bind, one of up, down, left, right
+	 * @param {Function} callback OPTIONAL callback to call of cursor key use, takes event e
+	 * @param {String} eventType OPTIONAL the event type to use when binding, one of keypress, keydown, keyup, default is keydown
+	 **/
+	bindCursorKey : function(keyName, callback, eventType){
+		var keys = {
+			up : 38,
+			right : 39,
+			down : 40,
+			left : 37
+		}
+
+		if( !$.isSet(eventType) ){
+			eventType = 'keydown';
+		}
+
+		if( $.exists(keyName, keys) ){
+			$(document).on(eventType, function(e){ if(e.keyCode == keys[keyName]) callback(e); });
+		}
+	},
+
+
+
+	/**
+	 * Unbinds a callback to a cursor key, internally identified by keycode.
+	 * 
+	 * @param {String} keyName the key to bind, one of up, down, left, right
+	 * @param {String} eventType OPTIONAL the event type to use when binding, one of keypress, keydown, keyup, default is keydown
+	 **/
+	unbindCursorKey : function(keyName, eventType){
+		var keys = {
+			up : 38,
+			right : 39,
+			down : 40,
+			left : 37
+		}
+
+		if( !$.isSet(eventType) ){
+			eventType = 'keydown';
+		}
+
+		if( $.exists(keyName, keys) ){
+			$(document).off(eventType);
+		}
+	},
 	
 	
 	
@@ -843,7 +1075,17 @@ $.extend({
 		var ua = navigator.userAgent;
 		
 		if( this.isSet(inspectUserAgent) && inspectUserAgent ){
-			res = touchEventsPresent && (this.isSet(ua.match(/(iPhone|iPod|iPad)/i)) || this.isSet(ua.match(/BlackBerry/i)) || this.isSet(ua.match(/Android/i)) || this.isSet(ua.match(/IE\sMobile\s[0-9]{0,2}/i)));
+			res =
+				touchEventsPresent 
+				&& (
+					this.isSet(ua.match(/(iPhone|iPod|iPad)/i))
+					|| this.isSet(ua.match(/(BlackBerry|PlayBook)/i))
+					|| this.isSet(ua.match(/Android/i))
+					|| this.isSet(ua.match(/IE\sMobile\s[0-9]{0,2}/i))
+					|| this.isSet(ua.match(/Opera Mobi/i))
+					|| this.isSet(ua.match(/Kindle/i))
+				)
+			;
 			
 			if( !res && this.isSet(additionalUserAgentIds) && $.isArray(additionalUserAgentIds) ){
 				$.each(additionalUserAgentIds, function(index, value){
@@ -864,6 +1106,30 @@ $.extend({
 //--|JQUERY-OBJECT-GENERAL-FUNCTIONS----------
 
 $.fn.extend({
+
+	/**
+	 * Returns the original object of a jQuery-enabled object.
+	 * 
+	 * @return {Object|null} the original dom object or null in case of empty collection
+	 **/
+	oo : function(){
+		if( $(this).length == 1 ){
+			return $(this).first()[0];
+		} else if( $(this).length > 1 ) {
+			var res = [];
+
+			$(this).each(function(){
+				res.push($(this).first()[0]);
+			});
+
+			return res;
+		} else {
+			return null;
+		}
+	},
+
+
+
 	/**
 	 * Sets an option selected or selects the text in a text-field/textarea.
 	 * 
@@ -1168,6 +1434,17 @@ $.fn.extend({
 		
 		return targetObj;
 	},
+
+
+
+	/**
+	 * Returns if the current element is currently part of the dom or detached/removed.
+	 *
+	 * @return {Boolean}
+	 **/
+	isInDom : function(){
+		return $(this).closest(document.documentElement).length > 0;
+	},
 	
 	
 	
@@ -1227,20 +1504,28 @@ $.fn.extend({
 	/**
 	 * Fixes cross-browser problems with image-loads and fires the event even in case the image is already loaded.
 	 * 
+	 * @param {Function} callback OPTIONAL callback to call when all images have been loaded
 	 * @return {Object} the target object
 	 */
-	imgLoad : function(callback){
+	imgLoad : function(callback, needsJqueryDims){
 		var targets = this.filter('img');
 		var targetCount = targets.length;
+		var blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 	
-		targets.load(function(){
-			if (--targetCount <= 0){
-				callback.call(targets, this);
+		targets.on('load.imgload', function(e){
+			if( (!needsJqueryDims || (needsJqueryDims && $(this).width() > 0)) && (this.src != blank) ){
+				if( (--targetCount <= 0) && $.isFunction(callback) ){
+					targets.off('load.imgload');
+					callback.call(targets, e);
+				}
+			} else {
+				var $target = $(this);
+				$.schedule(10, function(){ $target.trigger('load.imgload'); });
 			}
 		}).each(function(){
 			if( this.complete || this.complete === undefined ){
 				var src = this.src;
-				this.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+				this.src = blank;
 				this.src = src;
 			}
 		});
@@ -1256,7 +1541,8 @@ $.fn.extend({
 	 * Cancel animation with .stop(true).
 	 * The animationClosure needs to take a parameter, which is filled with the jQuery-element, this method is called upon.
 	 *
-	 * @param {Function} closure in which all animation is included, takes the jQuery-Element as first parameter, needs to do something queue-building
+	 * @param {Function} animationClosure closure in which all animation is included, takes the jQuery-Element as first parameter, needs to do something queue-building
+	 * @param {Function} killAnimations OPTIONAL defines if all current animation should be immediately finished before proceeding
 	 * @return {Object} the target object
 	 */
 	loopAnimation : function(animationClosure, killAnimations){
@@ -1282,6 +1568,34 @@ $.fn.extend({
 	
 	
 	/**
+	 * Sets CSS-rules blindly for all intermediate cross browser variants.
+	 * Unknown stuff does not get interpreted, and therefore should not do harm,
+	 * but relives one of writing several slightly different rules all the time.
+	 * 
+	 * @param {Object} cssObj plain object of CSS-rules to apply, according to standard jQuery-standard
+	 * @return {Object} the target object
+	 */
+	cssCrossBrowser : function(cssObj){
+		if( $.isPlainObject(cssObj) ){
+			$.each(cssObj, function(cssKey, cssValue){
+				$.each(['-moz-', '-webkit-', '-o-', '-ms-', '-khtml-'], function(variantIndex, variantValue){
+					if(cssKey == 'transition'){
+						cssObj[variantValue+cssKey] = $.strReplace('transform', variantValue+'transform', cssValue);
+					} else {
+						cssObj[variantValue+cssKey] = cssValue;
+					}
+				});
+			});
+
+			$(this).css(cssObj);
+		}
+		
+		return $(this);
+	},
+	
+	
+	
+	/**
 	 * Disables selectability as far as possible for elements.
 	 *
 	 * @return {Object} the target object
@@ -1290,14 +1604,112 @@ $.fn.extend({
 		$(this).each(function(){
 			this.onselectstart = function(){ return false; }; 
 			this.unselectable = 'on'; 
-			$(this).css({
-				'user-select' : 'none',
-				'-o-user-select' : 'none',
-				'-moz-user-select' : 'none',
-				'-khtml-user-select' : 'none',
-				'-webkit-user-select' : 'none'
-			}); 
+			$(this).cssCrossBrowser({'user-select' : 'none'}); 
 		}); 
+		
+		return $(this);
+	},
+
+
+
+	/**
+	 * Register an event handler to open a mailto dialogue without openly writing
+	 * down the mail address. Parameters mixed to complicate parsing.
+	 *
+	 * @param {String} tld the top level domain to use
+	 * @param {String} beforeAt the address part before the @
+	 * @param {String} afterAtWithoutTld the address part after the @ but before the tld
+	 * @param {String} subject OPTIONAL the subject the mail should have
+	 * @param {String} body OPTIONAL the body text the mail should have initially
+	 * @return {Object} the target object
+	 */
+	registerMailto : function(tld, beforeAt, afterAtWithoutTld, subject, body, eventType){ 
+		if( !$.isSet(eventType) ){
+			eventType = 'click';
+		}
+
+		if( !$.isSet(subject) ){
+			subject = '';
+		}
+
+		if( !$.isSet(body) ){
+			body = '';
+		}
+
+		$(this).on(eventType, function(){
+			$.redirect('mailto:'+beforeAt+'@'+afterAtWithoutTld+'.'+tld+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body));
+		}); 
+		
+		return $(this);
+	},
+
+
+
+	/**
+	 * Treats touchstart, touchmove and touchend events on the element internally
+	 * as mousedown, mousemove and mouseup events and remaps event coordinates correctly.
+	 *
+	 * @param {Boolean} ignoreChildren OPTIONAL defines if only the element itself should count and whether to ignore bubbling
+	 * @return {Object} the target object
+	 */
+	simulateTouchEvents : function(ignoreChildren){
+		$(this).on('touchstart touchmove touchend', function(e){
+			var isTarget = (e.target == this);
+
+			if( isTarget || !$.isSet(ignoreChildren) || !ignoreChildren ){
+				var alreadyTested = (!isTarget && e.target.__ajqmeclk);
+				var orgEvent = e.originalEvent;
+
+				if(
+					!(alreadyTested === true)
+					&& $.isSet(orgEvent)
+					&& $.isSet(orgEvent.touches)
+					&& (orgEvent.touches.length <= 1)
+					&& ($.inArray(orgEvent.type.toLowerCase(), $.jqueryAnnexData.touch.types) < 0)
+				){
+					var objectEvents = ( !isTarget && !$.isA(alreadyTested, 'boolean') ) ? $(e.target).data('events') : false;
+					var eventNeedsReplacement = false;
+					if( !isTarget ){
+						e.target.__ajqmeclk = objectEvents;
+						eventNeedsReplacement = 
+							$.isSet(objectEvents)
+							&& ($.isSet(objectEvents['click']) || $.isSet(objectEvents['mousedown']) || $.isSet(objectEvents['mouseup']) || $.isSet(objectEvents['mousemove']))
+						;
+					} else {
+						eventNeedsReplacement = false;
+					}
+
+					if( !eventNeedsReplacement && ($.inArray(e.target.tagName.toLowerCase(), $.jqueryAnnexData.touch.inputs) < 0) ){
+						var touch = orgEvent.changedTouches[0];
+						var mouseEvent = document.createEvent("MouseEvent");
+						mouseEvent.initMouseEvent(
+							$.jqueryAnnexData.touch.types[e.type.toLowerCase()],
+							true,
+							true,
+							window,
+							1,
+							touch.screenX,
+							touch.screenY,
+							touch.clientX,
+							touch.clientY,
+							false,
+							false,
+							false,
+							false,
+							0,
+							null
+						);
+						mouseEvent.synthetic = true;
+
+						touch.target.dispatchEvent(mouseEvent);
+						orgEvent.preventDefault();
+						e.stopImmediatePropagation();
+						e.stopPropagation();
+						e.preventDefault();
+					}
+				}
+			}
+		});
 		
 		return $(this);
 	},
@@ -1327,6 +1739,7 @@ $.fn.extend({
 		
 		return $(this);
 	}
+
 });
 
 
@@ -1334,7 +1747,9 @@ $.fn.extend({
 //--|JQUERY-SYNTAX-EXTENSIONS----------
 
 $.extend($.expr[':'], {
+
 	focus: function(element) { 
 		return element == document.activeElement; 
 	}
+
 });
