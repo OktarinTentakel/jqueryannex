@@ -48,7 +48,7 @@
 						{customcase : 'shorter 4 needs to be "test"', args : function(){ return (($('#test').val().length <= 4) && ($('#test').val() == 'test')) || ($('#test').val().length > 4); }},
 						{customcase_async : 'remote file missing', args : function(callback, errorCallback){
 							$.get('plugin-validation-example.html')
-								.done(function(data){ callback(($('#test').val().length <= 10) ? true : 'Das Internet is voller Katzen!!!'); })
+								.done(function(data){ callback(($('#test').val().length <= 10) ? true : 'too short'); })
 								.fail(errorCallback)
 							;
 						}}
@@ -73,7 +73,7 @@
 
 
 				// needs to be an email address,
-				// sets the closest fieldset as container instead of form
+				// sets the closest fieldset as errorcontainer, to mark errors correctly
 				$(':radio[name=test3]').setValidation(
 					[
 						{email : 'this is no email address'}
@@ -84,7 +84,7 @@
 
 				// needs to be an url,
 				// is set optional, so doesn't need a value,
-				// sets the closest fieldset as container instead of form
+				// sets the closest fieldset as errorcontainer, to mark errors correctly
 				$(':checkbox[name=test4]').setValidation(
 					[
 						{url : 'this is no url'},
