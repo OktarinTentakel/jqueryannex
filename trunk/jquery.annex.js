@@ -347,6 +347,27 @@ $.extend({
 	
 	
 	/**
+	 * Checks if a value is within bounds of a minimum and maximum and returns the value or minimum/maximum if out of bounds.
+	 * 
+	 * @param {Boolean} value the lower bound, has to be comparable with < and >
+	 * @param {Boolean} value the value to check, has to be comparable with < and >
+	 * @param {Boolean} value the upper bound, has to be comparable with < and >
+	 * @return {*} value, min or max
+	 **/
+	minMax : function(min, value, max){
+		return (value < min)
+			? min
+			:(
+				(value > max)
+				? max
+				: value
+			)
+		;
+	},
+	
+	
+	
+	/**
 	 * Setup a timer for one-time execution of a callback, kills old timer if wished
 	 * to prevent overlapping timers.
 	 * 
@@ -859,7 +880,7 @@ $.extend({
 	/**
 	 * Preloads images by URL. Images can be preloaded by name and are thereby retrievable afterwards or anonymously.
 	 * 
-	 * @param {String|Array|Object} images an URL, and array of URLS or a plain object containing named URLs. In case the string is a used name, the image-object is returned.
+	 * @param {String|Array|Object} images an URL, an array of URLS or a plain object containing named URLs. In case the string is a used name, the image-object is returned.
 	 * @param {Function} callback OPTIONAL callback to call when all images have loaded, this also fires on already loaded images if inserted again
 	 * @return {Image|Object} either returns a requested cached image or the currently added named/unnamed images as saved
 	 **/
