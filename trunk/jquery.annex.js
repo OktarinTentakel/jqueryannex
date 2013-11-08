@@ -1294,6 +1294,8 @@ $.fn.extend({
 							.attr(attribute.name, attribute.value)
 							.data($.strReplace('data-', '', attribute.name), attribute.value)
 						;
+					} else if( attribute.name.indexOf('on') == 0 ){
+						$(that).on(attribute.name.substring(2)+'.frommarkup', function(){ eval(attribute.value) });
 					}
 				}
 			});
