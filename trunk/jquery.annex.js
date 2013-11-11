@@ -22,7 +22,7 @@ $.extend({
 	// general dictionary to hold internal data and offer data space for plugins
 	jqueryAnnexData : {
 		logging : {
-			originalLoggingFunction : (console != undefined && $.isFunction(console.log)) ? console.log : $.noop,
+			originalLoggingFunction : ((window['console'] !== undefined) && $.isFunction(console.log)) ? console.log : $.noop,
 			enabled : true
 		},
 		polls : {
