@@ -387,6 +387,52 @@ $.extend({
 		
 		return null;
 	},
+
+
+
+	/**
+	 * Setup a timer for one-time execution of a callback, kills old timer if wished
+	 * to prevent overlapping timers. This implementation uses Date.getTime() to
+	 * improve on timer precision for long running timers. The timers of this method
+	 * can also be used in countermand().
+	 * 
+	 * @param {Integer} ms time in milliseconds till execution
+	 * @param {Function} callback callback function to execute after ms
+	 * @param {Object|GUID} oldTimer OPTIONAL if set, kills the timer before setting up new one
+	 * @return {Object|null} timer or null in case of a param-error (does not create new timer object if oldTimer given)
+	 **/
+	pschedule : function(ms, callback, oldTimer){
+		if(
+			this.isSet(oldTimer)
+			&& $.isPlainObject(oldTimer)
+			&& this.validate(oldTimer, ['id', 'type'])
+		){
+			this.countermand(oldTimer);
+			oldTimer.precise = true;
+		} else {
+			var oldTimer = {id : -1, type : 'timeout', precise : true};
+		}
+		
+		if( $.isFunction(callback) ){
+			var waitStart = new Date().getTime();
+			var waitMilliSecs = ms;
+			var fAdjustWait = function(){
+				if( waitMilliSecs > 0 ){
+					var timeDiff = new Date().getTime() - waitStart;
+					waitMilliSecs -= timeDiff;
+					oldTimer.id = window.setTimeout(fAdjustWait, (waitMilliSecs > 10) ? waitMilliSecs : 10);
+				} else {
+					callback();
+				}
+			};
+
+			oldTimer.id = window.setTimeout(fAdjustWait, waitMilliSecs);
+
+			return oldTimer;
+		}
+		
+		return null;
+	},
 	
 	
 	
@@ -399,7 +445,16 @@ $.extend({
 	 * @return {Object|null} new timer or null in case of a param-error
 	 **/
 	reschedule : function(timer, ms, callback){
-		return this.schedule(ms, callback, timer);
+		if(
+			$.isPlainObject(timer)
+			&& this.validate(timer, ['id', 'type'])
+		){
+			if( this.isSet(timer.precise) && timer.precise ){
+				return this.pschedule(ms, callback, timer);
+			} else {
+				return this.schedule(ms, callback, timer);
+			}
+		}
 	},
 	
 	
@@ -420,6 +475,56 @@ $.extend({
 	
 		if( $.isFunction(callback) ){
 			return {id : window.setInterval(callback, ms), type : 'interval'};
+		}
+		
+		return null;
+	},
+
+
+
+	/**
+	 * Setup a loop for repeated execution of a callback, kills old loop if wished
+	 * to prevent overlapping loops. This implementation uses Date.getTime() to
+	 * improve on timer precision for long running loops. The loops of this method
+	 * can also be used in countermand(). This method does not actually use intervals
+	 * internally but timeouts, so don't wonder if you can't find the ids in JS.
+	 * 
+	 * @param {Integer} ms time in milliseconds till execution
+	 * @param {Function} callback callback function to execute after ms
+	 * @param {Object|GUID} oldLoop OPTIONAL if set, kills the loop before setting up new one
+	 * @return {Object|null} new loop or null in case of a param-error
+	 **/
+	ploop : function(ms, callback, oldLoop){
+		if(
+			this.isSet(oldLoop)
+			&& $.isPlainObject(oldLoop)
+			&& this.validate(oldLoop, ['id', 'type'])
+		){
+			this.countermand(oldLoop, true);
+			oldLoop.precise = true;
+		} else {
+			var oldLoop = {id : -1, type : 'interval', precise : true};
+		}
+		
+		if( $.isFunction(callback) ){
+			var waitStart = new Date().getTime();
+			var waitMilliSecs = ms;
+			var fAdjustWait = function(){
+				if( waitMilliSecs > 0 ){
+					var timeDiff = new Date().getTime() - waitStart;
+					waitMilliSecs -= timeDiff;
+					oldLoop.id = window.setTimeout(fAdjustWait, (waitMilliSecs > 10) ? waitMilliSecs : 10);
+				} else {
+					callback();
+					waitStart = new Date().getTime();
+					waitMilliSecs = ms;
+					oldLoop.id = window.setTimeout(fAdjustWait, waitMilliSecs);
+				}
+			};
+
+			oldLoop.id = window.setTimeout(fAdjustWait, waitMilliSecs);
+
+			return oldLoop;
 		}
 		
 		return null;
@@ -1246,22 +1351,6 @@ $.fn.extend({
 	disable : function(){
 		if( $(this).is(':input') ){
 			$(this).attr('disabled', 'disabled');
-		}
-		
-		return $(this);
-	},
-	
-	
-	
-	/**
-	 * Adds a css-class to an element, but only when not already present.
-	 * 
-	 * @param {String} uClass the css-class to add
-	 * @return {Object} the target object
-	 **/
-	addClassUnique : function(uClass){
-		if( !$(this).hasClass(''+uClass) ){
-			$(this).addClass(''+uClass);
 		}
 		
 		return $(this);

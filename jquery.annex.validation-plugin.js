@@ -61,6 +61,8 @@ $.extend($.jqueryAnnexData, {
 
 				$.each(targets, function(index, $target){
 					$target.first().one('finished.validation', function(e, isValid){
+						e.stopPropagation();
+
 						$.jqueryAnnexData.validation.config.isValid = $.jqueryAnnexData.validation.config.isValid && isValid;
 
 						if( !isValid ){
@@ -922,6 +924,12 @@ $.extend($.jqueryAnnexData, {
 
 $.extend({
 
+	triggerValidation : function(){
+		$.jqueryAnnexData.validation.functions.validate($.jqueryAnnexData.validation.config.registeredTargets);
+	},
+
+
+
 	executeOnValidation : function(callback){
 		$.assert($.isFunction(callback), 'executeOnValidation | callback is no function');
 
@@ -966,14 +974,17 @@ $.fn.extend({
 			if( !$.exists($container) ){
 				$container = $(this);
 			} else {
-				$container.submit(function(e, validated){
+				$container.off('submit.validation');
+				$container.on('submit.validation', function(e, validated){
 					if( !$.isSet(validated) ){
 						e.preventDefault();
 
 						$(document).one('finished.validation', function(e, isValid){
-							$container.trigger('submit', isValid);
+							$container.trigger('submit.validation', isValid);
 						});
 						$.jqueryAnnexData.validation.functions.validate($.jqueryAnnexData.validation.config.registeredTargets);
+					} else if( !validated ){
+						e.preventDefault();
 					}
 				});
 			}
@@ -1038,13 +1049,43 @@ $.fn.extend({
 		var blurChangeTimeout = null;
 		$(this)
 			.data('validationdata', validationData)
-			.on('change blur', function(){
+			.on('change.validation blur.validation', function(){
 				$.countermand(blurChangeTimeout);
 				blurChangeTimeout = $.schedule(10, function(){
 					$.jqueryAnnexData.validation.functions.validate($.jqueryAnnexData.validation.config.registeredTargets);
 				});
 			})
 		;
+
+		return $(this);
+	},
+
+
+	unsetValidation : function(){
+		$.assert($(this).is(':input'), 'setValidation | element is no value-bearing form element');
+		$.assert($.isSet($(this).attr('name')), 'setValidation | element has no attribute "name"');
+
+		if( $.isSet($(this).data('validationdata')) ){
+			$(this).removeData('validationdata');
+
+			var elementIndex = -1;
+			for( var i = 0; i < $.jqueryAnnexData.validation.config.registeredTargets.length; i++ ){
+				if( $(this).is($.jqueryAnnexData.validation.config.registeredTargets[i]) ){
+					elementIndex = i;
+					break;
+				}
+			}
+			
+			if( elementIndex > 0 ){
+				$.removeFromArray($.jqueryAnnexData.validation.config.registeredTargets, elementIndex);
+			}
+			
+			if( $.jqueryAnnexData.validation.config.registeredTargets.length == 0 ){
+				$(this).closest('form').off('submit.validation');
+			}
+
+			$(this).off('change.validation blur.validation');
+		}
 
 		return $(this);
 	}
