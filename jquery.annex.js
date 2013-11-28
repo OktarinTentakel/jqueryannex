@@ -1142,7 +1142,7 @@ $.extend({
 		}
 
 		if( $.exists(keyName, keys) ){
-			$(document).on(eventType, function(e){ if(e.keyCode == keys[keyName]) callback(e); });
+			$(document).on(eventType+'.'+keyName, function(e){ if(e.keyCode == keys[keyName]) callback(e); });
 		}
 	},
 
@@ -1167,7 +1167,7 @@ $.extend({
 		}
 
 		if( $.exists(keyName, keys) ){
-			$(document).off(eventType);
+			$(document).off(eventType+'.'+keyName);
 		}
 	},
 	
