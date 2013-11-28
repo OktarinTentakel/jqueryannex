@@ -93,6 +93,12 @@
 					null,
 					$(':checkbox[name=test4]').closest('fieldset')
 				);
+				
+				// possible removal of validation added beforehand, uncomment to use
+				// $(':checkbox[name=test4]').unsetValidation();
+				
+				// trigger all validations manually once everything is in place
+				$.triggerValidation();
 			});
 		</script>
 	</head>
