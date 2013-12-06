@@ -17,6 +17,12 @@
 		<script type="text/javascript" src="jquery.annex.validation-plugin.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function(){
+			
+				// defines if validation is triggered by widget events such as change and blur or only manually/by form submit
+				validationIsTriggeredByWidgetEvents(true);
+				
+				// adds additional widget events to all widgets, default events are change and blur, must be called before setting validators
+				setAdditionalValidationWidgetEvents(['keyup']);
 
 				// callback to execute when all validations have finished (global callback)
 				$.executeOnValidation(function(success, messages){
@@ -99,7 +105,6 @@
 				
 				// trigger all validations manually once everything is in place
 				$.triggerValidation();
-			});
 		</script>
 	</head>
 	
