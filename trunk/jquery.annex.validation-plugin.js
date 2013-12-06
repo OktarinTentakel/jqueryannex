@@ -34,6 +34,9 @@ $.extend($.jqueryAnnexData, {
 			registeredTargets : [],
 			globalCallback : null,
 
+			additionalWidgetEvents : '',
+			validateOnWidgetEvents : true,
+
 			defaultValidationData : {
 				isValid : true,
 
@@ -53,91 +56,97 @@ $.extend($.jqueryAnnexData, {
 
 		// helper functions for internal plugin use
 		functions : {
-			validate : function(targets){
-				var validationRest = targets.length;
+			validate : function(targets, isTriggeredByWidget){
+				if( !$.isSet(isTriggeredByWidget) ){
+					isTriggeredByWidget = false;
+				}
 
-				$.jqueryAnnexData.validation.config.isValid = true;
-				$.jqueryAnnexData.validation.config.messages = [];
+				if( !isTriggeredByWidget || (isTriggeredByWidget && $.jqueryAnnexData.validation.config.validateOnWidgetEvents) ){
+					var validationRest = targets.length;
 
-				$.each(targets, function(index, $target){
-					$target.first().one('finished.validation', function(e, isValid){
-						e.stopPropagation();
+					$.jqueryAnnexData.validation.config.isValid = true;
+					$.jqueryAnnexData.validation.config.messages = [];
 
-						$.jqueryAnnexData.validation.config.isValid = $.jqueryAnnexData.validation.config.isValid && isValid;
+					$.each(targets, function(index, $target){
+						$target.first().one('finished.validation', function(e, isValid){
+							e.stopPropagation();
 
-						if( !isValid ){
-							$.merge($.jqueryAnnexData.validation.config.messages, $(e.target).data('validationdata').status.messages);
+							$.jqueryAnnexData.validation.config.isValid = $.jqueryAnnexData.validation.config.isValid && isValid;
+
+							if( !isValid ){
+								$.merge($.jqueryAnnexData.validation.config.messages, $(e.target).data('validationdata').status.messages);
+							}
+
+							validationRest--;
+							if( validationRest <= 0 ){
+								$.jqueryAnnexData.validation.config.globalCallback($.jqueryAnnexData.validation.config.isValid, $.jqueryAnnexData.validation.config.messages);
+								$(document).trigger('finished.validation', $.jqueryAnnexData.validation.config.isValid);
+							}
+						});
+
+						var validationData = $target.data('validationdata');
+
+						var isOptional = validationData.status.isOptional;
+						var asyncCount = validationData.status.asyncCount;
+						validationData.status = $.extend(true, {}, $.jqueryAnnexData.validation.config.defaultValidationData);
+						validationData.status.isOptional = isOptional;
+						validationData.status.asyncCount = asyncCount;
+						validationData.status.asyncLeft = asyncCount;
+
+						validationData.status.values = validationData.container.formDataToObject()[$target.attr('name').replace(/\[\]/, '')];
+
+						if( $.isSet(validationData.status.values) ){
+							if( !$.isArray(validationData.status.values) ){
+								validationData.status.values = [validationData.status.values];
+							}
+						} else {
+							validationData.status.values = [];
 						}
 
-						validationRest--;
-						if( validationRest <= 0 ){
-							$.jqueryAnnexData.validation.config.globalCallback($.jqueryAnnexData.validation.config.isValid, $.jqueryAnnexData.validation.config.messages);
-							$(document).trigger('finished.validation', $.jqueryAnnexData.validation.config.isValid);
+						if( validationData.status.isOptional ){
+							$.each(validationData.status.values, function(index, value){
+								if( $.inArray(value, validationData.status.optionalValues) == -1 ){
+									validationData.status.hasNonOptionalValue = true;
+									return false;
+								}
+							});
+						}
+
+						$target.data('validationdata', validationData);
+
+						$.jqueryAnnexData.validation.functions.unmarkValidationError($target);
+
+						if( !validationData.status.isOptional || validationData.status.hasNonOptionalValue ){
+							$.each(validationData.rules, function(key, value){
+								validationData.status.isValid = value() && validationData.status.isValid;
+							});
+
+							if( !validationData.status.isValid ){
+								$.jqueryAnnexData.validation.functions.markValidationError($target);
+
+								if( validationData.status.asyncLeft <= 0 ){
+									if( $.isSet(validationData.callback) && $.isFunction(validationData.callback) ){
+										validationData.callback(false, validationData.status.messages, $target);
+									}
+
+									$target.trigger('error.validation', validationData.status.messages);
+								}
+							}
+						} else {
+							validationData.status.asyncLeft = 0;
+						}
+
+						if( validationData.status.asyncLeft <= 0 ){
+							if( validationData.status.isValid ){
+								if( $.isSet(validationData.callback) && $.isFunction(validationData.callback) ){
+									validationData.callback(true, [], $target);
+								}
+								$target.trigger('success.validation');
+							}
+							$target.trigger('finished.validation', validationData.status.isValid);
 						}
 					});
-
-					var validationData = $target.data('validationdata');
-
-					var isOptional = validationData.status.isOptional;
-					var asyncCount = validationData.status.asyncCount;
-					validationData.status = $.extend(true, {}, $.jqueryAnnexData.validation.config.defaultValidationData);
-					validationData.status.isOptional = isOptional;
-					validationData.status.asyncCount = asyncCount;
-					validationData.status.asyncLeft = asyncCount;
-
-					validationData.status.values = validationData.container.formDataToObject()[$target.attr('name').replace(/\[\]/, '')];
-
-					if( $.isSet(validationData.status.values) ){
-						if( !$.isArray(validationData.status.values) ){
-							validationData.status.values = [validationData.status.values];
-						}
-					} else {
-						validationData.status.values = [];
-					}
-
-					if( validationData.status.isOptional ){
-						$.each(validationData.status.values, function(index, value){
-							if( $.inArray(value, validationData.status.optionalValues) == -1 ){
-								validationData.status.hasNonOptionalValue = true;
-								return false;
-							}
-						});
-					}
-
-					$target.data('validationdata', validationData);
-
-					$.jqueryAnnexData.validation.functions.unmarkValidationError($target);
-
-					if( !validationData.status.isOptional || validationData.status.hasNonOptionalValue ){
-						$.each(validationData.rules, function(key, value){
-							validationData.status.isValid = value() && validationData.status.isValid;
-						});
-
-						if( !validationData.status.isValid ){
-							$.jqueryAnnexData.validation.functions.markValidationError($target);
-
-							if( validationData.status.asyncLeft <= 0 ){
-								if( $.isSet(validationData.callback) && $.isFunction(validationData.callback) ){
-									validationData.callback(false, validationData.status.messages, $target);
-								}
-
-								$target.trigger('error.validation', validationData.status.messages);
-							}
-						}
-					} else {
-						validationData.status.asyncLeft = 0;
-					}
-
-					if( validationData.status.asyncLeft <= 0 ){
-						if( validationData.status.isValid ){
-							if( $.isSet(validationData.callback) && $.isFunction(validationData.callback) ){
-								validationData.callback(true, [], $target);
-							}
-							$target.trigger('success.validation');
-						}
-						$target.trigger('finished.validation', validationData.status.isValid);
-					}
-				});
+				}
 			},
 
 
@@ -938,6 +947,27 @@ $.extend({
 
 
 
+	validationIsTriggeredByWidgetEvents : function(doValidate){
+		doValidate = doValidate ? true : false;
+		$.jqueryAnnexData.validation.config.validateOnWidgetEvents = doValidate;
+	},
+	
+	
+	
+	setAdditionalValidationWidgetEvents : function(events){
+		$.assert($.isArray(events), 'events need to be an array');
+		
+		var eventString = '';
+		$.each(events, function(index, value){
+			eventString += value+'.validation ';
+		});
+		eventString = ' '+$.trim(eventString);
+		
+		$.jqueryAnnexData.validation.config.additionalWidgetEvents = eventString;
+	},
+
+
+
 	setValidationFromTags : function(){
 		$(':input[data-validation]').each(function(){
 			if( $.isPlainObject($(this).data('validation')) || $.isArray($(this).data('validation')) ){
@@ -1049,10 +1079,10 @@ $.fn.extend({
 		var blurChangeTimeout = null;
 		$(this)
 			.data('validationdata', validationData)
-			.on('change.validation blur.validation', function(){
+			.on('change.validation blur.validation'+$.jqueryAnnexData.validation.config.additionalWidgetEvents, function(){
 				$.countermand(blurChangeTimeout);
 				blurChangeTimeout = $.schedule(10, function(){
-					$.jqueryAnnexData.validation.functions.validate($.jqueryAnnexData.validation.config.registeredTargets);
+					$.jqueryAnnexData.validation.functions.validate($.jqueryAnnexData.validation.config.registeredTargets, true);
 				});
 			})
 		;
@@ -1084,7 +1114,7 @@ $.fn.extend({
 				$(this).closest('form').off('submit.validation');
 			}
 
-			$(this).off('change.validation blur.validation');
+			$(this).off('change.validation blur.validation'+$.jqueryAnnexData.validation.config.additionalWidgetEvents);
 		}
 
 		return $(this);
