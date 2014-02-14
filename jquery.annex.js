@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl
- * @version Revision 11 developed with jQuery 1.9.1
+ * @version Revision 12 developed with jQuery 1.11.0
  **/
 
 
@@ -758,6 +758,31 @@ $.extend({
 			
 			redirectForm.submit();
 			redirectForm.remove();
+		}
+	},
+
+
+
+	/**
+	 * Changes the current URL silently by manipulating the browser history.
+	 * Be aware that this replaces the current URL in the history _without_ any further loads.
+	 * This method only works if window.history is supported by the browser.
+	 *
+	 * @param {String} url an absolute or relative url to change the current address to
+	 * @param {Object} state OPTIONAL a serializable object to supply to the popState-event
+	 * @param {String} title OPTIONAL a name/title for the new state, not used in browsers atm
+	 **/
+	changeUrlSilently : function(url, state, title){
+		if( !$.isSet(state) ){
+			state = '';
+		}
+
+		if( !$.isSet(title) ){
+			title = '';
+		}
+
+		if ( window.history && window.history.replaceState ) { 
+			window.history.replaceState(state, ''+title, ''+url) 
 		}
 	},
 	
@@ -1557,6 +1582,54 @@ $.fn.extend({
 	isInDom : function(){
 		return $(this).closest(document.documentElement).length > 0;
 	},
+
+
+
+	/**
+	 * Returns if the current element is visible in the window's viewport at the moment.
+	 * This method uses getBoundingClientRect(), which has to be supported by the browser, otherwise
+	 * the method will always return true.
+	 *
+	 * @param {Boolean} mustBeFullyInside OPTIONAL defines if the element has to be fully enclosed in the viewport, default is false
+	 * @return {Boolean}
+	 **/
+	isInViewport : function(mustBeFullyInside){
+		try {
+			var bb = $(this).first().oo().getBoundingClientRect();
+		} catch(err){
+			return true;
+		}
+
+		if( $.isSet(mustBeFullyInside) ){
+			mustBeFullyInside = !!mustBeFullyInside;
+		} else {
+			mustBeFullyInside = false;
+		}
+
+		var viewportBounds = null;
+		if( mustBeFullyInside ){
+			viewportBounds = {
+				top: 0,
+				right : $(window).width(),
+				bottom : $(window).height(),
+				left : 0
+			};
+		} else {
+			viewportBounds = {
+				top : -( bb.bottom - bb.top ) + 1,
+				right : ( $(window).width() + ( bb.right - bb.left ) ) + 1,
+				bottom : ( $(window).height() + ( bb.bottom - bb.top ) ) + 1,
+				left : -( bb.right - bb.left ) + 1
+			};
+		}
+
+		return (
+			bb.top >= viewportBounds.top &&
+			bb.right <= viewportBounds.right &&
+			bb.left >= viewportBounds.left &&
+			bb.bottom <= viewportBounds.bottom
+		);
+	},
 	
 	
 	
@@ -1858,10 +1931,9 @@ $.fn.extend({
 
 //--|JQUERY-SYNTAX-EXTENSIONS----------
 
-$.extend($.expr[':'], {
+// not needed anymor for the moment, keeping the template for later use ...
+/*$.extend($.expr[':'], {
 
-	focus: function(element) { 
-		return element == document.activeElement; 
-	}
+	xxx: function(element) {}
 
-});
+});*/

@@ -19,10 +19,10 @@
 			$(document).ready(function(){
 			
 				// defines if validation is triggered by widget events such as change and blur or only manually/by form submit
-				validationIsTriggeredByWidgetEvents(true);
+				$.validationIsTriggeredByWidgetEvents(true);
 				
 				// adds additional widget events to all widgets, default events are change and blur, must be called before setting validators
-				setAdditionalValidationWidgetEvents(['keyup']);
+				$.setAdditionalValidationWidgetEvents(['keyup']);
 
 				// callback to execute when all validations have finished (global callback)
 				$.executeOnValidation(function(success, messages){

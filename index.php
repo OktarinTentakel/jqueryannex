@@ -8,7 +8,7 @@
 		
 		<style type="text/css"></style>
 		
-		<script type="text/javascript" src="jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="jquery-1.11.0.min.js"></script>
 		<script type="text/javascript" src="jquery.annex.js"></script>
 		<script type="text/javascript" src="jquery.annex.validation-plugin.js"></script>
 		<script type="text/javascript">
