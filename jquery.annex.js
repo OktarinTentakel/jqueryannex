@@ -23,7 +23,8 @@ $.extend({
 	jqueryAnnexData : {
 		logging : {
 			originalLoggingFunction : ((window['console'] !== undefined) && $.isFunction(console.log)) ? console.log : $.noop,
-			enabled : true
+			enabled : true,
+			xlog : {}
 		},
 		polls : {
 			defaultLoop : null,
@@ -57,15 +58,15 @@ $.extend({
 			arguments = Array.prototype.slice.call(arguments, 1);
 
 			if( enabled ){
-				if( !$.jqueryAnnexData.logging.enabled ){
-					console.log = $.jqueryAnnexData.logging.originalLoggingFunction;
+				if( !this.jqueryAnnexData.logging.enabled ){
+					console.log = this.jqueryAnnexData.logging.originalLoggingFunction;
 				}
 			} else {
-				$.jqueryAnnexData.logging.originalLoggingFunction = console.log;
+				this.jqueryAnnexData.logging.originalLoggingFunction = console.log;
 				console.log = $.noop;
 			}
 
-			$.jqueryAnnexData.logging.enabled = enabled;
+			this.jqueryAnnexData.logging.enabled = enabled;
 		}
 
 		if( this.exists('console') && $.isFunction(console.log) ){
@@ -73,6 +74,45 @@ $.extend({
 				console.log(obj);
 			});
 		}
+	},
+
+
+
+	/**
+	 * X marks the spot. A very simple method for urgent cases of printf-debugging.
+	 * Simply logs the context of the call to the console, also providing a counter,
+	 * counting the executions from that context.
+	 *
+	 * This does not, however log line, stack or file. For that you'd have to instantiate
+	 * an Error object in the corresponding line, which defies the purpose of this method
+	 * of having a minimum length call for very small and controlled test cases.
+	 *
+	 * This method needs arguments.caller and .callee for the function sig. I know this is
+	 * legacy code and might not work in the future. Without these all calls will be counted
+	 * as "anonymous".
+	 **/
+	x : function(){
+		var context = 'anonymous';
+
+		if( this.exists('callee.caller', arguments)  ){
+			if( this.isSet(arguments.callee.caller.name) && ($.trim(arguments.callee.caller.name) != '') ){
+				context = arguments.callee.caller.name;
+			} else {
+				var functionSourceLines = arguments.callee.caller.toString().split(/\r?\n/, 3);
+				if( functionSourceLines.length == 1 ){
+					context = functionSourceLines[0];
+				} else {
+					context = functionSourceLines.join(' ')+' ...';
+				}
+			}
+		}
+
+		if( !this.isSet(this.jqueryAnnexData.logging.xlog[context]) ){
+			this.jqueryAnnexData.logging.xlog[context] = 0;
+		}
+
+		this.jqueryAnnexData.logging.xlog[context]++;
+		this.log(context+' | '+this.jqueryAnnexData.logging.xlog[context]);
 	},
 	
 	
@@ -589,7 +629,7 @@ $.extend({
 				newPoll.loop = this.loop(!this.isSet(newLoopMs) ? 250 : parseInt(newLoopMs), function(){
 					if( newPoll.condition() ){
 						if( newPoll.action() ){
-							$.countermand(newPoll.loop);
+							this.countermand(newPoll.loop);
 							newPoll.loop = null;
 							delete this.jqueryAnnexData.polls.activePolls[newPoll.name];
 							this.jqueryAnnexData.polls.activePollCount--;
@@ -615,18 +655,18 @@ $.extend({
 				}
 				
 				this.jqueryAnnexData.polls.defaultLoop = this.loop(!this.isSet(newLoopMs) ? 250 : parseInt(newLoopMs), function(){
-					if( $.jqueryAnnexData.polls.activePollCount > 0 ){
-						$.each($.jqueryAnnexData.polls.activePolls, function(name, poll){
-							if( !$.isSet(poll.loop) && poll.condition() ){
+					if( this.jqueryAnnexData.polls.activePollCount > 0 ){
+						$.each(this.jqueryAnnexData.polls.activePolls, function(name, poll){
+							if( !this.isSet(poll.loop) && poll.condition() ){
 								if( poll.action() ){
-									delete $.jqueryAnnexData.polls.activePolls[name];
-									$.jqueryAnnexData.polls.activePollCount--;
+									delete this.jqueryAnnexData.polls.activePolls[name];
+									this.jqueryAnnexData.polls.activePollCount--;
 								}
 							}
 						});
 					} else {
-						$.countermand($.jqueryAnnexData.polls.defaultLoop);
-						$.jqueryAnnexData.polls.defaultLoop = null;
+						this.countermand(this.jqueryAnnexData.polls.defaultLoop);
+						this.jqueryAnnexData.polls.defaultLoop = null;
 					}
 				});
 			}
@@ -752,7 +792,7 @@ $.extend({
 			
 			var redirectForm = this.elem('form', formAttributes);
 			$.each(postParams, function(index, value){
-				redirectForm.append($.elem('input', {type : 'hidden', name : ''+index, value : ''+value}));
+				redirectForm.append(this.elem('input', {type : 'hidden', name : ''+index, value : ''+value}));
 			});
 			$('body').append(redirectForm);
 			
@@ -773,11 +813,11 @@ $.extend({
 	 * @param {String} title OPTIONAL a name/title for the new state, not used in browsers atm
 	 **/
 	changeUrlSilently : function(url, state, title){
-		if( !$.isSet(state) ){
+		if( !this.isSet(state) ){
 			state = '';
 		}
 
-		if( !$.isSet(title) ){
+		if( !this.isSet(title) ){
 			title = '';
 		}
 
@@ -1034,7 +1074,7 @@ $.extend({
 				key = ''+key;
 				value = ''+value;
 				
-				if( !$.exists(key, $.jqueryAnnexData.preloadedImages.named) ){
+				if( !this.exists(key, this.jqueryAnnexData.preloadedImages.named) ){
 					newImages[key] = new Image();
 					newImages[key].src = value;
 				}
@@ -1047,7 +1087,7 @@ $.extend({
 			$.each(images, function(index, value){
 				var newImage = new Image();
 				newImage.src = ''+value;
-				$.jqueryAnnexData.preloadedImages.unnamed.push(newImage);
+				this.jqueryAnnexData.preloadedImages.unnamed.push(newImage);
 			});
 			
 			res = this.jqueryAnnexData.preloadedImages.unnamed;
@@ -1070,7 +1110,7 @@ $.extend({
 					}
 				} else {
 					var $target = $(this);
-					$.schedule(10, function(){ $target.trigger('load.preload'); });
+					this.schedule(10, function(){ $target.trigger('load.preload'); });
 				}
 			})
 			
@@ -1162,11 +1202,11 @@ $.extend({
 			left : 37
 		}
 
-		if( !$.isSet(eventType) ){
+		if( !this.isSet(eventType) ){
 			eventType = 'keydown';
 		}
 
-		if( $.exists(keyName, keys) ){
+		if( this.exists(keyName, keys) ){
 			$(document).on(eventType+'.'+keyName, function(e){ if(e.keyCode == keys[keyName]) callback(e); });
 		}
 	},
@@ -1187,11 +1227,11 @@ $.extend({
 			left : 37
 		}
 
-		if( !$.isSet(eventType) ){
+		if( !this.isSet(eventType) ){
 			eventType = 'keydown';
 		}
 
-		if( $.exists(keyName, keys) ){
+		if( this.exists(keyName, keys) ){
 			$(document).off(eventType+'.'+keyName);
 		}
 	},
@@ -1531,6 +1571,10 @@ $.fn.extend({
 			anchor = anchor.replace('#', '');
 		}
 		
+		if( $.isSet(anchor) && ($.trim(anchor) == '') ){
+			anchor = null;
+		}
+
 		return anchor;
 	},
 	
