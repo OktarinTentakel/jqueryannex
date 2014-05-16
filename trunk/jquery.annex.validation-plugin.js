@@ -14,7 +14,7 @@
  * Have a look at the plugin-validation-example.html in the repository for example usage.
  *
  * @author Sebastian Schlapkohl
- * @version 0.1 alpha
+ * @version 0.25 alpha
  **/
 
 
@@ -31,8 +31,11 @@ $.extend($.jqueryAnnexData, {
 			isValid : true,
 			messages : [],
 
-			registeredTargets : [],
-			globalCallback : null,
+			registeredTargets : {
+				all : []
+			},
+
+			globalCallback : $.noop,
 
 			additionalWidgetEvents : '',
 			validateOnWidgetEvents : true,
@@ -57,6 +60,7 @@ $.extend($.jqueryAnnexData, {
 		// helper functions for internal plugin use
 		functions : {
 			validate : function(targets, isTriggeredByWidget){
+
 				if( !$.isSet(isTriggeredByWidget) ){
 					isTriggeredByWidget = false;
 				}
@@ -155,10 +159,10 @@ $.extend($.jqueryAnnexData, {
 				var $errorContainer = $target.data('validationdata').errorContainer;
 
 				if( $.isSet($errorContainer) ){
-					$errorContainer.addClassUnique('validationerror');
+					$errorContainer.addClass('validationerror');
 				}
 
-				$target.addClassUnique('validationerror');
+				$target.addClass('validationerror');
 			},
 
 
@@ -933,8 +937,9 @@ $.extend($.jqueryAnnexData, {
 
 $.extend({
 
-	triggerValidation : function(){
-		$.jqueryAnnexData.validation.functions.validate($.jqueryAnnexData.validation.config.registeredTargets);
+	triggerValidation : function(targetGroup){
+		targetGroup = $.isSet(targetGroup) ? ''+targetGroup : 'all';
+		$.jqueryAnnexData.validation.functions.validate($.jqueryAnnexData.validation.config.registeredTargets[targetGroup]);
 	},
 
 
@@ -974,7 +979,9 @@ $.extend({
 				var callback = ($.isSet($(this).data('validation-callback')) && $.isFunction($(this).data('validation-callback'))) ? $(this).data('validation-callback') : null;
 				var errorContainer = ($.isSet($(this).data('validation-errorcontainer')) && $.exists($(this).data('validation-errorcontainer'))) ? $(this).data('validation-errorcontainer') : null;
 				var container = ($.isSet($(this).data('validation-container')) && $.exists($(this).data('validation-container'))) ? $(this).data('validation-container') : null;
-				$(this).setValidation($(this).data('validation'), callback, errorContainer, container);
+				var targetGroup = ($.isSet($(this).data('validation-targetgroup'))) ? $(this).data('validation-targetgroup') : null;
+				var suppressSubmit = ($.isSet($(this).data('validation-suppresssubmit'))) ? ($(this).data('validation-suppresssubmit') == 'true') : false;
+				$(this).setValidation($(this).data('validation'), callback, errorContainer, container, targetGroup, suppressSubmit);
 			}
 		});
 	}
@@ -987,16 +994,17 @@ $.extend({
 
 $.fn.extend({
 
-	setValidation : function(validators, callback, $errorContainer, $container){
-		$.assert($(this).is(':input'), 'setValidation | element is no value-bearing form element');
-		$.assert($.isSet($(this).attr('name')), 'setValidation | element has no attribute "name"');
-
+	setValidation : function(validators, callback, $errorContainer, $container, targetGroup, suppressSubmit){
 		if( !$.isSet(validators) ){
 			validators = [];
 		}
 		if( !$.isArray(validators) ){
 			validators = [validators];
 		}
+
+		targetGroup = $.isSet(targetGroup) ? ''+targetGroup : 'all';
+
+		suppressSubmit = $.isSet(suppressSubmit) ? (suppressSubmit === true) : false;
 
 		if( !$.isSet($container) ){
 			$container = $(this).closest('form');
@@ -1012,8 +1020,8 @@ $.fn.extend({
 						$(document).one('finished.validation', function(e, isValid){
 							$container.trigger('submit.validation', isValid);
 						});
-						$.jqueryAnnexData.validation.functions.validate($.jqueryAnnexData.validation.config.registeredTargets);
-					} else if( !validated ){
+						$.jqueryAnnexData.validation.functions.validate($.jqueryAnnexData.validation.config.registeredTargets[targetGroup]);
+					} else if( !validated || suppressSubmit ){
 						e.preventDefault();
 					}
 				});
@@ -1022,102 +1030,139 @@ $.fn.extend({
 			$container = $container.find(':input');
 		}
 
-		var that = this;
+		// apply to each set member individually to avoid setting data for whole set
+		$(this).each(function(){
+			$.assert($(this).is(':input'), 'setValidation | element is no value-bearing form element');
+			$.assert($.isSet($(this).attr('name')), 'setValidation | element has no attribute "name"');
 
-		$(this).removeData('validationdata');
-		var validationData = {
-			status : $.extend({}, $.jqueryAnnexData.validation.config.defaultValidationData),
-			rules : {},
-			callback : callback,
-			container : $container,
-			errorContainer : $errorContainer
-		};
+			var that = this;
 
-		var asyncRulesCount = 0;
-		$.each(validators, function(index, rule){
-			var ruleLength = $.objectLength(rule);
-			if( $.isPlainObject(rule) && (ruleLength >= 1) && (ruleLength <= 2) ){
-				if( ruleLength == 2 ){
-					$.assert($.exists('args', rule));
-				}
+			$(this).removeData('validationdata');
+			var validationData = {
+				status : $.extend({}, $.jqueryAnnexData.validation.config.defaultValidationData),
+				rules : {},
+				callback : callback,
+				container : $container,
+				errorContainer : $errorContainer
+			};
 
-				var ruleName = null;
-				var ruleMessage = null;
-				var ruleArgs = $.exists('args', rule) ? ($.isArray(rule.args) ? rule.args : [rule.args]) : [];
-				$.each(rule, function(rulePartKey, rulePartValue){
-					if( rulePartKey != 'args' ){
-						ruleName = rulePartKey;
-						ruleMessage = rulePartValue;
-						return false;
-					}
-				});
-
-				if( $.isSet(ruleName) ){
-					ruleName = ruleName.split('_async');
-					var hasAsyncMarker = (ruleName.length > 1);
-					ruleName = ruleName[0];
-
-					if( ruleName == 'optional' ){
-						validationData.status.isOptional = true;
-						$.merge(validationData.status.optionalValues, ruleArgs);
+			var asyncRulesCount = 0;
+			$.each(validators, function(index, rule){
+				var ruleLength = $.objectLength(rule);
+				if( $.isPlainObject(rule) && (ruleLength >= 1) && (ruleLength <= 2) ){
+					if( ruleLength == 2 ){
+						$.assert($.exists('args', rule));
 					}
 
-					if( $.isFunction($.jqueryAnnexData.validation.validators[ruleName]) ){
-						if( hasAsyncMarker ){
-							asyncRulesCount++;
+					var ruleName = null;
+					var ruleMessage = null;
+					var ruleArgs = $.exists('args', rule) ? ($.isArray(rule.args) ? rule.args : [rule.args]) : [];
+					$.each(rule, function(rulePartKey, rulePartValue){
+						if( rulePartKey != 'args' ){
+							ruleName = rulePartKey;
+							ruleMessage = rulePartValue;
+							return false;
+						}
+					});
+
+					if( $.isSet(ruleName) ){
+						ruleName = ruleName.split('_async');
+						var hasAsyncMarker = (ruleName.length > 1);
+						ruleName = ruleName[0];
+
+						if( ruleName == 'optional' ){
+							validationData.status.isOptional = true;
+							$.merge(validationData.status.optionalValues, ruleArgs);
 						}
 
-						validationData.rules[ruleName+'_'+$.randomUUID(true)] = $.proxy.apply($, $.merge([], $.merge([$.jqueryAnnexData.validation.validators[ruleName], $(that), ''+$.trim(ruleMessage)], ruleArgs)));
+						if( $.isFunction($.jqueryAnnexData.validation.validators[ruleName]) ){
+							if( hasAsyncMarker ){
+								asyncRulesCount++;
+							}
+
+							validationData.rules[ruleName+'_'+$.randomUUID(true)] = $.proxy.apply($, $.merge([], $.merge([$.jqueryAnnexData.validation.validators[ruleName], $(that), ''+$.trim(ruleMessage)], ruleArgs)));
+						}
 					}
 				}
+			});
+			validationData.status.asyncCount = asyncRulesCount;
+
+			$.jqueryAnnexData.validation.config.registeredTargets['all'].push($(this));
+			if( targetGroup != 'all' ){
+				if( !$.isSet($.jqueryAnnexData.validation.config.registeredTargets[targetGroup]) ){
+					$.jqueryAnnexData.validation.config.registeredTargets[targetGroup] = [];
+				}
+				$.jqueryAnnexData.validation.config.registeredTargets[targetGroup].push($(this));
 			}
+
+			var blurChangeTimeout = null;
+			$(this)
+				.data('validationdata', validationData)
+				.on('change.validation blur.validation'+$.jqueryAnnexData.validation.config.additionalWidgetEvents, function(){
+					$.countermand(blurChangeTimeout);
+					blurChangeTimeout = $.schedule(10, function(){
+						$.jqueryAnnexData.validation.functions.validate($.jqueryAnnexData.validation.config.registeredTargets[targetGroup], true);
+					});
+				})
+			;
 		});
-		validationData.status.asyncCount = asyncRulesCount;
 
-		$.jqueryAnnexData.validation.config.registeredTargets.push($(this));
-
-		var blurChangeTimeout = null;
-		$(this)
-			.data('validationdata', validationData)
-			.on('change.validation blur.validation'+$.jqueryAnnexData.validation.config.additionalWidgetEvents, function(){
-				$.countermand(blurChangeTimeout);
-				blurChangeTimeout = $.schedule(10, function(){
-					$.jqueryAnnexData.validation.functions.validate($.jqueryAnnexData.validation.config.registeredTargets, true);
-				});
-			})
-		;
-
-		return $(this);
+		return this;
 	},
 
 
-	unsetValidation : function(){
-		$.assert($(this).is(':input'), 'setValidation | element is no value-bearing form element');
-		$.assert($.isSet($(this).attr('name')), 'setValidation | element has no attribute "name"');
+	unsetValidation : function(ignoreMissingValidationData, targetGroup){
+		ignoreMissingValidationData = $.isSet(ignoreMissingValidationData) ? ignoreMissingValidationData : false;
+		targetGroup = ($.isSet(targetGroup) && $.jqueryAnnexData.validation.config.registeredTargets[targetGroup]) ? ''+targetGroup : null;
 
-		if( $.isSet($(this).data('validationdata')) ){
-			$(this).removeData('validationdata');
+		// handle all set members individually to clearly identify them in registeredTarget-array
+		$(this).each(function(){
+			$.assert($(this).is(':input'), 'unsetValidation | element is no value-bearing form element');
+			$.assert($.isSet($(this).attr('name')), 'unsetValidation | element has no attribute "name"');
 
-			var elementIndex = -1;
-			for( var i = 0; i < $.jqueryAnnexData.validation.config.registeredTargets.length; i++ ){
-				if( $(this).is($.jqueryAnnexData.validation.config.registeredTargets[i]) ){
-					elementIndex = i;
-					break;
+			var _this_ = this;
+
+			if( $.isSet($(this).data('validationdata')) || ignoreMissingValidationData ){
+				$(this).removeData('validationdata');
+
+				var groupsToSearch = {};
+
+				if( $.isSet(targetGroup) ){
+					groupsToSearch['all'] = $.jqueryAnnexData.validation.config.registeredTargets['all'];
+					groupsToSearch[targetGroup] = $.jqueryAnnexData.validation.config.registeredTargets[targetGroup];
+				} else {
+					groupsToSearch = $.jqueryAnnexData.validation.config.registeredTargets;
 				}
-			}
-			
-			if( elementIndex > 0 ){
-				$.removeFromArray($.jqueryAnnexData.validation.config.registeredTargets, elementIndex);
-			}
-			
-			if( $.jqueryAnnexData.validation.config.registeredTargets.length == 0 ){
-				$(this).closest('form').off('submit.validation');
-			}
 
-			$(this).off('change.validation blur.validation'+$.jqueryAnnexData.validation.config.additionalWidgetEvents);
-		}
+				$.each(groupsToSearch, function(key, targetGroup){
+					if( $.isSet(targetGroup) ){
+						var elementIndex = -1;
+						for( var i = 0; i < targetGroup.length; i++ ){
+							if( $(_this_).attr('name') == targetGroup[i].attr('name') ){
+								elementIndex = i;
+								break;
+							}
+						}
+						
+						if( elementIndex >= 0 ){
+							$.removeFromArray($.jqueryAnnexData.validation.config.registeredTargets[key], elementIndex);
+						}
+						
+						if( $.jqueryAnnexData.validation.config.registeredTargets[key].length == 0 ){
+							$(this).closest('form').off('submit.validation');
 
-		return $(this);
+							if( key != 'all' ){
+								delete $.jqueryAnnexData.validation.config.registeredTargets[key];
+							}
+						}
+					}
+				});
+
+				$(this).off('change.validation blur.validation'+$.jqueryAnnexData.validation.config.additionalWidgetEvents);
+			}
+		});
+
+		return this;
 	}
 
 });

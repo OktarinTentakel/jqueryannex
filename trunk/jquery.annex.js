@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl
- * @version Revision 12 developed with jQuery 1.11.0
+ * @version Revision 14 developed and tested with jQuery 1.11.0
  **/
 
 
@@ -71,6 +71,10 @@ $.extend({
 
 		if( this.exists('console') && $.isFunction(console.log) ){
 			$.each(arguments, function(index, obj){
+				if( $.isA(obj, 'boolean') ){
+					obj = obj ? 'true' : 'false';
+				}
+
 				console.log(obj);
 			});
 		}
@@ -183,6 +187,7 @@ $.extend({
 	
 	/**
 	 * Check if a variable is defined in a certain context (normally globally in window).
+	 * Or check if a jquery set contains anything, answering if the query-string exists in its context.
 	 *
 	 * @param {String|Object} target name of the variable to look for, not the variable itself, or a jquery Object
 	 * @param {*} context OPTIONAL the context in which to look for the variable, window by default, holds no meaning for jquery objects
@@ -657,10 +662,10 @@ $.extend({
 				this.jqueryAnnexData.polls.defaultLoop = this.loop(!this.isSet(newLoopMs) ? 250 : parseInt(newLoopMs), function(){
 					if( this.jqueryAnnexData.polls.activePollCount > 0 ){
 						$.each(this.jqueryAnnexData.polls.activePolls, function(name, poll){
-							if( !this.isSet(poll.loop) && poll.condition() ){
+							if( !$.isSet(poll.loop) && poll.condition() ){
 								if( poll.action() ){
-									delete this.jqueryAnnexData.polls.activePolls[name];
-									this.jqueryAnnexData.polls.activePollCount--;
+									delete $.jqueryAnnexData.polls.activePolls[name];
+									$.jqueryAnnexData.polls.activePollCount--;
 								}
 							}
 						});
@@ -792,7 +797,7 @@ $.extend({
 			
 			var redirectForm = this.elem('form', formAttributes);
 			$.each(postParams, function(index, value){
-				redirectForm.append(this.elem('input', {type : 'hidden', name : ''+index, value : ''+value}));
+				redirectForm.append($.elem('input', {type : 'hidden', name : ''+index, value : ''+value}));
 			});
 			$('body').append(redirectForm);
 			
@@ -844,13 +849,13 @@ $.extend({
 	 * 
 	 * @param {String} url the URL to load into the new window
 	 * @param {Object} options OPTIONAL parameters for the new window according to the definitions of window.open + name for the window name
-	 * @param {Window} parentWindow OPTIONAL parent window for the new window
-	 * @return {Window} the newly opened window
+	 * @param {Window} parentWindow OPTIONAL(default=window) parent window for the new window
+	 * @param {Boolean} tryAsPopup OPTIONAL(default=false) defines if it should be tried to force a new window instead of a tab
+	 * @return {Window} the newly opened window/tab
 	 */
-	openWindow : function(url, options, parentWindow){
-		if( !this.isSet(parentWindow) ){
-			parentWindow = window;
-		}
+	openWindow : function(url, options, parentWindow, tryAsPopup){
+		parentWindow = this.isSet(parentWindow) ? parentWindow : window;
+		tryAsPopup = this.isSet(tryAsPopup) ? (tryAsPopup ? true : false) : false;
 		
 		var windowName = '';
 		var optionArray = [];
@@ -861,10 +866,12 @@ $.extend({
 			}
 			
 			for( prop in options ){
-				optionArray.push(prop+'='+options[prop]);
+				if( (prop != 'name') || tryAsPopup ){
+					optionArray.push(prop+'='+options[prop]);
+				}
 			}
 		}
-		
+
 		return parentWindow.open(''+url, windowName, optionArray.join(', '));
 	},
 	
@@ -1074,7 +1081,7 @@ $.extend({
 				key = ''+key;
 				value = ''+value;
 				
-				if( !this.exists(key, this.jqueryAnnexData.preloadedImages.named) ){
+				if( !$.exists(key, $.jqueryAnnexData.preloadedImages.named) ){
 					newImages[key] = new Image();
 					newImages[key].src = value;
 				}
@@ -1087,7 +1094,7 @@ $.extend({
 			$.each(images, function(index, value){
 				var newImage = new Image();
 				newImage.src = ''+value;
-				this.jqueryAnnexData.preloadedImages.unnamed.push(newImage);
+				$.jqueryAnnexData.preloadedImages.unnamed.push(newImage);
 			});
 			
 			res = this.jqueryAnnexData.preloadedImages.unnamed;
@@ -1110,7 +1117,7 @@ $.extend({
 					}
 				} else {
 					var $target = $(this);
-					this.schedule(10, function(){ $target.trigger('load.preload'); });
+					$.schedule(10, function(){ $target.trigger('load.preload'); });
 				}
 			})
 			
@@ -1168,9 +1175,32 @@ $.extend({
 		if( this.isSet(occurrences) && occurrences.length > 0 ){
 			return occurrences[0];
 		} else {
-			this.log('id-isolation exception: no valid id in string');
 			return null;
 		}
+	},
+
+
+
+	/**
+	 * Determines if a given value could be a valid id, being digits with or without given pre- and postfix.
+	 *
+	 * @param {String|Integer} testVal the value to test
+	 * @param {String} prefix OPTIONAL(default='') a prefix for the id
+	 * @param {String} postfix OPTIONAL(default='') a postfix for the id
+	 * @param {Boolean} dontMaskFixes OPTIONAL(default=false) if you want to use regexs as fixes, set this true
+	 **/
+	isPossibleId : function(testVal, prefix, postfix, dontMaskFixes){
+		prefix = $.isSet(prefix) ? ''+prefix : '';
+		postfix = $.isSet(postfix) ? ''+postfix : '';
+
+		var rex = null;
+		if( !dontMaskFixes ){
+			rex = new RegExp('^'+this.maskForRegEx(prefix)+'[0-9]+'+this.maskForRegEx(postfix)+'$');
+		} else {
+			rex = new RegExp('^'+prefix+'[0-9]+'+postfix+'$');
+		}
+
+		return rex.test(''+testVal);
 	},
 	
 	
@@ -1183,6 +1213,31 @@ $.extend({
 	 **/
 	maskForSelector : function(string){
 		return string.replace(/([\#\;\&\,\.\+\*\~\'\:\"\!\^\$\[\]\(\)\=\>\ß\|\/\@])/, '\\$1');
+	},
+
+
+
+	/**
+	 * Masks all regex special characters.
+	 * 
+	 * @param {String} string the string to mask for use in a regexp
+	 * @return {String} the masked string
+	 **/
+	maskForRegEx : function(string){
+		return string.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+	},
+
+
+
+	/**
+	 * Escapes a string for use in an elements htmlContent. This might
+	 * come in handy if you need to combine insecure db-contents with dynamic markup.
+	 *
+	 * @param {String} html the html-ridden string to escape
+	 * @return {String} the escaped string
+	 **/
+	escapeHTML : function(html){
+		return this.elem('p').html(''+html).text();
 	},
 
 
@@ -1338,7 +1393,7 @@ $.fn.extend({
 			}
 		}
 		
-		return $(this);
+		return this;
 	},
 	
 	
@@ -1362,7 +1417,7 @@ $.fn.extend({
 			$(this).removeAttr('selected');
 		}
 		
-		return $(this);
+		return this;
 	},
 	
 	
@@ -1377,7 +1432,7 @@ $.fn.extend({
 			$(this).attr('checked', 'checked');
 		}
 		
-		return $(this);
+		return this;
 	},
 	
 	
@@ -1390,7 +1445,7 @@ $.fn.extend({
 	uncheck : function(){
 		$(this).removeAttr('checked');
 		
-		return $(this);
+		return this;
 	},
 	
 	
@@ -1403,7 +1458,7 @@ $.fn.extend({
 	enable : function(){
 		$(this).removeAttr('disabled');
 		
-		return $(this);
+		return this;
 	},
 	
 	
@@ -1418,7 +1473,7 @@ $.fn.extend({
 			$(this).attr('disabled', 'disabled');
 		}
 		
-		return $(this);
+		return this;
 	},
 	
 	
@@ -1440,17 +1495,15 @@ $.fn.extend({
 		
 		if( $.isSet($inheritFrom) && $.isA($inheritFrom, 'object') ){			
 			$.each($inheritFrom[0].attributes, function(index, attribute){
-				if( attribute.specified ){
-					if( $.inArray(attribute.name, copyAttrs) != -1 ){
-						$(that).attr(attribute.name, attribute.value);
-					} else if( attribute.name.indexOf('data-') == 0 ){
-						$(that)
-							.attr(attribute.name, attribute.value)
-							.data($.strReplace('data-', '', attribute.name), attribute.value)
-						;
-					} else if( attribute.name.indexOf('on') == 0 ){
-						$(that).on(attribute.name.substring(2)+'.frommarkup', function(){ eval(attribute.value) });
-					}
+				if( $.inArray(attribute.name, copyAttrs) != -1 ){
+					$(that).attr(attribute.name, attribute.value);
+				} else if( attribute.name.indexOf('data-') == 0 ){
+					$(that)
+						.attr(attribute.name, attribute.value)
+						.data($.strReplace('data-', '', attribute.name), attribute.value)
+					;
+				} else if( attribute.name.indexOf('on') == 0 ){
+					$(that).on(attribute.name.substring(2)+'.frommarkup', function(){ eval(attribute.value) });
 				}
 			});
 		}
@@ -1462,7 +1515,7 @@ $.fn.extend({
 		if( $.isSet(classes) ){
 			if( $.isArray(classes) ){
 				$.each(classes, function(index, value){
-					$(that).addClassUnique(value);
+					$(that).addClass(value);
 				});
 			} else {
 				$(this).attr('class', ($.isSet($(this).attr('class')) ? $(this).attr('class')+' ' : '')+classes);
@@ -1477,7 +1530,7 @@ $.fn.extend({
 			}
 		}
 		
-		return $(this);
+		return this;
 	},
 	
 	
@@ -1689,7 +1742,7 @@ $.fn.extend({
 			}
 		});
 		
-		return $(this);
+		return this;
 	},
 	
 	
@@ -1737,7 +1790,7 @@ $.fn.extend({
 	 * @return {Object} the target object
 	 */
 	imgLoad : function(callback, needsJqueryDims){
-		var targets = this.filter('img');
+		var targets = $(this).filter('img');
 		var targetCount = targets.length;
 		var blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 	
@@ -1819,7 +1872,7 @@ $.fn.extend({
 			$(this).css(cssObj);
 		}
 		
-		return $(this);
+		return this;
 	},
 	
 	
@@ -1836,7 +1889,7 @@ $.fn.extend({
 			$(this).cssCrossBrowser({'user-select' : 'none'}); 
 		}); 
 		
-		return $(this);
+		return this;
 	},
 
 
@@ -1850,9 +1903,11 @@ $.fn.extend({
 	 * @param {String} afterAtWithoutTld the address part after the @ but before the tld
 	 * @param {String} subject OPTIONAL the subject the mail should have
 	 * @param {String} body OPTIONAL the body text the mail should have initially
+	 * @param {Boolean} writeToElem OPTIONAL define if the email should be written back to the element text, default is false
+	 * @param {String} eventType OPTIONAL the event type to register the call to, default is click
 	 * @return {Object} the target object
 	 */
-	registerMailto : function(tld, beforeAt, afterAtWithoutTld, subject, body, eventType){ 
+	registerMailto : function(tld, beforeAt, afterAtWithoutTld, subject, body, writeToElem, eventType){ 
 		if( !$.isSet(eventType) ){
 			eventType = 'click';
 		}
@@ -1867,9 +1922,46 @@ $.fn.extend({
 
 		$(this).on(eventType, function(){
 			$.redirect('mailto:'+beforeAt+'@'+afterAtWithoutTld+'.'+tld+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body));
-		}); 
+		});
+
+		if( $.isSet(writeToElem) && writeToElem ){
+			$(this).html((beforeAt+'@'+afterAtWithoutTld+'.'+tld).replace(/(\w{1})/g, '$1&zwnj;'));
+		}
 		
-		return $(this);
+		return this;
+	},
+
+
+	/**
+	 * Register an event handler to activate a tel-protocol phonecall without openly writing
+	 * down the number. Parameters mixed to complicate parsing.
+	 *
+	 * @param {Integer|String} regionPart the local part of the number after the country part e.g. +49(04)<-this 123 456
+	 * @param {Integer|String} first half of the main number +4904 (123)<-this 456
+	 * @param {Integer|String} countryPart the country identifactor with or without + this->(+49)04 123 456
+	 * @param {Integer|String} secondTelPart second half of the main number +4904 123 (456)<-this
+	 * @param {Boolean} writeToElem OPTIONAL define if the number should be written back to the element text, default is false
+	 * @param {String} eventType OPTIONAL the event type to register the call to, default is click
+	 * @return {Object} the target object
+	 */
+	registerTel : function(regionPart, firstTelPart, countryPart, secondTelPart, writeToElem, eventType){ 
+		if( !$.isSet(eventType) ){
+			eventType = 'click';
+		}
+
+		if( (''+countryPart).indexOf('+') != 0 ){
+			countryPart = '+'+countryPart;
+		}
+
+		$(this).on(eventType, function(){
+			$.redirect('tel:'+countryPart+regionPart+$.strReplace(['-', ' '], '', ''+firstTelPart+secondTelPart));
+		}); 
+
+		if( $.isSet(writeToElem) && writeToElem ){
+			$(this).html((countryPart+regionPart+' '+firstTelPart+secondTelPart).replace(/(\w{1})/g, '$1&zwnj;'));
+		}
+		
+		return this;
 	},
 
 
@@ -1940,7 +2032,7 @@ $.fn.extend({
 			}
 		});
 		
-		return $(this);
+		return this;
 	},
 	
 	
@@ -1953,7 +2045,7 @@ $.fn.extend({
 	sandbox : function(){
 		$(this).append($.elem('div', {'id' : 'sandbox', 'style' : 'position:absolute; visibility:hidden; display:block;'}));
 		
-		return $(this);
+		return this;
 	},
 	
 	
@@ -1966,7 +2058,7 @@ $.fn.extend({
 	removeSandbox : function(){
 		$(this).find('#sandbox').remove();
 		
-		return $(this);
+		return this;
 	}
 
 });
@@ -1975,7 +2067,7 @@ $.fn.extend({
 
 //--|JQUERY-SYNTAX-EXTENSIONS----------
 
-// not needed anymor for the moment, keeping the template for later use ...
+// not needed anymore for the moment, keeping the template for later use ...
 /*$.extend($.expr[':'], {
 
 	xxx: function(element) {}
