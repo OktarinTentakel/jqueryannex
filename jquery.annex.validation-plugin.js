@@ -2,11 +2,11 @@
  * jQueryAnnex - Validation Plugin
  * Provides the means to validate (form-)values on the fly in the client.
  * This is especially useful if you develop JS-driven apps without classical forms and reloads.
- * 
+ *
  * All methods in this plugin are derived from my PHP5-framework "HtmlForm", which also includes
  * JS-validation (coupled with server-side validation) for forms. The validation capabilities aim to
  * as convenient and complete as possible.
- * 
+ *
  * There are generally two methods of defining validation: either use jQuery to select value-bearing tags and
  * objects and register a/several validator(s) on it, or write the registration(s) directly into the markup via
  * data attributes.
@@ -72,82 +72,90 @@ $.extend($.jqueryAnnexData, {
 					$.jqueryAnnexData.validation.config.messages = [];
 
 					$.each(targets, function(index, $target){
-						$target.first().one('finished.validation', function(e, isValid){
-							e.stopPropagation();
+						if( $.isSet($target) ){
+							var validationData = $target.data('validationdata');
 
-							$.jqueryAnnexData.validation.config.isValid = $.jqueryAnnexData.validation.config.isValid && isValid;
+							// catch trailing elements, not cleaned properly
+							if( $.isSet(validationData) ){
+								$target.first().one('finished.validation', function(e, isValid){
+									e.stopPropagation();
 
-							if( !isValid ){
-								$.merge($.jqueryAnnexData.validation.config.messages, $(e.target).data('validationdata').status.messages);
-							}
+									$.jqueryAnnexData.validation.config.isValid = $.jqueryAnnexData.validation.config.isValid && isValid;
 
-							validationRest--;
-							if( validationRest <= 0 ){
-								$.jqueryAnnexData.validation.config.globalCallback($.jqueryAnnexData.validation.config.isValid, $.jqueryAnnexData.validation.config.messages);
-								$(document).trigger('finished.validation', $.jqueryAnnexData.validation.config.isValid);
-							}
-						});
-
-						var validationData = $target.data('validationdata');
-
-						var isOptional = validationData.status.isOptional;
-						var asyncCount = validationData.status.asyncCount;
-						validationData.status = $.extend(true, {}, $.jqueryAnnexData.validation.config.defaultValidationData);
-						validationData.status.isOptional = isOptional;
-						validationData.status.asyncCount = asyncCount;
-						validationData.status.asyncLeft = asyncCount;
-
-						validationData.status.values = validationData.container.formDataToObject()[$target.attr('name').replace(/\[\]/, '')];
-
-						if( $.isSet(validationData.status.values) ){
-							if( !$.isArray(validationData.status.values) ){
-								validationData.status.values = [validationData.status.values];
-							}
-						} else {
-							validationData.status.values = [];
-						}
-
-						if( validationData.status.isOptional ){
-							$.each(validationData.status.values, function(index, value){
-								if( $.inArray(value, validationData.status.optionalValues) == -1 ){
-									validationData.status.hasNonOptionalValue = true;
-									return false;
-								}
-							});
-						}
-
-						$target.data('validationdata', validationData);
-
-						$.jqueryAnnexData.validation.functions.unmarkValidationError($target);
-
-						if( !validationData.status.isOptional || validationData.status.hasNonOptionalValue ){
-							$.each(validationData.rules, function(key, value){
-								validationData.status.isValid = value() && validationData.status.isValid;
-							});
-
-							if( !validationData.status.isValid ){
-								$.jqueryAnnexData.validation.functions.markValidationError($target);
-
-								if( validationData.status.asyncLeft <= 0 ){
-									if( $.isSet(validationData.callback) && $.isFunction(validationData.callback) ){
-										validationData.callback(false, validationData.status.messages, $target);
+									if( !isValid ){
+										$.merge($.jqueryAnnexData.validation.config.messages, $(e.target).data('validationdata').status.messages);
 									}
 
-									$target.trigger('error.validation', validationData.status.messages);
-								}
-							}
-						} else {
-							validationData.status.asyncLeft = 0;
-						}
+									validationRest--;
+									if( validationRest <= 0 ){
+										$.jqueryAnnexData.validation.config.globalCallback($.jqueryAnnexData.validation.config.isValid, $.jqueryAnnexData.validation.config.messages);
+										$(document).trigger('finished.validation', $.jqueryAnnexData.validation.config.isValid);
+									}
+								});
 
-						if( validationData.status.asyncLeft <= 0 ){
-							if( validationData.status.isValid ){
-								if( $.isSet(validationData.callback) && $.isFunction(validationData.callback) ){
-									validationData.callback(true, [], $target);
+								var isOptional = validationData.status.isOptional;
+								var asyncCount = validationData.status.asyncCount;
+								validationData.status = $.extend(true, {}, $.jqueryAnnexData.validation.config.defaultValidationData);
+								validationData.status.isOptional = isOptional;
+								validationData.status.asyncCount = asyncCount;
+								validationData.status.asyncLeft = asyncCount;
+
+								validationData.status.values = validationData.container.formDataToObject()[$target.attr('name').replace(/\[\]/, '')];
+
+								if( $.isSet(validationData.status.values) ){
+									if( !$.isArray(validationData.status.values) ){
+										validationData.status.values = [validationData.status.values];
+									}
+								} else {
+									validationData.status.values = [];
 								}
-								$target.trigger('success.validation');
+
+								if( validationData.status.isOptional ){
+									$.each(validationData.status.values, function(index, value){
+										if( $.inArray(value, validationData.status.optionalValues) == -1 ){
+											validationData.status.hasNonOptionalValue = true;
+											return false;
+										}
+									});
+								}
+
+								$target.data('validationdata', validationData);
+
+								$.jqueryAnnexData.validation.functions.unmarkValidationError($target);
+
+								if( !validationData.status.isOptional || validationData.status.hasNonOptionalValue ){
+									$.each(validationData.rules, function(key, value){
+										validationData.status.isValid = value() && validationData.status.isValid;
+									});
+
+									if( !validationData.status.isValid ){
+										$.jqueryAnnexData.validation.functions.markValidationError($target);
+
+										if( validationData.status.asyncLeft <= 0 ){
+											if( $.isSet(validationData.callback) && $.isFunction(validationData.callback) ){
+												validationData.callback(false, validationData.status.messages, $target);
+											}
+
+											$target.trigger('error.validation', validationData.status.messages);
+										}
+									}
+								} else {
+									validationData.status.asyncLeft = 0;
+								}
+
+								if( validationData.status.asyncLeft <= 0 ){
+									if( validationData.status.isValid ){
+										if( $.isSet(validationData.callback) && $.isFunction(validationData.callback) ){
+											validationData.callback(true, [], $target);
+										}
+										$target.trigger('success.validation');
+									}
+									$target.trigger('finished.validation', validationData.status.isValid);
+								}
+							} else {
+								// manually kill validation for elements with lost validation data
+								$target.unsetValidation(true);
 							}
-							$target.trigger('finished.validation', validationData.status.isValid);
 						}
 					});
 				}
@@ -187,18 +195,18 @@ $.extend($.jqueryAnnexData, {
 					var res =
 						$.isA(asyncRes, 'boolean')
 						? asyncRes
-						: ($.trim(''+asyncRes) == '')
+						: ($.trim(''+asyncRes) === '')
 					;
 
 					context.asyncError = context.asyncError && !res;
 					context.isValid = context.isValid && res;
 					context.asyncLeft--;
-					
+
 					if( !context.isValid ){
 						$.jqueryAnnexData.validation.functions.markValidationError($target);
 
 						if( !res ){
-							if( $.isA(asyncRes, 'string') && ($.trim(''+asyncRes) != '') ){
+							if( $.isA(asyncRes, 'string') && ($.trim(''+asyncRes) !== '') ){
 								context.messages.push($.trim(''+asyncRes));
 							} else {
 								context.messages.push(msg);
@@ -239,7 +247,7 @@ $.extend($.jqueryAnnexData, {
 					context.asyncError = true;
 
 					context.isValid = context.isValid && !context.asyncError;
-					
+
 					$.jqueryAnnexData.validation.functions.markValidationError($target);
 					context.messages.push('communication error, could not retrieve data from server');
 					$.log('communication error, could not retrieve data from server');
@@ -248,7 +256,7 @@ $.extend($.jqueryAnnexData, {
 						if( $.isSet(callback) && $.isFunction(callback) ){
 							callback(false, context.messages, $target);
 						}
-						
+
 						$target.trigger('error.validation', context.messages);
 						$target.trigger('finished.validation', false);
 					}
@@ -269,11 +277,11 @@ $.extend($.jqueryAnnexData, {
 				if( $.isArray(customRes) && (customRes.length < 2) ){
 					customRes = customRes[0];
 				}
-						
+
 				if( !$.isFunction(customRes) ){
 					if( $.isA(customRes, 'boolean') ){
-						res = customRes
-					} else if( $.trim(''+customRes) != '' ){
+						res = customRes;
+					} else if( $.trim(''+customRes) !== '' ){
 						res = false;
 						dynamicMessage =  $.trim(''+customRes);
 					}
@@ -285,8 +293,8 @@ $.extend($.jqueryAnnexData, {
 
 					if( $.isSet(tmpRes) ){
 						if( $.isA(tmpRes, 'boolean') ){
-							res = tmpRes
-						} else if( $.trim(''+tmpRes) != '' ){
+							res = tmpRes;
+						} else if( $.trim(''+tmpRes) !== '' ){
 							res = false;
 							dynamicMessage =  $.trim(''+tmpRes);
 						}
@@ -294,7 +302,7 @@ $.extend($.jqueryAnnexData, {
 				}
 
 				if( !$.isSet(dynamicMessage) ){
-					if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+					if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 						context.messages.push(msg);
 					}
 				} else {
@@ -311,12 +319,12 @@ $.extend($.jqueryAnnexData, {
 				var context = $(this).data('validationdata').status;
 
 				if( context.values.length == 1 ){
-					res = !(context.values[0] == '');
+					res = context.values[0] !== '';
 				} else {
-					res = !(context.values.length == 0);
+					res = context.values.length > 0;
 				}
 
-				if( !res && $.isSet(msg) && (msg != '') ){
+				if( !res && $.isSet(msg) && (msg !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -333,14 +341,14 @@ $.extend($.jqueryAnnexData, {
 
 				var emptyValues = [''];
 				$.merge(emptyValues, additionalEmptyValues);
-			
+
 				if( context.values.length == 1 ){
 					res = ($.inArray($.trim(context.values[0]), emptyValues) == -1);
 				} else {
-					res = !(context.values.length == 0);
+					res = context.values.length !== 0;
 				}
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -356,7 +364,7 @@ $.extend($.jqueryAnnexData, {
 
 
 			minlength : function(msg, minlength){
-				minlength = parseInt(minlength);
+				minlength = parseInt(minlength, 10);
 
 				var res = true;
 				var context = $(this).data('validationdata').status;
@@ -367,7 +375,7 @@ $.extend($.jqueryAnnexData, {
 					res = (context.values.length >= minlength);
 				}
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -377,7 +385,7 @@ $.extend($.jqueryAnnexData, {
 
 
 			maxlength : function(msg, maxlength){
-				maxlength = parseInt(maxlength);
+				maxlength = parseInt(maxlength, 10);
 
 				var res = true;
 				var context = $(this).data('validationdata').status;
@@ -388,7 +396,7 @@ $.extend($.jqueryAnnexData, {
 					res = (context.values.length <= maxlength);
 				}
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -408,7 +416,7 @@ $.extend($.jqueryAnnexData, {
 					;
 				}
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -422,11 +430,11 @@ $.extend($.jqueryAnnexData, {
 				var context = $(this).data('validationdata').status;
 
 				$.each(context.values, function(index, value){
-					res = res && ($.isNumeric(value) && (parseInt(value) >= min));
+					res = res && ($.isNumeric(value) && (parseInt(value, 10) >= min));
 					if( !res ) return false;
 				});
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -440,11 +448,11 @@ $.extend($.jqueryAnnexData, {
 				var context = $(this).data('validationdata').status;
 
 				$.each(context.values, function(index, value){
-					res = res && ($.isNumeric(value) && (parseInt(value) <= max));
+					res = res && ($.isNumeric(value) && (parseInt(value, 10) <= max));
 					if( !res ) return false;
 				});
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -458,13 +466,13 @@ $.extend($.jqueryAnnexData, {
 				var context = $(this).data('validationdata').status;
 
 				if( $.isSet(min, max) ){
-					res = 
+					res =
 						$.proxy($.jqueryAnnexData.validation.validators.min, $(this), null, min)()
 						&& $.proxy($.jqueryAnnexData.validation.validators.max, $(this), null, max)()
 					;
 				}
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -479,25 +487,25 @@ $.extend($.jqueryAnnexData, {
 
 				$.each(context.values, function(index, value){
 					var ruleRes = /^[^@]{1,64}@[^@]{1,255}$/.test(value);
-				
+
 					if( ruleRes ){
 						var email_array = value.split('@');
 						var local_array = email_array[0].split('.');
-						
+
 						for ( var i = 0; i < local_array.length; i++) {
 							if( !(/^(([A-Za-z0-9!#$%&'*+\/=?^_`{|}~-][A-Za-z0-9!#$%&'*+\/=?^_`{|}~\.-]{0,63})|(\\\"[^(\\|\\\")]{0,62}\\\"))$/.test(local_array[i])) ){
 								ruleRes = false;
 							}
 						}
-						
+
 						var domain_array = '';
 						if( !(/^\[?[0-9\.]+\]?$/.test(email_array[1])) ){
 							domain_array = email_array[1].split('.');
-							
+
 							if( domain_array.length < 2 ){
 								ruleRes = false;
 							}
-							
+
 							for( i = 0; i < domain_array.length; i++ ){
 								if( !(/^(([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9])|([A-Za-z0-9]{2,5}))$/.test(domain_array[i])) ){
 									ruleRes = false;
@@ -505,13 +513,13 @@ $.extend($.jqueryAnnexData, {
 							}
 						}
 					}
-					
+
 					res = res && ruleRes;
 
 					if( !res ) return false;
 				});
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -528,8 +536,8 @@ $.extend($.jqueryAnnexData, {
 					res = res && /^(https?|ftp)\:\/\/([a-z0-9+!*(),;?&=$_.-]+(\:[a-z0-9+!*(),;?&=$_.-]+)?@)?([a-z0-9+$_-]+\.)*[a-z0-9+$_-]{2,3}(\:[0-9]{2,5})?(\/([a-z0-9+$_-]\.?)+)*\/?(\?[a-z+&$_.-][a-z0-9;:@\/&%=+$_.-]*)?(#[a-z_.-][a-z0-9+$_.-]*)?$/.test(value);
 					if( !res ) return false;
 				});
-					
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -554,7 +562,7 @@ $.extend($.jqueryAnnexData, {
 
 					var formatValid = /^(0?[1-9]|1[0-2])\/(0?[1-9]|[1-2][0-9]|3[0-1])\/([1-2][0-9]{3})$/.test(value);
 					var splitValue = formatValid ? value.split('/') : null;
-					
+
 					if( formatValid ){
 						for( var i = 0; i < 2; i++ ){
 							if( splitValue[i].length  < 2 ){
@@ -562,25 +570,25 @@ $.extend($.jqueryAnnexData, {
 							}
 						}
 					}
-					
+
 					var date = formatValid ? new Date(splitValue[2]+'-'+splitValue[0]+'-'+splitValue[1]) : null;
-					var ruleRes = 
+					var ruleRes =
 						((date !== null) && (splitValue !== null))
 						? (
 							!/Invalid|NaN/.test(date)
-							&& (parseInt(splitValue[0]) == (date.getMonth() + 1))
-							&& (parseInt(splitValue[1]) == (date.getDate()))
-							&& (parseInt(splitValue[2]) == (date.getFullYear()))
+							&& (parseInt(splitValue[0], 10) == (date.getMonth() + 1))
+							&& (parseInt(splitValue[1], 10) == (date.getDate()))
+							&& (parseInt(splitValue[2], 10) == (date.getFullYear()))
 						)
 						: false
 					;
-					
+
 					res = res && ruleRes;
 
 					if( !res ) return false;
 				});
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -599,7 +607,7 @@ $.extend($.jqueryAnnexData, {
 						if( datetimeParts.length >= 2 ){
 							value = $.trim(datetimeParts[1]);
 							if( datetimeParts.length >= 3 ){
-								value += ' '+$.trim(datetimeParts[2])
+								value += ' '+$.trim(datetimeParts[2]);
 							}
 						} else {
 							value = '';
@@ -611,7 +619,7 @@ $.extend($.jqueryAnnexData, {
 					if( !res ) return false;
 				});
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -623,13 +631,13 @@ $.extend($.jqueryAnnexData, {
 			datetime : function(msg){
 				var res = true;
 				var context = $(this).data('validationdata').status;
-				
+
 				res =
 					$.proxy($.jqueryAnnexData.validation.validators.date, $(this), null, '__internal__')()
 					&& $.proxy($.jqueryAnnexData.validation.validators.time, $(this), null, '__internal__')()
 				;
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -651,10 +659,10 @@ $.extend($.jqueryAnnexData, {
 							value = '';
 						}
 					}
-								
+
 					var formatValid = /^([1-2][0-9]{3})\-(0?[1-9]|1[0-2])\-(0?[1-9]|[1-2][0-9]|3[0-1])$/.test(value);
 					var splitValue = formatValid ? value.split('-') : null;
-					
+
 					if( formatValid ){
 						for( var i = 1; i < 3; i++ ){
 							if( splitValue[i].length  < 2 ){
@@ -662,24 +670,24 @@ $.extend($.jqueryAnnexData, {
 							}
 						}
 					}
-					
+
 					var date = formatValid ? new Date(splitValue.join('-')) : null;
-					var ruleRes = 
+					var ruleRes =
 						((date !== null) && (splitValue !== null))
 						? (
 							!/Invalid|NaN/.test(date)
-							&& (parseInt(splitValue[0]) == (date.getFullYear()))
-							&& (parseInt(splitValue[1]) == (date.getMonth() + 1))
-							&& (parseInt(splitValue[2]) == (date.getDate()))
+							&& (parseInt(splitValue[0], 10) == (date.getFullYear()))
+							&& (parseInt(splitValue[1], 10) == (date.getMonth() + 1))
+							&& (parseInt(splitValue[2], 10) == (date.getDate()))
 						)
 						: false
 					;
-					
+
 					res = res && ruleRes;
 					if( !res ) return false;
 				});
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -701,13 +709,13 @@ $.extend($.jqueryAnnexData, {
 							value = '';
 						}
 					}
-					
+
 					var ruleRes = /^([0-1][0-9]|2[0-3])\:[0-5][0-9]\:[0-5][0-9]$/.test(value);
 					res = res && ruleRes;
 					if( !res ) return false;
 				});
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -725,7 +733,7 @@ $.extend($.jqueryAnnexData, {
 					&& $.proxy($.jqueryAnnexData.validation.validators.timeISO, $(this), null, '__internal__')()
 				;
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -747,10 +755,10 @@ $.extend($.jqueryAnnexData, {
 							value = '';
 						}
 					}
-											
+
 					var formatValid = /^(0?[1-9]|[1-2][0-9]|3[0-1])\.(0?[1-9]|1[0-2])\.([1-2][0-9]{3})$/.test(value);
 					var splitValue = formatValid ? value.split('.') : null;
-					
+
 					if( formatValid ){
 						for( var i = 0; i < 2; i++ ){
 							if( splitValue[i].length  < 2 ){
@@ -758,24 +766,24 @@ $.extend($.jqueryAnnexData, {
 							}
 						}
 					}
-					
+
 					var date = formatValid ? new Date(splitValue[2]+'-'+splitValue[1]+'-'+splitValue[0]) : null;
-					var ruleRes = 
+					var ruleRes =
 						((date !== null) && (splitValue !== null))
 						? (
 							!/Invalid|NaN/.test(date)
-							&& (parseInt(splitValue[0]) == (date.getDate()))
-							&& (parseInt(splitValue[1]) == (date.getMonth() + 1))
-							&& (parseInt(splitValue[2]) == (date.getFullYear()))
+							&& (parseInt(splitValue[0], 10) == (date.getDate()))
+							&& (parseInt(splitValue[1], 10) == (date.getMonth() + 1))
+							&& (parseInt(splitValue[2], 10) == (date.getFullYear()))
 						)
 						: false
 					;
-					
+
 					res = res && ruleRes;
 					if( !res ) return false;
 				});
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -797,13 +805,13 @@ $.extend($.jqueryAnnexData, {
 							value = '';
 						}
 					}
-						
+
 					var ruleRes = /^([0-1][0-9]|2[0-3])\:[0-5][0-9](\:[0-5][0-9])?h?$/.test(value);
 					res = res && ruleRes;
 					if( !res ) return false;
 				});
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -821,7 +829,7 @@ $.extend($.jqueryAnnexData, {
 					&& $.proxy($.jqueryAnnexData.validation.validators.timeDE, $(this), null, '__internal__')()
 				;
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -835,11 +843,11 @@ $.extend($.jqueryAnnexData, {
 				var context = $(this).data('validationdata').status;
 
 				$.each(context.values, function(index, value){
-					res = res && ((value == ''+parseInt(value)) || (value == ''+parseFloat(value)));
+					res = res && ((value == ''+parseInt(value, 10)) || (value == ''+parseFloat(value)));
 					if( !res ) return false;
 				});
-				
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -854,17 +862,17 @@ $.extend($.jqueryAnnexData, {
 
 				$.each(context.values, function(index, value){
 					var ruleRes = /^[0-9]+(\,[0-9]+)?$/.test(value);
-					
+
 					if( ruleRes ){
 						value = value.replace(/\,/g, '.');
-						ruleRes = ((value == ''+parseInt(value)) || (value == ''+parseFloat(value)));
+						ruleRes = ((value == ''+parseInt(value, 10)) || (value == ''+parseFloat(value)));
 					}
-					
+
 					res = res && ruleRes;
 					if( !res ) return false;
 				});
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -882,7 +890,7 @@ $.extend($.jqueryAnnexData, {
 					if( !res ) return false;
 				});
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -900,7 +908,7 @@ $.extend($.jqueryAnnexData, {
 					if( !res ) return false;
 				});
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -914,13 +922,13 @@ $.extend($.jqueryAnnexData, {
 				var context = $(this).data('validationdata').status;
 
 				var characterClassRegEx = new RegExp('^['+characterclass+']*$');
-			
+
 				$.each(context.values, function(index, value){
 					res = res && characterClassRegEx.test(value);
 					if( !res ) return false;
 				});
 
-				if( !res && $.isSet(msg) && ($.trim(msg) != '') ){
+				if( !res && $.isSet(msg) && ($.trim(msg) !== '') ){
 					context.messages.push(msg);
 				}
 
@@ -928,7 +936,7 @@ $.extend($.jqueryAnnexData, {
 			}
 		}
 	}
-	
+
 });
 
 
@@ -956,18 +964,18 @@ $.extend({
 		doValidate = doValidate ? true : false;
 		$.jqueryAnnexData.validation.config.validateOnWidgetEvents = doValidate;
 	},
-	
-	
-	
+
+
+
 	setAdditionalValidationWidgetEvents : function(events){
 		$.assert($.isArray(events), 'events need to be an array');
-		
+
 		var eventString = '';
 		$.each(events, function(index, value){
 			eventString += value+'.validation ';
 		});
 		eventString = ' '+$.trim(eventString);
-		
+
 		$.jqueryAnnexData.validation.config.additionalWidgetEvents = eventString;
 	},
 
@@ -1143,12 +1151,12 @@ $.fn.extend({
 								break;
 							}
 						}
-						
+
 						if( elementIndex >= 0 ){
 							$.removeFromArray($.jqueryAnnexData.validation.config.registeredTargets[key], elementIndex);
 						}
-						
-						if( $.jqueryAnnexData.validation.config.registeredTargets[key].length == 0 ){
+
+						if( $.jqueryAnnexData.validation.config.registeredTargets[key].length === 0 ){
 							$(this).closest('form').off('submit.validation');
 
 							if( key != 'all' ){
