@@ -615,31 +615,49 @@ $.extend({
 	 *
 	 * @param {String} name name of the state or event you are waiting/polling for
 	 * @param {Function} fCondition closure to define the state to wait for, returns true if state exists and false if not
-	 * @param {Function} fAction closure to define action to take place if contition exists, poll removes itself if this evaluates to true e.g.
+	 * @param {Function} fAction closure to define action to take place if condition is fullfilled, poll removes itself if this evaluates to true e.g.
+	 * @param {Function} fElseAction closure to define action to take place if contition is not fulfilled
 	 * @param {Integer} newLoopMs OPTIONAL new loop wait time in ms, resets global timer if useOwnTimer is not set, otherwise sets local timer for poll
 	 * @param {Boolean} useOwnTimer OPTIONAL has to be set and true to tell the poll to use an independent local timer instead of the global one.
 	 * @return {Object|null} new poll or null in case of param error
 	 **/
-	poll : function(name, fCondition, fAction, newLoopMs, useOwnTimer){
+	poll : function(name, fCondition, fAction, fElseAction, newLoopMs, useOwnTimer){
 		name = $.trim(''+name);
 
 		if( (name !== '') && $.isFunction(fCondition) && $.isFunction(fAction) ){
+			fElseAction = $.isFunction(fElseAction) ? fElseAction : $.noop;
+
 			var newPoll = {
 				name : name,
 				condition: fCondition,
 				action : fAction,
-				loop : null
+				elseAction : fElseAction,
+				loop : null,
+				lastPollResult : false,
+				forceFire : function(){
+					if( fCondition() ){
+						fAction(true);
+						newPoll.lastPollResult = true;
+					} else {
+						fElseAction(true);
+						newPoll.lastPollResult = false;
+					}
+				}
 			};
 
 			if( this.isSet(useOwnTimer) && useOwnTimer ){
 				newPoll.loop = this.loop(!this.isSet(newLoopMs) ? 250 : parseInt(newLoopMs, 10), function(){
 					if( newPoll.condition() ){
-						if( newPoll.action() ){
-							this.countermand(newPoll.loop);
+						if( newPoll.action(newPoll.lastPollResult === false) ){
+							$.countermand(newPoll.loop);
 							newPoll.loop = null;
-							delete this.jqueryAnnexData.polls.activePolls[newPoll.name];
-							this.jqueryAnnexData.polls.activePollCount--;
+							delete $.jqueryAnnexData.polls.activePolls[newPoll.name];
+							$.jqueryAnnexData.polls.activePollCount--;
 						}
+						newPoll.lastPollResult = true;
+					} else {
+						newPoll.elseAction(newPoll.lastPollResult === true);
+						newPoll.lastPollResult = false;
 					}
 				});
 			}
@@ -661,18 +679,24 @@ $.extend({
 				}
 
 				this.jqueryAnnexData.polls.defaultLoop = this.loop(!this.isSet(newLoopMs) ? 250 : parseInt(newLoopMs, 10), function(){
-					if( this.jqueryAnnexData.polls.activePollCount > 0 ){
-						$.each(this.jqueryAnnexData.polls.activePolls, function(name, poll){
-							if( !$.isSet(poll.loop) && poll.condition() ){
-								if( poll.action() ){
-									delete $.jqueryAnnexData.polls.activePolls[name];
-									$.jqueryAnnexData.polls.activePollCount--;
+					if( $.jqueryAnnexData.polls.activePollCount > 0 ){
+						$.each($.jqueryAnnexData.polls.activePolls, function(name, poll){
+							if( !$.isSet(poll.loop) ){
+								if( poll.condition() ){
+									if( poll.action(poll.lastPollResult === false) ){
+										delete $.jqueryAnnexData.polls.activePolls[name];
+										$.jqueryAnnexData.polls.activePollCount--;
+									}
+									poll.lastPollResult = true;
+								} else {
+									poll.elseAction(poll.lastPollResult === true);
+									poll.lastPollResult = false;
 								}
 							}
 						});
 					} else {
-						this.countermand(this.jqueryAnnexData.polls.defaultLoop);
-						this.jqueryAnnexData.polls.defaultLoop = null;
+						$.countermand($.jqueryAnnexData.polls.defaultLoop);
+						$.jqueryAnnexData.polls.defaultLoop = null;
 					}
 				});
 			}
@@ -1040,7 +1064,7 @@ $.extend({
 
 
 	/**
-	 * Coverts a CSS-URL to a img-src-usable value.
+	 * Converts a CSS-URL to a img-src-usable value.
 	 *
 	 * @param {String} cssUrl the URL from the css
 	 * @param {String} relativePathPart OPTIONAL the relative path part of the URL from the css to cut for src-use
@@ -1872,7 +1896,8 @@ $.fn.extend({
 	 */
 	cssCrossBrowser : function(cssObj){
 		if( $.isPlainObject(cssObj) ){
-			$.each(cssObj, function(cssKey, cssValue){
+			var orgCssObj = $.extend({}, cssObj);
+			$.each(orgCssObj, function(cssKey, cssValue){
 				$.each(['-moz-', '-webkit-', '-o-', '-ms-', '-khtml-'], function(variantIndex, variantValue){
 					if(cssKey == 'transition'){
 						cssObj[variantValue+cssKey] = $.strReplace('transform', variantValue+'transform', cssValue);
@@ -1881,7 +1906,6 @@ $.fn.extend({
 					}
 				});
 			});
-
 			$(this).css(cssObj);
 		}
 
@@ -1900,6 +1924,7 @@ $.fn.extend({
 			this.onselectstart = function(){ return false; };
 			this.unselectable = 'on';
 			$(this).cssCrossBrowser({'user-select' : 'none'});
+			$(this).css('-webkit-touch-callout', 'none');
 		});
 
 		return this;
