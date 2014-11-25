@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl
- * @version Revision 14 developed and tested with jQuery 1.11.0
+ * @version Revision 15 developed and tested with jQuery 1.11.0
  **/
 
 
@@ -19,7 +19,13 @@
 
 $.extend({
 
-	// general dictionary to hold internal data and offer data space for plugins
+	/**
+	 * general dictionary to hold internal data and offer data space for plugins
+	 *
+	 * @global
+	 * @private
+	 * @static
+	 **/
 	jqueryAnnexData : {
 		logging : {
 			originalLoggingFunction : ((window['console'] !== undefined) && $.isFunction(console.log)) ? console.log : $.noop,
@@ -50,8 +56,11 @@ $.extend({
 	/**
 	 * Logs a message to the console. Prevents errors in browsers, that don't support this feature.
 	 *
-	 * @param {String} enabled OPTIONAL enable/disable logging globally, including console.log, use tokens __enable__ and __disable__
-	 * @param {*} .. OPTIONAL add any number of arguments you wish to log
+	 * If the first parameter is not __enable__ or __disable__ it is treated as a value to log, in any other
+	 * case the list to log begins after the first param.
+	 *
+	 * @param {String} [enabled] - enable/disable logging globally, including console.log, use tokens __enable__ and __disable__
+	 * @param {...*} [...] - add any number of arguments you wish to log
 	 **/
 	log : function(enabled){
 		if( this.isSet(enabled) && ($.inArray(enabled, ['__enable__', '__disable__']) >= 0) ){
@@ -66,7 +75,9 @@ $.extend({
 				console.log = $.noop;
 			}
 
-			this.jqueryAnnexData.logging.enabled = enabled;
+			this.jqueryAnnexData.logging.enabled = (enabled == '__enable__');
+
+			this.log.apply(this, arguments);
 		} else {
 			if( this.exists('console') && $.isFunction(console.log) ){
 				$.each(arguments, function(index, obj){
@@ -94,6 +105,8 @@ $.extend({
 	 * This method needs arguments.caller and .callee for the function sig. I know this is
 	 * legacy code and might not work in the future. Without these all calls will be counted
 	 * as "anonymous".
+	 *
+	 * This method will not properly work in strict mode.
 	 **/
 	x : function(){
 		var context = 'anonymous';
@@ -124,10 +137,10 @@ $.extend({
 	/**
 	 * Creates jQuery-enabled DOM-elements on the fly.
 	 *
-	 * @param {String} tag name of the tag/element to create
-	 * @param {Object} attributes OPTIONAL tag attributes as key/value-pairs
-	 * @param {String} content OPTIONAL content to embed into the element, such as text
-	 * @return {Object} jQuery-enabled DOM-element
+	 * @param {String} tag - name of the tag/element to create
+	 * @param {?Object.<String, String>} [attributes] - tag attributes as key/value-pairs
+	 * @param {?String} [content] - content to embed into the element, such as text
+	 * @returns {Object} jQuery-enabled DOM-element
 	 **/
 	elem : function(tag, attributes, content){
 		var attrString = '';
@@ -150,10 +163,10 @@ $.extend({
 	/**
 	 * Classical assert method. If not condition, throw assert exception.
 	 *
-	 * @param {Boolean} condition defines if an assertion is successful
-	 * @param {String} message OPTIONAL to display if assertion fails
-	 * @return {Boolean} result of the assertion
+	 * @param {Boolean} condition - defines if an assertion is successful
+	 * @param {String} [message] - to display if assertion fails
 	 * @throws assert exception
+	 * @returns {Boolean} result of the assertion
 	 **/
 	assert : function(condition, message){
 		if( !condition ){
@@ -165,10 +178,10 @@ $.extend({
 
 
 	/**
-	 * Check if variable(s) is set at all.
+	 * Check if variable(s) is set at, by being neither undefined nor null.
 	 *
-	 * @param {*} .. OPTIONAL add any number of targets you wish to check
-	 * @return {Boolean} true / false
+	 * @param {...*} [...] - add any number of variables you wish to check
+	 * @returns {Boolean} variable(s) is/are set
 	 **/
 	isSet : function(){
 		var res = true;
@@ -186,13 +199,35 @@ $.extend({
 
 
 	/**
-	 * Check if a variable is defined in a certain context (normally globally in window).
-	 * Or check if a jquery set contains anything, answering if the query-string exists in its context.
+	 * If an expression returns an "empty" value,
+	 * use the default value instead.
 	 *
-	 * @param {String|Object} target name of the variable to look for, not the variable itself, or a jquery Object
-	 * @param {*} context OPTIONAL the context in which to look for the variable, window by default, holds no meaning for jquery objects
-	 * @return {Boolean} true / false
-	 */
+	 * @param {*} expression - the expression to evaluate
+	 * @param {*} defaultValue - the default value to use if the expression is considered empty
+	 * @param {Array} [additionalEmptyValues] - if set, provides a list of additional values to be considered empty, apart from undefined and null
+	 * @returns {*} expression of defaultValue
+	 **/
+	orDefault : function(expression, defaultValue, additionalEmptyValues){
+		additionalEmptyValues = $.isArray(additionalEmptyValues) ? additionalEmptyValues : [additionalEmptyValues];
+
+		if( !this.isSet(expression) || ($.inArray(expression, additionalEmptyValues) >= 0) ){
+			return defaultValue;
+		} else {
+			return expression;
+		}
+	},
+
+
+
+	/**
+	 * Check if a variable is defined in a certain context (normally globally in window).
+	 * Or check if a jquery set contains anything based on its selector,
+	 * answering if the query-string exists in its context.
+	 *
+	 * @param {(String|Object)} target - name of the variable to look for (not the variable itself) or a jquery Object
+	 * @param {*} [context=window] - the context in which to look for the variable, holds no meaning for jquery objects
+	 * @returns {Boolean} variable exists in context or jQuery-set has length > 0
+	 **/
 	exists : function(target, context){
 		var res = true;
 
@@ -224,9 +259,9 @@ $.extend({
 	 * Short form of the standard "type"-method with a more compact syntax.
 	 * Can identify "boolean", "number", "string", "function", "array", "date", "regexp" and "object".
 	 *
-	 * @param {*} target variable to check the type of
-	 * @param {String} typeName the name of the type to check for, has to be a standard JS-type
-	 * @return {Boolean} true / false
+	 * @param {*} target - variable to check the type of
+	 * @param {String} typeName - the name of the type to check for, has to be a standard JS-type
+	 * @returns {Boolean} target has type
 	 **/
 	isA : function(target, typeName){
 		if( $.inArray(typeName, ['boolean', 'number', 'string', 'function', 'array', 'date', 'regexp', 'object']) >= 0 ){
@@ -240,13 +275,46 @@ $.extend({
 
 
 	/**
-	 * Offers similar functionality to phps str_replace and avoids RegExps for this task.
+	 * Returns if a value is truly a real integer value and not just an int-parsable value for example.
+	 * Since JS only knows the data type "number" all numbers are usable as floats by default, but not the
+	 * other way round.
 	 *
-	 * @param {String|Array} search the string(s) to replace
-	 * @param {String|Array} replace the string(s) to replace the search string(s)
-	 * @param {String} subject the string to replace in
-	 * @return {String} the modified string
-	 */
+	 * @param {*} intVal - the value the check
+	 * @returns {Boolean} true if intVal is a true integer value
+	 **/
+	isInt : function(intVal){
+		return parseInt(intVal, 10) === intVal;
+	},
+
+
+
+	/**
+	 * Returns if a value is a numeric value, usable as a float number in any calculation.
+	 * Any number that fulfills isInt, is also considered a valid float, which lies in JS's
+	 * nature of not differentiating ints and floats by putting them both into a "number"-type.
+	 * So ints are always floats, but not necessarily the other way round.
+	 *
+	 * @param {*} floatVal - the value to check
+	 * @returns {Boolean} true if floatVal is usable in a float context
+	 **/
+	isFloat : function(floatVal){
+		return parseFloat(floatVal) === floatVal;
+	},
+
+
+
+	/**
+	 * Offers similar functionality to phps str_replace and avoids RegExps for this task.
+	 * Replace occurrences of search in subject with replace. search and replace may be arrays.
+	 * If search is an array and replace is a string, all phrases in the array will be replaced with one string.
+	 * If replace is an array itself, phrases and replacements are matched by index.
+	 * Missing replacements are treated as an empty string.
+	 *
+	 * @param {(String|String[])} search - the string(s) to replace
+	 * @param {String|String[]} replace - the string(s) to replace the search string(s)
+	 * @param {String} subject - the string to replace in
+	 * @returns {String} the modified string
+	 **/
 	strReplace : function(search, replace, subject){
 		search = [].concat(search);
 		replace = [].concat(replace);
@@ -266,11 +334,11 @@ $.extend({
 	/**
 	 * Truncates a given string after a certain number of characters to enforce length restrictions.
 	 *
-	 * @param {String} subject the string to check and truncate
-	 * @param {Integer} maxLength OPTIONAL the maximum allowed character length for the string
-	 * @param {String} suffix OPTIONAL the trailing string to end a truncated string with
-	 * @return {String} the original or truncated subject
-	 */
+	 * @param {String} subject - the string to check and truncate
+	 * @param {?Number.Integer} [maxLength=30] - the maximum allowed character length for the string
+	 * @param {?String} [suffix=...] - the trailing string to end a truncated string with
+	 * @returns {String} the (truncated) subject
+	 **/
 	strTruncate : function(subject, maxLength, suffix){
 		subject = ''+subject;
 
@@ -292,17 +360,19 @@ $.extend({
 
 
 	/**
-	 * Removes Elements from an Array. Removes Elements from an Array. Modifies the original array.
+	 * Removes Elements from an Array.
+	 * Does not modify the original.
 	 *
-	 * @param {Array} array the array to remove elements from
-	 * @param {Integer} from index to start removing (can also be negative to start from back)
-	 * @param {Integer} to OPTIONAL index to end removing (can also be negative to start from back)
-	 * @return {Array} the modified array
-	 */
-	removeFromArray : function(array, from, to){
-		var rest = array.slice((to || from) + 1 || array.length);
-		array.length = (from < 0) ? (array.length + from) : from;
-		return array.push.apply(array, rest);
+	 * @param {Array} target - the array to remove elements from
+	 * @param {Number.Integer} from - index to start removing from (can also be negative to start counting from back)
+	 * @param {Number.Integer} [to=target.length] - index to end removing (can also be negative to end counting from back)
+	 * @returns {Array} the modified array
+	 **/
+	removeFromArray : function(target, from, to){
+		target = target.slice(0);
+		var rest = target.slice((to || from) + 1 || target.length);
+		target.length = (from < 0) ? (target.length + from) : from;
+		return target.push.apply(target, rest);
 	},
 
 
@@ -310,8 +380,8 @@ $.extend({
 	/**
 	 * Counts enumerable properties of (plain) objects.
 	 *
-	 * @param {Objects} object the object to count properties in
-	 * @return {Integer} number of enumerable properties
+	 * @param {Object} object - the object to count properties in
+	 * @returns {Number.Integer} number of enumerable properties
 	 **/
 	objectLength : function(object){
 		var count = 0;
@@ -326,11 +396,12 @@ $.extend({
 
 
 	/**
-	 * Special form of Math.random, returning an int value between two ints, where floor and ceiling are included in the range.
+	 * Special form of Math.random, returning an int value between two ints,
+	 * where floor and ceiling are included in the range.
 	 *
-	 * @param {Integer} floor the lower end of random range
-	 * @param {Integer} ceiling the upper end of random range
-	 * @return {Integer} random int between floor and ceiling
+	 * @param {?Number.Integer} [floor=0] - the lower end of random range
+	 * @param {?Number.Integer} [ceiling=10] - the upper end of random range
+	 * @returns {Number.Integer} random int between floor and ceiling
 	 **/
 	randomInt : function(floor, ceiling){
 		if( !this.isSet(floor) ){
@@ -356,10 +427,10 @@ $.extend({
 
 
 	/**
-	 * Returns a UUID, as close as possible with JavaScript.
+	 * Returns a "UUID", as close as possible with JavaScript (so not really, but looks like one :).
 	 *
-	 * @param {Boolean} withoutDashes OPTIONAL defines if UUID shall include dashes or not, default is true
-	 * @return {String} a UUID
+	 * @param {Boolean} [withoutDashes=false] - defines if UUID shall include dashes or not
+	 * @returns {String} a "UUID"
 	 **/
 	randomUUID : function(withoutDashes){
 		if( !this.isSet(withoutDashes) ){
@@ -393,12 +464,13 @@ $.extend({
 
 
 	/**
-	 * Checks if a value is within bounds of a minimum and maximum and returns the value or minimum/maximum if out of bounds.
+	 * Checks if a value is within bounds of a minimum and maximum and returns
+	 * the value or the upper or lower bound respectively.
 	 *
-	 * @param {Boolean} value the lower bound, has to be comparable with < and >
-	 * @param {Boolean} value the value to check, has to be comparable with < and >
-	 * @param {Boolean} value the upper bound, has to be comparable with < and >
-	 * @return {*} value, min or max
+	 * @param {Comparable} min - the lower bound
+	 * @param {Comparable} value - the value to check
+	 * @param {Comparable} max - the upper bound
+	 * @returns {Comparable} value, min or max
 	 **/
 	minMax : function(min, value, max){
 		return (value < min)
@@ -417,10 +489,10 @@ $.extend({
 	 * Setup a timer for one-time execution of a callback, kills old timer if wished
 	 * to prevent overlapping timers.
 	 *
-	 * @param {Integer} ms time in milliseconds till execution
-	 * @param {Function} callback callback function to execute after ms
-	 * @param {Object|GUID} oldTimer OPTIONAL if set, kills the timer before setting up new one
-	 * @return {Object|null} new timer or null in case of a param-error
+	 * @param {Number.Integer} ms - time in milliseconds until execution
+	 * @param {Function} callback - callback function to execute after ms
+	 * @param {(Object|Number.Integer)} [oldTimer] - if set, kills the timer before setting up new one
+	 * @returns {(Object|null)} new timer or null in case of a param-error
 	 **/
 	schedule : function(ms, callback, oldTimer){
 		if( this.isSet(oldTimer) ){
@@ -438,14 +510,14 @@ $.extend({
 
 	/**
 	 * Setup a timer for one-time execution of a callback, kills old timer if wished
-	 * to prevent overlapping timers. This implementation uses Date.getTime() to
-	 * improve on timer precision for long running timers. The timers of this method
-	 * can also be used in countermand().
+	 * to prevent overlapping timers.
+	 * This implementation uses Date.getTime() to improve on timer precision for long
+	 * running timers. The timers of this method can also be used in countermand().
 	 *
-	 * @param {Integer} ms time in milliseconds till execution
-	 * @param {Function} callback callback function to execute after ms
-	 * @param {Object|GUID} oldTimer OPTIONAL if set, kills the timer before setting up new one
-	 * @return {Object|null} timer or null in case of a param-error (does not create new timer object if oldTimer given)
+	 * @param {Number.Integer} ms - time in milliseconds until execution
+	 * @param {Function} callback - callback function to execute after ms
+	 * @param {(Object|Number.Integer)} [oldTimer] - if set, kills the timer before setting up new one
+	 * @returns {(Object|null)} new timer or null in case of a param-error (does not create new timer object if oldTimer given)
 	 **/
 	pschedule : function(ms, callback, oldTimer){
 		if(
@@ -485,10 +557,10 @@ $.extend({
 	/**
 	 * Alias for schedule() with more natural param-order for rescheduling.
 	 *
-	 * @param {Object|GUID} timer the timer to refresh/reset
-	 * @param {Integer} ms time in milliseconds till execution
-	 * @param {Function} callback callback function to execute after ms
-	 * @return {Object|null} new timer or null in case of a param-error
+	 * @param {(Object|Number.Integer)} timer - the timer to refresh/reset
+	 * @param {Number.Integer} ms - time in milliseconds until execution
+	 * @param {Function} callback - callback function to execute after ms
+	 * @returns {(Object|null)} new timer or null in case of a param-error
 	 **/
 	reschedule : function(timer, ms, callback){
 		if(
@@ -509,10 +581,10 @@ $.extend({
 	 * Setup a loop for repeated execution of a callback, kills old loop if wished
 	 * to prevent overlapping loops.
 	 *
-	 * @param {Integer} ms time in milliseconds till execution
-	 * @param {Function} callback callback function to execute after ms
-	 * @param {Object|GUID} oldLoop OPTIONAL if set, kills the loop before setting up new one
-	 * @return {Object|null} new loop or null in case of a param-error
+	 * @param {Number.Integer} ms - time in milliseconds until execution
+	 * @param {Function} callback - callback function to execute after ms
+	 * @param {(Object|Number.Integer)} [oldLoop] - if set, kills the loop before setting up new one
+	 * @returns {(Object|null)} new loop or null in case of a param-error
 	 **/
 	loop : function(ms, callback, oldLoop){
 		if( this.isSet(oldLoop) ){
@@ -530,15 +602,16 @@ $.extend({
 
 	/**
 	 * Setup a loop for repeated execution of a callback, kills old loop if wished
-	 * to prevent overlapping loops. This implementation uses Date.getTime() to
-	 * improve on timer precision for long running loops. The loops of this method
-	 * can also be used in countermand(). This method does not actually use intervals
-	 * internally but timeouts, so don't wonder if you can't find the ids in JS.
+	 * to prevent overlapping loops.
+	 * This implementation uses Date.getTime() to improve on timer precision for long running loops.
+	 * The loops of this method can also be used in countermand().
+	 * This method does not actually use intervals internally but timeouts,
+	 * so don't wonder if you can't find the ids in JS.
 	 *
-	 * @param {Integer} ms time in milliseconds till execution
-	 * @param {Function} callback callback function to execute after ms
-	 * @param {Object|GUID} oldLoop OPTIONAL if set, kills the loop before setting up new one
-	 * @return {Object|null} new loop or null in case of a param-error
+	 * @param {Number.Integer} ms - time in milliseconds until execution
+	 * @param {Function} callback - callback function to execute after ms
+	 * @param {(Object|Number.Integer)} [oldLoop] - if set, kills the loop before setting up new one
+	 * @returns {(Object|null)} new loop or null in case of a param-error
 	 **/
 	ploop : function(ms, callback, oldLoop){
 		if(
@@ -581,8 +654,8 @@ $.extend({
 	/**
 	 * Cancel a timer or loop immediately.
 	 *
-	 * @param {Object|GUID} timer the timer or loop to end
-	 * @param {Boolean} isInterval OPTIONAL defines if a timer or a loop is to be stopped, in case timer is a GUID
+	 * @param {(Object|Number.Integer)} timer - the timer or loop to end
+	 * @param {Boolean} [isInterval] - defines if a timer or a loop is to be stopped, set in case timer is a GUID
 	 **/
 	countermand : function(timer, isInterval){
 		if( this.isSet(timer) ){
@@ -613,13 +686,13 @@ $.extend({
 	 * Polls end or are repeated after an execution of the action depending on the result of the action closure.
 	 * There can always be only one poll of a certain name, redefining it overwrites the first one.
 	 *
-	 * @param {String} name name of the state or event you are waiting/polling for
-	 * @param {Function} fCondition closure to define the state to wait for, returns true if state exists and false if not
-	 * @param {Function} fAction closure to define action to take place if condition is fullfilled, poll removes itself if this evaluates to true e.g.
-	 * @param {Function} fElseAction closure to define action to take place if contition is not fulfilled
-	 * @param {Integer} newLoopMs OPTIONAL new loop wait time in ms, resets global timer if useOwnTimer is not set, otherwise sets local timer for poll
-	 * @param {Boolean} useOwnTimer OPTIONAL has to be set and true to tell the poll to use an independent local timer instead of the global one.
-	 * @return {Object|null} new poll or null in case of param error
+	 * @param {String} name - name of the state or event you are waiting/polling for
+	 * @param {Function} fCondition - closure to define the state to wait for, returns true if state exists and false if not
+	 * @param {Function} fAction - closure to define action to take place if condition is fullfilled, poll removes itself if this evaluates to true, receives Boolean parameter defining if result has changed
+	 * @param {Function} fElseAction - closure to define action to take place if contition is not fulfilled, receives Boolean parameter defining if result has changed
+	 * @param {?Number.Integer} [newLoopMs=250] - new loop wait time in ms, resets global timer if useOwnTimer is not set, otherwise sets local timer for poll
+	 * @param {?Boolean} [useOwnTimer=false] - has to be set and true to tell the poll to use an independent local timer instead of the global one.
+	 * @returns {(Object|null)} new poll or null in case of param error
 	 **/
 	poll : function(name, fCondition, fAction, fElseAction, newLoopMs, useOwnTimer){
 		name = $.trim(''+name);
@@ -712,8 +785,8 @@ $.extend({
 	/**
 	 * Removes an active poll from the poll stack via given name.
 	 *
-	 * @param {String} name name of the state or event you are waiting/polling for
-	 * @return {Boolean} true if poll has been removed, false if nothing has changed
+	 * @param {String} name - name of the state or event you are waiting/polling for that shall be removed
+	 * @returns {Boolean} true if poll has been removed, false if nothing has changed
 	 **/
 	unpoll : function(name){
 		name = $.trim(''+name);
@@ -745,12 +818,13 @@ $.extend({
 
 	/**
 	 * Changes the current window-location.
+	 * Also offers to only change the hash/anchor or send additional post params via hidden form transport.
 	 *
-	 * @param {String} url OPTIONAL the location to load, if null current location is reloaded
-	 * @param {Object} params OPTIONAL parameters to add to the url
-	 * @param {String} anchor OPTIONAL site anchor to set for called url, must be set via parameter, won't work reliably in URL only
-	 * @param {Object} postParams OPTIONAL a dictionary of postParameters to send with the redirect, solved with a hidden form
-	 * @param {String} target OPTIONAL name of the window to perform the redirect to/in
+	 * @param {?String} [url=window.location.href] - the location to load, if null current location is reloaded
+	 * @param {?Object.<String, String>} [params={}] - GET-parameters to add to the url as key-value-pairs
+	 * @param {?String} [anchor] - site anchor to set for called url, must be set via parameter, won't work reliably in URL only
+	 * @param {?Object} [postParams] - a dictionary of postParameters to send with the redirect, solved with a hidden form
+	 * @param {?String} [target] - name of the window to perform the redirect to/in
 	 **/
 	redirect : function(url, params, anchor, postParams, target){
 		var reload = !this.isSet(url);
@@ -844,11 +918,12 @@ $.extend({
 	/**
 	 * Changes the current URL silently by manipulating the browser history.
 	 * Be aware that this replaces the current URL in the history _without_ any further loads.
-	 * This method only works if window.history is supported by the browser.
+	 * This method only works if window.history is supported by the browser, otherwise
+	 * nothing will happen.
 	 *
-	 * @param {String} url an absolute or relative url to change the current address to
-	 * @param {Object} state OPTIONAL a serializable object to supply to the popState-event
-	 * @param {String} title OPTIONAL a name/title for the new state, not used in browsers atm
+	 * @param {String} url - an absolute or relative url to change the current address to
+	 * @param {?Object} [state] - a serializable object to supply to the popState-event
+	 * @param {?String} [title] - a name/title for the new state, not used in browsers atm
 	 **/
 	changeUrlSilently : function(url, state, title){
 		if( !this.isSet(state) ){
@@ -869,7 +944,7 @@ $.extend({
 	/**
 	 * Reloads the current window-location. Differentiates between cached and cache-refreshing reload.
 	 *
-	 * @param {Boolean} quickLoad OPTIONAL defines if cache-data should be ignored
+	 * @param {Boolean} [quickLoad=false] - if true, load as fast as possible using everything in cache
 	 **/
 	reload : function(quickLoad){
 		window.location.reload(this.isSet(quickLoad) && quickLoad);
@@ -880,15 +955,15 @@ $.extend({
 	/**
 	 * Opens a subwindow for the current window or another defined parent window.
 	 *
-	 * @param {String} url the URL to load into the new window
-	 * @param {Object} options OPTIONAL parameters for the new window according to the definitions of window.open + name for the window name
-	 * @param {Window} parentWindow OPTIONAL(default=window) parent window for the new window
-	 * @param {Boolean} tryAsPopup OPTIONAL(default=false) defines if it should be tried to force a new window instead of a tab
-	 * @return {Window} the newly opened window/tab
-	 */
+	 * @param {String} url - the URL to load into the new window
+	 * @param {?Object.<String, String>} [options] - parameters for the new window according to the definitions of window.open + "name" for the window name
+	 * @param {?Window} [parentWindow=window] - parent window for the new window
+	 * @param {?Boolean} [tryAsPopup=false] - defines if it should be tried to force a new window instead of a tab
+	 * @returns {Window} the newly opened window/tab
+	 **/
 	openWindow : function(url, options, parentWindow, tryAsPopup){
 		parentWindow = this.isSet(parentWindow) ? parentWindow : window;
-		tryAsPopup = this.isSet(tryAsPopup) ? (tryAsPopup ? true : false) : false;
+		tryAsPopup = this.isSet(tryAsPopup) ? !!tryAsPopup : false;
 
 		var windowName = '';
 		var optionArray = [];
@@ -915,9 +990,9 @@ $.extend({
 	 * The method offers the possiblity to include the CSS as a link or a style tag. Includes are marked with a
 	 * html5-conform "data-id"-attribute, so additional loads can be removed again unproblematically.
 	 *
-	 * @param {String} url the URL of the CSS-file to load
-	 * @param {Object} options OPTIONAL config for the call (styletag : true/false, media : screen/print/all/etc., charset : utf-8/etc., id : {String})
-	 * @param {Function} callback OPTIONAL function to call after css is loaded and included into DOM, gets included DOM-element as parameter
+	 * @param {String} url - the URL of the CSS-file to load
+	 * @param {?Object.<String, *>} [options] - config for the call (styletag : true/false, media : screen/print/all/etc., charset : utf-8/etc., id : {String})
+	 * @param {Function} [callback] - function to call after css is loaded and included into DOM, gets included DOM-element as parameter
 	 **/
 	getCSS : function(url, options, callback){
 		var that = this;
@@ -999,10 +1074,10 @@ $.extend({
 	/**
 	 * Sets cookies and retrieves them again.
 	 *
-	 * @param {String} name name of the cookie
-	 * @param {String} value OPTIONAL value-string of the cookie
-	 * @param {Object} options OPTIONAL config-object for the cookie setting expiries etc.
-	 * @return {void|String} either nothing, when setting a cookie, or the value of a requested cookie
+	 * @param {String} name - name of the cookie
+	 * @param {String} [value] - value-string of the cookie
+	 * @param {Object} [options] - config-object for the cookie setting expiries etc., use together with a value
+	 * @returns {(void|String)} either nothing, when setting a cookie, or the value of a requested cookie
 	 **/
 	cookie : function(name, value, options) {
 		if( value !== undefined ){
@@ -1052,10 +1127,10 @@ $.extend({
 
 
 	/**
-	 * Converts a css-value to an integer without unit.
+	 * Converts a CSS-value to an integer without unit.
 	 *
-	 * @param {String} cssVal the css-value to convert
-	 * @return {Integer} true integer representation of the given value
+	 * @param {String} cssVal - the css-value to convert
+	 * @returns {Number.Integer} true integer representation of the given value
 	 **/
 	cssToInt : function(cssVal){
 		return parseInt(cssVal.replace(/(px|em|%)$/, ''), 10);
@@ -1066,10 +1141,10 @@ $.extend({
 	/**
 	 * Converts a CSS-URL to a img-src-usable value.
 	 *
-	 * @param {String} cssUrl the URL from the css
-	 * @param {String} relativePathPart OPTIONAL the relative path part of the URL from the css to cut for src-use
-	 * @return {String} src value
-	 */
+	 * @param {String} cssUrl - the URL from the css
+	 * @param {String} [relativePathPart] - the relative path part of the URL from the css to cut for src-use
+	 * @returns {String} src value or empty string if cssUrl is no CSS-URL-value
+	 **/
 	cssUrlToSrc : function(cssUrl, relativePathPart){
 		var urlRex = new RegExp('^url\\((?:\'|\")?([^\'\"]+)(?:\'|\")?\\)$', 'i');
 		var matches = urlRex.exec(cssUrl);
@@ -1088,11 +1163,13 @@ $.extend({
 
 
 	/**
-	 * Preloads images by URL. Images can be preloaded by name and are thereby retrievable afterwards or anonymously.
+	 * Preloads images by URL.
+	 * Images can be preloaded by name and are thereby retrievable afterwards or anonymously.
+	 * So you can either just use the url again, or, to be super-sure, call the method again, with just the image name to get the URL.
 	 *
-	 * @param {String|Array|Object} images an URL, an array of URLS or a plain object containing named URLs. In case the string is a used name, the image-object is returned.
-	 * @param {Function} callback OPTIONAL callback to call when all images have loaded, this also fires on already loaded images if inserted again
-	 * @return {Image|Object} either returns a requested cached image or the currently added named/unnamed images as saved
+	 * @param {(String|String[]|Object.<String, String>)} images - an URL, an array of URLS or a plain object containing named URLs. In case the string is an already used name, the image-object is returned.
+	 * @param {Function} [callback] - callback to call when all images have loaded, this also fires on already loaded images if inserted again
+	 * @returns {(Image|Object.<String, String>)} either returns a requested cached image or the currently added named/unnamed images as saved
 	 **/
 	preloadImages : function(images, callback){
 		var res = null;
@@ -1167,23 +1244,75 @@ $.extend({
 
 
 	/**
-	 * Validates an object by checking if all given members are present and are not empty.
+	 * Waits for a list of webfonts to load before executing a callback.
+	 * Works for fonts already loaded as well.
 	 *
-	 * @param {Object} obj the object to check
-	 * @param {Array} memberNames the names of the members to check
-	 * @return {Boolean} true / false
+	 * @param {String|String[]} fonts - the CSS-names of the fonts to wait upon
+	 * @param {?String} [fallbackFontName=sans-serif] - the system font onto which the page falls back if the webfont is not loaded
+	 * @param {Function} callback - the callback to execute once all given webfonts are loaded
+	 **/
+	waitForWebfonts : function(fonts, fallbackFontName, callback) {
+		fonts = $.isArray(fonts) ? fonts : [''+fonts];
+		fallbackFontName = this.isSet(fallbackFontName) ? ''+fallbackFontName : 'sans-serif';
+
+		var loadedFonts = 0;
+		for(var i = 0; i < fonts.length; i++){
+				var $node = this.elem('span')
+					.html('giItT1WQy@!-/#')
+					.css({
+						'position' : 'absolute',
+						'visibility' : 'hidden',
+						'left' : '-10000x',
+						'top' : '-10000px',
+						'font-size' : '300px',
+						'font-family' : fallbackFontName,
+						'font-variant' : 'normal',
+						'font-style' : 'normal',
+						'font-weight' : 'normal',
+						'letter-spacing' : '0'
+					})
+				;
+				$('body').append($node);
+
+				var systemFontWidth = $node.width();
+				$node.css('font-family', fonts[i]+', '+fallbackFontName);
+
+				var tCheckFontLoaded = null;
+				var fCheckFont = function(){
+					if( $node && ($node.width() != systemFontWidth) ){
+						loadedFonts++;
+						$node.remove();
+						$node = null;
+					}
+
+					if( loadedFonts >= fonts.length ){
+						if( $.isSet(tCheckFontLoaded) ){
+							$.countermand(tCheckFontLoaded);
+						}
+
+						if( loadedFonts == fonts.length ){
+							callback();
+							return true;
+						}
+					}
+				};
+
+				if( !fCheckFont() ){
+					tCheckFontLoaded = this.loop(50, fCheckFont);
+				}
+		}
+	},
+
+
+
+	/**
+	 * "Validates" an object in a very basic way by checking if all given members are present and are not null.
+	 *
+	 * @param {Object} obj - the object to check
+	 * @param {String[]} memberNames - the names of the members to check
+	 * @returns {Boolean} all memberNames present and not null
 	 **/
 	validate : function(obj, memberNames){
-		if( !this.isSet(obj) || !this.isA(obj, 'object') ){
-			this.log('type exception: obj not an Object');
-			return false;
-		}
-
-		if( !this.isSet(memberNames) || !this.isArray(memberNames) ){
-			this.log('param exception: no valid memberNames');
-			return false;
-		}
-
 		for( var i = 0; i < memberNames.length; i++ ){
 			if( !this.isSet(obj[memberNames[i]]) ){
 				this.log('validity exception: missing member '+memberNames[i]);
@@ -1199,8 +1328,8 @@ $.extend({
 	/**
 	 * Tries to isolate a supposed (DB-)Id from a given String
 	 *
-	 * @param {String} baseString the string to isolate an id from
-	 * @return {String|null} either the isolated id or null
+	 * @param {String} baseString - the string to isolate an id from
+	 * @returns {(String|null)} either the isolated id or null
 	 **/
 	isolateId : function(baseString){
 		var occurrences = String(baseString).match(/[0-9]+/);
@@ -1217,10 +1346,11 @@ $.extend({
 	/**
 	 * Determines if a given value could be a valid id, being digits with or without given pre- and postfix.
 	 *
-	 * @param {String|Integer} testVal the value to test
-	 * @param {String} prefix OPTIONAL(default='') a prefix for the id
-	 * @param {String} postfix OPTIONAL(default='') a postfix for the id
-	 * @param {Boolean} dontMaskFixes OPTIONAL(default=false) if you want to use regexs as fixes, set this true
+	 * @param {(String|Number.Integer)} testVal - the value to test
+	 * @param {?String} [prefix] - a prefix for the id
+	 * @param {?String} [postfix] - a postfix for the id
+	 * @param {?Boolean} [dontMaskFixes=false] - if you want to use regexs as fixes, set this true
+	 * @returns {Boolean} true if value may be id
 	 **/
 	isPossibleId : function(testVal, prefix, postfix, dontMaskFixes){
 		prefix = $.isSet(prefix) ? ''+prefix : '';
@@ -1241,8 +1371,8 @@ $.extend({
 	/**
 	 * Masks all selector-special-characters.
 	 *
-	 * @param {String} string the string to mask for use in a selector
-	 * @return {String} the masked string
+	 * @param {String} string - the string to mask for use in a selector
+	 * @returns {String} the masked string
 	 **/
 	maskForSelector : function(string){
 		return string.replace(/([\#\;\&\,\.\+\*\~\'\:\"\!\^\$\[\]\(\)\=\>\ß\|\/\@])/, '\\$1');
@@ -1253,8 +1383,8 @@ $.extend({
 	/**
 	 * Masks all regex special characters.
 	 *
-	 * @param {String} string the string to mask for use in a regexp
-	 * @return {String} the masked string
+	 * @param {String} string - the string to mask for use in a regexp
+	 * @returns {String} the masked string
 	 **/
 	maskForRegEx : function(string){
 		return string.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
@@ -1266,8 +1396,8 @@ $.extend({
 	 * Escapes a string for use in an elements htmlContent. This might
 	 * come in handy if you need to combine insecure db-contents with dynamic markup.
 	 *
-	 * @param {String} html the html-ridden string to escape
-	 * @return {String} the escaped string
+	 * @param {String} html - the html-ridden string to escape
+	 * @returns {String} the escaped string
 	 **/
 	escapeHTML : function(html){
 		return this.elem('p').html(''+html).text();
@@ -1278,9 +1408,9 @@ $.extend({
 	/**
 	 * Binds a callback to a cursor key, internally identified by keycode.
 	 *
-	 * @param {String} keyName the key to bind, one of up, down, left, right
-	 * @param {Function} callback OPTIONAL callback to call of cursor key use, takes event e
-	 * @param {String} eventType OPTIONAL the event type to use when binding, one of keypress, keydown, keyup, default is keydown
+	 * @param {String} keyName - the key to bind => up/down/left/right
+	 * @param {Function} callback - callback to call of cursor key use, takes event e
+	 * @param {String} [eventType=keydown] - the event type to use when binding => keypress/keydown/keyup
 	 **/
 	bindCursorKey : function(keyName, callback, eventType){
 		var keys = {
@@ -1304,8 +1434,8 @@ $.extend({
 	/**
 	 * Unbinds a callback to a cursor key, internally identified by keycode.
 	 *
-	 * @param {String} keyName the key to bind, one of up, down, left, right
-	 * @param {String} eventType OPTIONAL the event type to use when binding, one of keypress, keydown, keyup, default is keydown
+	 * @param {String} keyName - the key to unbind => up/down/left/right
+	 * @param {String} [eventType=keydown] - the event type to use when binding => keypress/keydown/keyup
 	 **/
 	unbindCursorKey : function(keyName, eventType){
 		var keys = {
@@ -1341,11 +1471,12 @@ $.extend({
 
 	/**
 	 * Detects if the current JavaScript-context runs on a (dedicated) touch device.
+	 * Checks these UserAgents by default: iOS-devices, Blackberry, Android, IE mobile, Opera Mobilem Firefox Mobile and Kindle.
 	 *
-	 * @param {Boolean} inspectUserAgent defines if the user agent should be inspected additionally to identifying touch events
-	 * @param {Array} additionalUserAgentIds list of string-ids to search for in the user agent additionally to the basic ones
-	 * @param {Boolean} onlyConsiderUserAgent tells the algorithm to ignore feature checks and just go by the user-agent-ids
-	 * @return {Boolean} true / false
+	 * @param {Boolean} [inspectUserAgent=false] - defines if the user agent should be inspected additionally to identifying touch events
+	 * @param {?String[]} [additionalUserAgentIds] - list of string-ids to search for in the user agent additionally to the basic ones
+	 * @param {?Boolean} [onlyConsiderUserAgent=false] - tells the algorithm to ignore feature checks and just go by the user-agent-ids
+	 * @returns {Boolean} true if device knows touch events and or sends fitting useragent
 	 **/
 	contextIsTouchDevice : function(inspectUserAgent, additionalUserAgentIds, onlyConsiderUserAgent){
 		var that = this;
@@ -1362,6 +1493,7 @@ $.extend({
 					|| this.isSet(ua.match(/Android/i))
 					|| this.isSet(ua.match(/IE\sMobile\s[0-9]{0,2}/i))
 					|| this.isSet(ua.match(/Opera Mobi/i))
+					|| this.isSet(ua.match(/mobile.+firefox/i))
 					|| this.isSet(ua.match(/Kindle/i))
 				)
 			;
@@ -1389,7 +1521,7 @@ $.fn.extend({
 	/**
 	 * Returns the original object of a jQuery-enabled object.
 	 *
-	 * @return {Object|null} the original dom object or null in case of empty collection
+	 * @returns {(Object|Object[]|null)} the original dom object(s) or null in case of empty collection
 	 **/
 	oo : function(){
 		if( $(this).length == 1 ){
@@ -1412,7 +1544,7 @@ $.fn.extend({
 	/**
 	 * Sets an option selected or selects the text in a text-field/textarea.
 	 *
-	 * @return {Object} the target object
+	 * @returns {Object} this
 	 **/
 	doselect : function(){
 		if( $(this).is('option, :text, textarea') ){
@@ -1434,7 +1566,7 @@ $.fn.extend({
 	/**
 	 * Removes a selection from an option or deselects the text in a text-field/textarea.
 	 *
-	 * @return {Object} the target object
+	 * @returns {Object} this
 	 **/
 	deselect : function(){
 		if( $(this).is(':text, textarea') ){
@@ -1458,7 +1590,7 @@ $.fn.extend({
 	/**
 	 * Checks a checkbox or radiobutton.
 	 *
-	 * @return {Object} the target object
+	 * @returns {Object} this
 	 **/
 	check : function(){
 		if( $(this).is(':checkbox, :radio') ){
@@ -1473,7 +1605,7 @@ $.fn.extend({
 	/**
 	 * Removes a check from a checkbox or radiobutton.
 	 *
-	 * @return {Object} the target object
+	 * @returns {Object} this
 	 **/
 	uncheck : function(){
 		$(this).removeAttr('checked');
@@ -1486,7 +1618,7 @@ $.fn.extend({
 	/**
 	 * Enables a form-element.
 	 *
-	 * @return {Object} the target object
+	 * @returns {Object} this
 	 **/
 	enable : function(){
 		$(this).removeAttr('disabled');
@@ -1499,7 +1631,7 @@ $.fn.extend({
 	/**
 	 * Disables a form-element.
 	 *
-	 * @return {Object} the target object
+	 * @returns {Object} this
 	 **/
 	disable : function(){
 		if( $(this).is(':input') ){
@@ -1512,16 +1644,17 @@ $.fn.extend({
 
 
 	/**
-	 * Creates the basic attributes for a DOM-element that define it's DOM- and CSS-identity.
+	 * Creates the basic attributes for a DOM-element that define its DOM- and CSS-identity.
 	 * Namely id, class and style. An element may be used a source to inherit values from.
-	 * If identity is inherited from another element html5-data-attributes are also transferred.
+	 * If identity is inherited from another element html5-data-attributes are also transferred additionally.
+	 * Explicit on-event-handlers are also transferred and added as jquery-events with the "frommarkup"-namespace.
 	 *
-	 * @param {String} id OPTIONAL the html-id the element should have
-	 * @param {String|Array} classes OPTIONAL the html-classes the element should have
-	 * @param {String|Object} style OPTIONAL the html-style properties the element should have
-	 * @param {Object} $inheritFrom OPTIONAL the element to inherit identity values from
-	 * @return {Object} the target object
-	 */
+	 * @param {?String} [id] - the DOM-id the element should have
+	 * @param {?(String|String[])} [classes] - the html-classes the element should have
+	 * @param {?(String|Object.<String, String>)} [style] - the element's styles as a css-string or a jquery-style css-plain-object
+	 * @param {?Object} $inheritFrom - the element to inherit identity values from
+	 * @returns {Object} this
+	 **/
 	setElementIdentity : function(id, classes, style, $inheritFrom){
 		var that = this;
 		var copyAttrs = ['id', 'class', 'style'];
@@ -1573,8 +1706,8 @@ $.fn.extend({
 	 * having a src- or href-attributes.
 	 *
 	 * @param {String} paramName the name of the parameter to extract
-	 * @return {*} null in case the parameter doesn't exist, true in case it exists but has no value, a string in case the parameter has one value, or an array of strings
-	 */
+	 * @returns {(null|true|String|String[])} null in case the parameter doesn't exist, true in case it exists but has no value, a string in case the parameter has one value, or an array of strings
+	 **/
 	urlParameter : function(paramName){
 		paramName = ''+paramName;
 
@@ -1632,8 +1765,8 @@ $.fn.extend({
 	/**
 	 * Returns the currently set URL-Anchor on the document(-url) or elements having a src- or href-attribute.
 	 *
-	 * @param {Boolean} withoutCaret OPTIONAL defines if anchor value should contain leading "#"
-	 * @return {String|null} current anchor value or null if no anchor in url
+	 * @param {Boolean} [withoutCaret=false] - defines if anchor value should contain leading "#"
+	 * @returns {(String|null)} current anchor value or null if no anchor in url
 	 **/
 	urlAnchor : function(withoutCaret){
 		var anchor = null;
@@ -1674,7 +1807,7 @@ $.fn.extend({
 	 * this function can handle form-arrays, which are returned under their name without bracket
 	 * as an actual JS-Array.
 	 *
-	 * @return {Object} form-data-object {name:val, name:[val, val]}
+	 * @returns {Object} form-data-object {name:val, name:[val, val]}
 	 **/
 	formDataToObject : function(){
 		var fields = $(this).serializeArray();
@@ -1709,7 +1842,7 @@ $.fn.extend({
 	/**
 	 * Returns if the current element is currently part of the dom or detached/removed.
 	 *
-	 * @return {Boolean}
+	 * @returns {Boolean} true if in dom
 	 **/
 	isInDom : function(){
 		return $(this).closest(document.documentElement).length > 0;
@@ -1722,8 +1855,8 @@ $.fn.extend({
 	 * This method uses getBoundingClientRect(), which has to be supported by the browser, otherwise
 	 * the method will always return true.
 	 *
-	 * @param {Boolean} mustBeFullyInside OPTIONAL defines if the element has to be fully enclosed in the viewport, default is false
-	 * @return {Boolean}
+	 * @param {Boolean} [mustBeFullyInside=false] - defines if the element has to be fully enclosed in the viewport, default is false
+	 * @returns {Boolean} true if in viewport
 	 **/
 	isInViewport : function(mustBeFullyInside){
 		var bb = null;
@@ -1768,9 +1901,9 @@ $.fn.extend({
 
 
 	/**
-	 * Replaces hidden-class with the jQuery-state hidden, which is a little different :D
+	 * Replaces hidden-class with the jQuery-state hidden, which is just a weensy bit different :D
 	 *
-	 * @return {Object} the target object
+	 * @returns {Object} this
 	 **/
 	rehide : function(){
 		$(this).each(function(){
@@ -1787,11 +1920,11 @@ $.fn.extend({
 	/**
 	 * Measures hidden elements by using a sandbox div.
 	 *
-	 * @param {String} functionName name of the function to call on target
-	 * @param {String} selector OPTIONAL selector to apply to element to find target
-	 * @param {Object} context OPTIONAL context to use as container for measurement, normally body
-	 * @return {*} result of function applied to target
-	 */
+	 * @param {String} functionName - name of the function to call on target
+	 * @param {?String} [selector] - selector to apply to element to find target
+	 * @param {?Object} [context=$('body')] - context to use as container for measurement
+	 * @returns {*} result of function applied to target
+	 **/
 	measureHidden : function(functionName, selector, $context){
 		var res = null;
 
@@ -1823,9 +1956,10 @@ $.fn.extend({
 	/**
 	 * Fixes cross-browser problems with image-loads and fires the event even in case the image is already loaded.
 	 *
-	 * @param {Function} callback OPTIONAL callback to call when all images have been loaded
-	 * @return {Object} the target object
-	 */
+	 * @param {Function} callback - callback to call when all images have been loaded
+	 * @param {Boolean} [needsJqueryDims=false] - tells the check if we expect the loaded image to have readable dimensions
+	 * @returns {Object} this
+	 **/
 	imgLoad : function(callback, needsJqueryDims){
 		var targets = $(this).filter('img');
 		var targetCount = targets.length;
@@ -1860,10 +1994,10 @@ $.fn.extend({
 	 * Cancel animation with .stop(true).
 	 * The animationClosure needs to take a parameter, which is filled with the jQuery-element, this method is called upon.
 	 *
-	 * @param {Function} animationClosure closure in which all animation is included, takes the jQuery-Element as first parameter, needs to do something queue-building
-	 * @param {Function} killAnimations OPTIONAL defines if all current animation should be immediately finished before proceeding
-	 * @return {Object} the target object
-	 */
+	 * @param {Function} animationClosure - closure in which all animation is included, takes the jQuery-Element as first parameter, needs to do something queue-building
+	 * @param {Function} [killAnimations=false] - defines if all current animation should be immediately finished before proceeding
+	 * @returns {Object} this
+	 **/
 	loopAnimation : function(animationClosure, killAnimations){
 		killAnimations = !$.isSet(killAnimations) || ($.isSet(killAnimations) && killAnimations);
 
@@ -1891,9 +2025,9 @@ $.fn.extend({
 	 * Unknown stuff does not get interpreted, and therefore should not do harm,
 	 * but relives one of writing several slightly different rules all the time.
 	 *
-	 * @param {Object} cssObj plain object of CSS-rules to apply, according to standard jQuery-standard
-	 * @return {Object} the target object
-	 */
+	 * @param {Object.<String, String>} cssObj - plain object of CSS-rules to apply, according to standard jQuery-standard
+	 * @returns {Object} this
+	 **/
 	cssCrossBrowser : function(cssObj){
 		if( $.isPlainObject(cssObj) ){
 			var orgCssObj = $.extend({}, cssObj);
@@ -1917,8 +2051,8 @@ $.fn.extend({
 	/**
 	 * Disables selectability as far as possible for elements.
 	 *
-	 * @return {Object} the target object
-	 */
+	 * @returns {Object} this
+	 **/
 	disableSelection : function(){
 		$(this).each(function(){
 			this.onselectstart = function(){ return false; };
@@ -1936,15 +2070,15 @@ $.fn.extend({
 	 * Register an event handler to open a mailto dialogue without openly writing
 	 * down the mail address. Parameters mixed to complicate parsing.
 	 *
-	 * @param {String} tld the top level domain to use
-	 * @param {String} beforeAt the address part before the @
-	 * @param {String} afterAtWithoutTld the address part after the @ but before the tld
-	 * @param {String} subject OPTIONAL the subject the mail should have
-	 * @param {String} body OPTIONAL the body text the mail should have initially
-	 * @param {Boolean} writeToElem OPTIONAL define if the email should be written back to the element text, default is false
-	 * @param {String} eventType OPTIONAL the event type to register the call to, default is click
-	 * @return {Object} the target object
-	 */
+	 * @param {String} tld - the top level domain to use
+	 * @param {String} beforeAt - the address part before the @
+	 * @param {String} afterAtWithoutTld - the address part after the @ but before the tld
+	 * @param {?String} [subject] - the subject the mail should have
+	 * @param {?String} [body] - the body text the mail should have initially
+	 * @param {?Boolean} [writeToElem=false] - define if the email should be written back to the element text
+	 * @param {?String} [eventType=click] - the event type to register the call to
+	 * @returns {Object} this
+	 **/
 	registerMailto : function(tld, beforeAt, afterAtWithoutTld, subject, body, writeToElem, eventType){
 		if( !$.isSet(eventType) ){
 			eventType = 'click';
@@ -1974,14 +2108,14 @@ $.fn.extend({
 	 * Register an event handler to activate a tel-protocol phonecall without openly writing
 	 * down the number. Parameters mixed to complicate parsing.
 	 *
-	 * @param {Integer|String} regionPart the local part of the number after the country part e.g. +49(04)<-this 123 456
-	 * @param {Integer|String} first half of the main number +4904 (123)<-this 456
-	 * @param {Integer|String} countryPart the country identifactor with or without + this->(+49)04 123 456
-	 * @param {Integer|String} secondTelPart second half of the main number +4904 123 (456)<-this
-	 * @param {Boolean} writeToElem OPTIONAL define if the number should be written back to the element text, default is false
-	 * @param {String} eventType OPTIONAL the event type to register the call to, default is click
-	 * @return {Object} the target object
-	 */
+	 * @param {(Number.Integer|String)} regionPart - the local part of the number after the country part e.g. +49(04)<-this 123 456
+	 * @param {(Number.Integer|String)} firstTelPart - first half of the main number +4904 (123)<-this 456
+	 * @param {(Number.Integer|String)} countryPart - the country identifactor with or without + this->(+49)04 123 456
+	 * @param {(Number.Integer|String)} secondTelPart - second half of the main number +4904 123 (456)<-this
+	 * @param {?Boolean} [writeToElem=false] - define if the number should be written back to the element text
+	 * @param {?String} [eventType=click] - the event type to register the call to
+	 * @returns {Object} this
+	 **/
 	registerTel : function(regionPart, firstTelPart, countryPart, secondTelPart, writeToElem, eventType){
 		if( !$.isSet(eventType) ){
 			eventType = 'click';
@@ -2008,9 +2142,9 @@ $.fn.extend({
 	 * Treats touchstart, touchmove and touchend events on the element internally
 	 * as mousedown, mousemove and mouseup events and remaps event coordinates correctly.
 	 *
-	 * @param {Boolean} ignoreChildren OPTIONAL defines if only the element itself should count and whether to ignore bubbling
-	 * @return {Object} the target object
-	 */
+	 * @param {Boolean} [ignoreChildren=false] - defines if only the element itself should count and whether to ignore bubbling
+	 * @returns {Object} this
+	 **/
 	simulateTouchEvents : function(ignoreChildren){
 		$(this).on('touchstart touchmove touchend', function(e){
 			var isTarget = (e.target == this);
@@ -2078,8 +2212,8 @@ $.fn.extend({
 	/**
 	 * Creates a neutral, invisible sandbox in the given context, to mess around with.
 	 *
-	 * @return {Object} the target object
-	 */
+	 * @returns {Object} this
+	 **/
 	sandbox : function(){
 		$(this).append($.elem('div', {'id' : 'sandbox', 'style' : 'position:absolute; visibility:hidden; display:block;'}));
 
@@ -2091,8 +2225,8 @@ $.fn.extend({
 	/**
 	 * Removes the sandbox from given context.
 	 *
-	 * @return {Object} the target object
-	 */
+	 * @returns {Object} this
+	 **/
 	removeSandbox : function(){
 		$(this).find('#sandbox').remove();
 
