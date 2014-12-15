@@ -1508,6 +1508,29 @@ $.extend({
 		}
 
 		return res;
+	},
+
+
+
+	/**
+	 * Checks if the context would benefit from high DPI graphics.
+	 *
+	 * @returns {Boolean} true if device has high DPI, false if not or browser does not support media queries
+	 **/
+	contextHasHighDpi : function(){
+		if( window.matchMedia ){
+			var query = '@media only screen and (-webkit-min-device-pixel-ratio: 1.5),'
+				+'only screen and (-o-min-device-pixel-ratio: 3/2),'
+				+'only screen and (min--moz-device-pixel-ratio: 1.5),'
+				+'only screen and (min-device-pixel-ratio: 1.5),'
+				+'only screen and (min-resolution: 144dpi),'
+				+'only screen and (min-resolution: 1.5dppx)'
+			;
+
+			return window.matchMedia(query).matches;
+		} else {
+			return false;
+		}
 	}
 
 });
