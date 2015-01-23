@@ -660,7 +660,7 @@ $.extend({
 	countermand : function(timer, isInterval){
 		if( this.isSet(timer) ){
 			if( $.isPlainObject(timer) && this.validate(timer, ['id', 'type']) ){
-				if( timer.id == 'interval' ){
+				if( timer.type == 'interval' ){
 					window.clearInterval(timer.id);
 				} else {
 					window.clearTimeout(timer.id);
