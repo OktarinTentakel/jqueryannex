@@ -3,24 +3,24 @@
 <html>
 	<head>
 		<title>jQuery Annex Testcase Scenario</title>
-		
+
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-		
+
 		<style type="text/css">
 			.validationerror {
 				border: 3px solid red;
 			}
 		</style>
-		
+
 		<script type="text/javascript" src="jquery-1.9.1.min.js"></script>
 		<script type="text/javascript" src="jquery.annex.js"></script>
 		<script type="text/javascript" src="jquery.annex.validation-plugin.js"></script>
 		<script type="text/javascript">
 			$(document).ready(function(){
-			
+
 				// defines if validation is triggered by widget events such as change and blur or only manually/by form submit
 				$.validationIsTriggeredByWidgetEvents(true);
-				
+
 				// adds additional widget events to all widgets, default events are change and blur, must be called before setting validators
 				$.setAdditionalValidationWidgetEvents(['keyup']);
 
@@ -37,12 +37,12 @@
 
 				// trigger collection of validation from data-validation-attributes
 				$.setValidationFromTags();
-				
+
 				// set validation on form element through js-hooks
 				// validation is always an array of plain objects, representing rules
 				// the first key is the rule name, referencing the error message
 				// optionally a rule takes an array of args through second attribute args
-				
+
 				// is required, has to have a length between 3 and 8, has a customcase based on value length,
 				// has a asynchronous customcase based on a ajax-request on a remote file,
 				// has a validation success handler especially for this element,
@@ -65,7 +65,7 @@
 					null,
 					$('body')
 				);
-				
+
 				// is required to have a non empty value, with "---" defined as empty,
 				// has to be at least 2 characters long,
 				// has to have a value between 5 and 42
@@ -99,16 +99,16 @@
 					null,
 					$(':checkbox[name=test4]').closest('fieldset')
 				);
-				
+
 				// possible removal of validation added beforehand, uncomment to use
 				// $(':checkbox[name=test4]').unsetValidation();
-				
+
 				// trigger all validations manually once everything is in place
 				$.triggerValidation();
 			});
 		</script>
 	</head>
-	
+
 	<body>
 		<div id="messages"></div>
 
@@ -136,7 +136,7 @@
 			<label><input type="checkbox" name="test4" value="http://www.google.com"/>http://www.google.com</label>
 			<label><input type="checkbox" name="test4" value="https://lustiger.augu.st"/>https://lustiger.augu.st</label>
 		</fieldset>
-		
+
 		<fieldset>
 			<input id="test5" name="test5" type="text" value="01/13/2013" data-validation='{"date" : "needs to be an american date"}'/>
 			<input id="test6" name="test6" type="text" value="01:30am" data-validation='{"time" : "needs to be an american time"}'/>

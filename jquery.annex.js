@@ -10,8 +10,33 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl
- * @version Revision 15 developed and tested with jQuery 1.11.0
+ * @version Revision 16 developed and tested with jQuery 1.11.0
  **/
+
+
+
+ /*
+	TODO
+
+	Implement supportsLocalStorage:
+
+	Modernizr.addTest('localstorage', function() {
+	    var mod = 'modernizr';
+	    try {
+	        localStorage.setItem(mod, mod);
+	        localStorage.removeItem(mod);
+	        return true;
+	    } catch(e) {
+	        return false;
+	    }
+	});
+
+	Implement strConcat:
+	$.strConcat(varA, ' asad ', varB);
+
+	Implement strFormat:
+	$.strFormat('Abcd lorem {test1:integer} ipsum dolor {test2:float(0.00)} amet {test3}', {test1 : 123, test2 : 345, test3 : 'juhu'});
+*/
 
 
 
@@ -36,6 +61,12 @@ $.extend({
 			defaultLoop : null,
 			activePollCount : 0,
 			activePolls : {}
+		},
+		history : {
+			currentState : null,
+			currentTitle : null,
+			currentHost : null,
+			currentPath : null
 		},
 		touch : {
 			types : {
@@ -372,7 +403,7 @@ $.extend({
 		target = target.slice(0);
 		var rest = target.slice((to || from) + 1 || target.length);
 		target.length = (from < 0) ? (target.length + from) : from;
-		return target.push.apply(target, rest);
+		return $.merge(target, rest);
 	},
 
 
@@ -916,6 +947,18 @@ $.extend({
 
 
 	/**
+	 * Detects if the browser supports history manipulation, by checking the most common
+	 * methods for presence in the history-object.
+	 *
+	 * @returns {Boolean} true if browser seems to support history manipulation
+	 **/
+	browserSupportsHistoryManipulation : function(){
+		return window.history && window.history.pushState && window.history.replaceState;
+	},
+
+
+
+	/**
 	 * Changes the current URL silently by manipulating the browser history.
 	 * Be aware that this replaces the current URL in the history _without_ any further loads.
 	 * This method only works if window.history is supported by the browser, otherwise
@@ -924,8 +967,9 @@ $.extend({
 	 * @param {String} url - an absolute or relative url to change the current address to
 	 * @param {?Object} [state] - a serializable object to supply to the popState-event
 	 * @param {?String} [title] - a name/title for the new state, not used in browsers atm
+	 * @param {Boolean} [usePushState] - push new state instead of replacing current
 	 **/
-	changeUrlSilently : function(url, state, title){
+	changeUrlSilently : function(url, state, title, usePushState){
 		if( !this.isSet(state) ){
 			state = '';
 		}
@@ -934,8 +978,70 @@ $.extend({
 			title = '';
 		}
 
-		if ( window.history && window.history.replaceState ) {
-			window.history.replaceState(state, ''+title, ''+url);
+		if ( window.history ) {
+			if( usePushState && window.history.pushState ){
+				window.history.pushState(state, ''+title, ''+url);
+			} else if( !usePushState && window.history.replaceState ){
+				window.history.replaceState(state, ''+title, ''+url);
+			}
+
+			var urlParts = this.strReplace(['http://', 'https://', '//'], '', url);
+			urlParts = urlParts.split('/');
+
+			var host = urlParts.shift();
+			if( $.trim(host) === '' ){
+				host = window.location.host;
+			}
+
+			var path = urlParts.join('/');
+
+			this.jqueryAnnexData.history.currentState = state;
+			this.jqueryAnnexData.history.currentTitle = ''+title;
+			this.jqueryAnnexData.history.currentHost = ''+host;
+			this.jqueryAnnexData.history.currentPath = '/'+path;
+		}
+	},
+
+
+
+	/**
+	 * Registers an onpopstate event if history api is available.
+	 * Does nothing if api is not present.
+	 * Takes a callback, which is provided with two states as plain
+	 * objects like {state : ..., title : ..., url : ...}. The first is the
+	 * current state before the page change, the secode the state after popping.
+	 *
+	 * @param {Function} callback - method to execute on popstate
+	 * @param {?String} [name] - namespace for popstate event, to be able to remove only specific handlers
+	 * @param {Boolean} [clearOld] - defines if old handlers should be removed before setting new one
+	 **/
+	onHistoryChange : function(callback, name, clearOld){
+		if ( this.browserSupportsHistoryManipulation() ) {
+			name = this.isSet(name) ? '.'+name : '';
+			if( clearOld ){
+				$(window).off('popstate'+name);
+			}
+			$(window).on('popstate'+name, function(e){
+				callback(
+					{
+						state : $.jqueryAnnexData.history.currentState,
+						title : $.jqueryAnnexData.history.currentTitle,
+						host : $.jqueryAnnexData.history.currentHost,
+						path : $.jqueryAnnexData.history.currentPath
+					},
+					{
+						state : e.state,
+						title : e.title,
+						host : window.location.host,
+						path : window.location.pathname
+					}
+				);
+
+				$.jqueryAnnexData.history.currentState = e.state;
+				$.jqueryAnnexData.history.currentTitle = ''+e.title;
+				$.jqueryAnnexData.history.currentHost = window.location.host;
+				$.jqueryAnnexData.history.currentPath = window.location.pathname;
+			});
 		}
 	},
 

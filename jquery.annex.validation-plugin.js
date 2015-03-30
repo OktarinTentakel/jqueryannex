@@ -1153,7 +1153,7 @@ $.fn.extend({
 						}
 
 						if( elementIndex >= 0 ){
-							$.removeFromArray($.jqueryAnnexData.validation.config.registeredTargets[key], elementIndex);
+							$.jqueryAnnexData.validation.config.registeredTargets[key] = $.removeFromArray($.jqueryAnnexData.validation.config.registeredTargets[key], elementIndex);
 						}
 
 						if( $.jqueryAnnexData.validation.config.registeredTargets[key].length === 0 ){
