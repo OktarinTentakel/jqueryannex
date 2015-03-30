@@ -1,0 +1,5 @@
+jQuery is all fine, wonderful and even nearly complete, but in everyday use one tends to find rough edges here and there or functions where you are thrown back upon original javascript-syntax for no apparent reason other than the simple fact "this hasn't been done yet". One example for this is the way timeouts and intervals work, which is quite terrible by default.
+
+jQuery Annex tries to streamline those pitfalls and to provide functionality and algorithms, that are helpful to anyone developing bigger dynamic projects based on jQuery. Things such as cookie handling, anchor hash handling, selection handling, on-the-fly creation of DOM-elements, transforming DOM-elements, measuring hidden elements on a page and so on and so forth.
+
+In general Annex is a collection of little helpers and syntax normalizations I expand upon everytime I gravely miss something general in development.
