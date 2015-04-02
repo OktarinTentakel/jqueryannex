@@ -671,7 +671,7 @@ $.extend($.jqueryAnnexData, {
 						}
 					}
 
-					var date = formatValid ? new Date(splitValue.join('-')) : null;
+					var date = formatValid ? new Date(parseInt(splitValue[0], 10), parseInt(splitValue[1], 10) - 1,  parseInt(splitValue[2], 10)) : null;
 					var ruleRes =
 						((date !== null) && (splitValue !== null))
 						? (
@@ -767,7 +767,7 @@ $.extend($.jqueryAnnexData, {
 						}
 					}
 
-					var date = formatValid ? new Date(splitValue[2]+'-'+splitValue[1]+'-'+splitValue[0]) : null;
+					var date = formatValid ? new Date(parseInt(splitValue[2], 10), parseInt(splitValue[1], 10) - 1,  parseInt(splitValue[0], 10)) : null;
 					var ruleRes =
 						((date !== null) && (splitValue !== null))
 						? (
