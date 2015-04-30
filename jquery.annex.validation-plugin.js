@@ -123,7 +123,11 @@ $.extend($.jqueryAnnexData, {
 
 								$.jqueryAnnexData.validation.functions.unmarkValidationError($target);
 
-								if( !validationData.status.isOptional || validationData.status.hasNonOptionalValue ){
+								if(
+									(!validationData.status.isOptional
+									|| validationData.status.hasNonOptionalValue)
+									&& !$.isSet($target.attr('disabled'))
+								){
 									$.each(validationData.rules, function(key, value){
 										validationData.status.isValid = value() && validationData.status.isValid;
 									});
