@@ -8,7 +8,7 @@
  * with functionality, that has been integrated into the core, may be replaced or removed, depending on the implemented syntax.
  *
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
- *
+ * 
  * @author Sebastian Schlapkohl
  * @version Revision 16 developed and tested with jQuery 1.11.0
  **/
@@ -36,6 +36,9 @@
 
 	Implement strFormat:
 	$.strFormat('Abcd lorem {test1:integer} ipsum dolor {test2:float(0.00)} amet {test3}', {test1 : 123, test2 : 345, test3 : 'juhu'});
+
+	Implement isNaN:
+	$.isNaN(expression, checkForIdentity)
 */
 
 
