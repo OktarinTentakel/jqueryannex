@@ -8,38 +8,10 @@
  * with functionality, that has been integrated into the core, may be replaced or removed, depending on the implemented syntax.
  *
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
- * 
+ *
  * @author Sebastian Schlapkohl
- * @version Revision 16 developed and tested with jQuery 1.11.0
+ * @version Revision 17 developed and tested with jQuery 1.11.3
  **/
-
-
-
- /*
-	TODO
-
-	Implement supportsLocalStorage:
-
-	Modernizr.addTest('localstorage', function() {
-	    var mod = 'modernizr';
-	    try {
-	        localStorage.setItem(mod, mod);
-	        localStorage.removeItem(mod);
-	        return true;
-	    } catch(e) {
-	        return false;
-	    }
-	});
-
-	Implement strConcat:
-	$.strConcat(varA, ' asad ', varB);
-
-	Implement strFormat:
-	$.strFormat('Abcd lorem {test1:integer} ipsum dolor {test2:float(0.00)} amet {test3}', {test1 : 123, test2 : 345, test3 : 'juhu'});
-
-	Implement isNaN:
-	$.isNaN(expression, checkForIdentity)
-*/
 
 
 
@@ -98,7 +70,7 @@ $.extend({
 	 **/
 	log : function(enabled){
 		if( this.isSet(enabled) && ($.inArray(enabled, ['__enable__', '__disable__']) >= 0) ){
-			arguments = Array.prototype.slice.call(arguments, 1);
+			var args = Array.prototype.slice.call(arguments, 1);
 
 			if( enabled == '__enable__' ){
 				if( !this.jqueryAnnexData.logging.enabled ){
@@ -111,7 +83,7 @@ $.extend({
 
 			this.jqueryAnnexData.logging.enabled = (enabled == '__enable__');
 
-			this.log.apply(this, arguments);
+			this.log.apply(this, args);
 		} else {
 			if( this.exists('console') && $.isFunction(console.log) ){
 				$.each(arguments, function(index, obj){
@@ -233,6 +205,26 @@ $.extend({
 
 
 	/**
+	 * "Validates" an object in a very basic way by checking if all given members are present and are not null.
+	 *
+	 * @param {Object} obj - the object to check
+	 * @param {String[]} memberNames - the names of the members to check
+	 * @returns {Boolean} all memberNames present and not null
+	 **/
+	hasMembers : function(obj, memberNames){
+		for( var i = 0; i < memberNames.length; i++ ){
+			if( !this.isSet(obj[memberNames[i]]) ){
+				this.log('hasMembers | missing member '+memberNames[i]);
+				return false;
+			}
+		}
+
+		return true;
+	},
+
+
+
+	/**
 	 * If an expression returns an "empty" value,
 	 * use the default value instead.
 	 *
@@ -301,7 +293,7 @@ $.extend({
 		if( $.inArray(typeName, ['boolean', 'number', 'string', 'function', 'array', 'date', 'regexp', 'object']) >= 0 ){
 			return $.type(target) == ''+typeName;
 		} else {
-			this.log('type-identification exception: not asked for valid JS-type');
+			this.log('isA | not asked for valid JS-type');
 			return false;
 		}
 	},
@@ -333,6 +325,30 @@ $.extend({
 	 **/
 	isFloat : function(floatVal){
 		return parseFloat(floatVal) === floatVal;
+	},
+
+
+
+	/**
+	 * Returns if an expression is NaN or not.
+	 * This method employs two different approaches:
+	 * By default it really checks if the expression is the _value_ NaN or not, this being a valid JS-value for something.
+	 * In JS this gets checked by comparing an expression with itself on identity, since NaN is the only value not being
+	 * identical to itself. If you set checkForIdentity to false, this method will use the standard JS-isNaN, which
+	 * inspects the expression, tries to cast or parse a number from it and returns the result.
+	 *
+	 * @param {*} expression - the expression to check
+	 * @param {Boolean} [checkForIdentity=true] - set to false if you want to use default JS-functionality
+	 * @returns {Boolean} true if expression is NaN
+	 */
+	isNaN : function(expression, checkForIdentity){
+		checkForIdentity = this.isSet(checkForIdentity) ? !!checkForIdentity : true;
+
+		if( checkForIdentity ){
+			return expression !== expression;
+		} else {
+			return isNaN(expression);
+		}
 	},
 
 
@@ -389,6 +405,167 @@ $.extend({
 		}
 
 		return subject;
+	},
+
+
+
+	/**
+	 * Simply concatenates strings with a glue part using array.join in a handy notation.
+	 *
+	 * @param {String} [glue=''] - the separator to use between single strings
+	 * @returns {String} the concatenated string
+	 */
+	strConcat : function(glue){
+		glue = this.isSet(glue) ? ''+glue : '';
+
+		var args = Array.prototype.slice.call(arguments, 1);
+
+		return args.join(glue);
+	},
+
+
+
+	/**
+	 * This is a pythonesque string format implementation.
+	 * Apply formatted values to a string template, in which replacements are marked with curly braces.
+	 *
+	 * Display literal curly brace with {{ and }}.
+	 *
+	 * Unknown keys/indexes will be ignored.
+	 *
+	 * This solution is adapted from:
+	 * https://github.com/davidchambers/string-format
+	 *
+	 * Examples:
+	 * $.strFormat('An elephant is {times:float(0.00)} times smarter than a {animal}', {times : 5.5555, animal : 'lion'})
+	 * => 'An elephant is 5.56 times smarter than a lion'
+	 * $.strFormat('{0}{0}{0} ... {{BATMAN!'}}, 'Nana')
+	 * => 'NanaNanaNana ... {BATMAN!}'
+	 * $.strFormat('{} {} {} starts the alphabet.', 'A', 'B', 'C')
+	 * => 'A B C starts the alphabet.'
+	 * $.strFormat('{0:integer}, {1:integer}, {2:integer}: details are for pussies', '1a', 2.222, 3)
+	 * => '1, 2, 3: details are for pussies'
+	 *
+	 * @param {[type]} template [description]
+	 * @returns {String} the formatted string
+	 * @throws general exception on syntax errors
+	 */
+	strFormat : function(template){
+		var args = (arguments.length > 1) ? Array.prototype.slice.call(arguments, 1) : [],
+			idx = 0,
+			explicit = false,
+			implicit = false
+		;
+
+		var fResolve = function(object, key) {
+			var value = object[key];
+
+			if( $.isFunction(value) ){
+				return value.call(object);
+			} else {
+				return value;
+			}
+		};
+
+		var fLookup = function(object, key) {
+			if( !/^(\d+)([.]|$)/.test(key) ){
+				key = '0.'+key;
+			}
+
+			var match;
+			while( match = /(.+?)[.](.+)/.exec(key) ){
+				object = fResolve(object, match[1]);
+				key = match[2];
+			}
+
+			return fResolve(object, key);
+		};
+
+		var formatters = {
+			integer : function(value, radix){
+				radix = $.isSet(radix) ? parseInt(radix, 10) : 10;
+				var res = parseInt(value, radix);
+				return !$.isNaN(res) ? ''+res : '';
+			},
+			float : function(value, format){
+				format = $.isSet(format) ? ''+format : null;
+
+				var res = null;
+
+				if( $.isSet(format) ){
+					var precision = 0;
+
+					try {
+						precision = format.split('.')[1].length;
+					} catch(ex) {
+						throw 'strFormat | float precision arg malformed';
+					}
+
+					var power = Math.pow(10, precision);
+
+					res = Math.round(parseFloat(value) * power) / power;
+				} else {
+					res = parseFloat(value);
+				}
+
+				return !$.isNaN(res) ? ''+res : '';
+			}
+		};
+
+		return template.replace(/([{}])\1|[{](.*?)(?:!(.+?))?[}]/g, function(match, literal, key) {
+			var ref = null,
+				value = '',
+				formatter = null,
+				formatterArg = null
+			;
+
+			if( literal ){
+				return literal;
+			}
+
+			if( key.length ){
+				var keyParts = key.split(':');
+
+				if( keyParts.length > 1 ){
+					key = keyParts[0];
+
+					var formatterParts = keyParts[1].split('('),
+						formatterName = formatterParts[0]
+					;
+
+					if( formatterParts.length > 1 ){
+						formatterArg = $.strReplace(')', '', formatterParts[1]);
+					}
+
+					try {
+						formatter = formatters[formatterName];
+					} catch(ex) {
+						throw 'strFormat | unknown formatter';
+					}
+				}
+
+				if( implicit ){
+					throw 'strFormat | cannot switch from implicit to explicit numbering';
+				} else {
+					explicit = true;
+				}
+
+				ref = fLookup(args, key);
+				value = $.isSet(ref) ? ref : '';
+			} else {
+				if( explicit ){
+					throw 'strFormat | cannot switch from explicit to implicit numbering';
+				} else {
+					implicit = true;
+				}
+
+				ref = args[idx];
+				value = $.isSet(ref) ? ref : '';
+				idx++;
+			}
+
+			return $.isSet(formatter) ? formatter(value, formatterArg) : value;
+		});
 	},
 
 
@@ -451,7 +628,7 @@ $.extend({
 		}
 
 		if( ceiling < floor){
-			this.log('random value exception: ceiling may not be smaller than floor');
+			this.log('randomInt | ceiling may not be smaller than floor');
 			return null;
 		}
 
@@ -557,7 +734,7 @@ $.extend({
 		if(
 			this.isSet(oldTimer)
 			&& $.isPlainObject(oldTimer)
-			&& this.validate(oldTimer, ['id', 'type'])
+			&& this.hasMembers(oldTimer, ['id', 'type'])
 		){
 			this.countermand(oldTimer);
 			oldTimer.precise = true;
@@ -599,7 +776,7 @@ $.extend({
 	reschedule : function(timer, ms, callback){
 		if(
 			$.isPlainObject(timer)
-			&& this.validate(timer, ['id', 'type'])
+			&& this.hasMembers(timer, ['id', 'type'])
 		){
 			if( this.isSet(timer.precise) && timer.precise ){
 				return this.pschedule(ms, callback, timer);
@@ -651,7 +828,7 @@ $.extend({
 		if(
 			this.isSet(oldLoop)
 			&& $.isPlainObject(oldLoop)
-			&& this.validate(oldLoop, ['id', 'type'])
+			&& this.hasMembers(oldLoop, ['id', 'type'])
 		){
 			this.countermand(oldLoop, true);
 			oldLoop.precise = true;
@@ -693,7 +870,7 @@ $.extend({
 	 **/
 	countermand : function(timer, isInterval){
 		if( this.isSet(timer) ){
-			if( $.isPlainObject(timer) && this.validate(timer, ['id', 'type']) ){
+			if( $.isPlainObject(timer) && this.hasMembers(timer, ['id', 'type']) ){
 				if( timer.type == 'interval' ){
 					window.clearInterval(timer.id);
 				} else {
@@ -957,6 +1134,28 @@ $.extend({
 	 **/
 	browserSupportsHistoryManipulation : function(){
 		return window.history && window.history.pushState && window.history.replaceState;
+	},
+
+
+
+	/**
+	 * Detects if the browser supports local storage, by testing if something can be stored in it and removed
+	 * afterwards. This test was more or less stolen from modernizr.
+	 *
+	 * @param {String} [testKey=!!!foo!!!] - a key to use as a testkey when setting and removing data, use in case of collision
+	 *
+	 * @returns {Boolean} true if browser seems to support local storage
+	 **/
+	browserSupportsLocalStorage : function(testKey){
+		testKey = this.isSet(testKey) ? ''+testKey : '!!!foo!!!';
+
+	    try {
+	        window.localStorage.setItem(testKey, 'bar');
+	        window.localStorage.removeItem(testKey);
+	        return true;
+	    } catch(e) {
+	        return false;
+	    }
 	},
 
 
@@ -1410,26 +1609,6 @@ $.extend({
 					tCheckFontLoaded = this.loop(50, fCheckFont);
 				}
 		}
-	},
-
-
-
-	/**
-	 * "Validates" an object in a very basic way by checking if all given members are present and are not null.
-	 *
-	 * @param {Object} obj - the object to check
-	 * @param {String[]} memberNames - the names of the members to check
-	 * @returns {Boolean} all memberNames present and not null
-	 **/
-	validate : function(obj, memberNames){
-		for( var i = 0; i < memberNames.length; i++ ){
-			if( !this.isSet(obj[memberNames[i]]) ){
-				this.log('validity exception: missing member '+memberNames[i]);
-				return false;
-			}
-		}
-
-		return true;
 	},
 
 
