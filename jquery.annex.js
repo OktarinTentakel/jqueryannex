@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl
- * @version Revision 17 developed and tested with jQuery 1.11.3
+ * @version Revision 18 developed and tested with jQuery 1.11.3
  **/
 
 
@@ -70,7 +70,7 @@ $.extend({
 	 **/
 	log : function(enabled){
 		if( this.isSet(enabled) && ($.inArray(enabled, ['__enable__', '__disable__']) >= 0) ){
-			var args = Array.prototype.slice.call(arguments, 1);
+			var args = $.makeArray(arguments).slice(1);
 
 			if( enabled == '__enable__' ){
 				if( !this.jqueryAnnexData.logging.enabled ){
@@ -418,7 +418,7 @@ $.extend({
 	strConcat : function(glue){
 		glue = this.isSet(glue) ? ''+glue : '';
 
-		var args = Array.prototype.slice.call(arguments, 1);
+		var args = $.makeArray(arguments).slice(1);
 
 		return args.join(glue);
 	},
@@ -439,11 +439,11 @@ $.extend({
 	 * Examples:
 	 * $.strFormat('An elephant is {times:float(0.00)} times smarter than a {animal}', {times : 5.5555, animal : 'lion'})
 	 * => 'An elephant is 5.56 times smarter than a lion'
-	 * $.strFormat('{0}{0}{0} ... {{BATMAN!'}}, 'Nana')
+	 * $.strFormat('{0}{0}{0} ... {{BATMAN!}}', 'Nana')
 	 * => 'NanaNanaNana ... {BATMAN!}'
 	 * $.strFormat('{} {} {} starts the alphabet.', 'A', 'B', 'C')
 	 * => 'A B C starts the alphabet.'
-	 * $.strFormat('{0:integer}, {1:integer}, {2:integer}: details are for pussies', '1a', 2.222, 3)
+	 * $.strFormat('{0:int}, {1:int}, {2:int}: details are for pussies', '1a', 2.222, 3)
 	 * => '1, 2, 3: details are for pussies'
 	 *
 	 * @param {[type]} template [description]
@@ -451,7 +451,7 @@ $.extend({
 	 * @throws general exception on syntax errors
 	 */
 	strFormat : function(template){
-		var args = (arguments.length > 1) ? Array.prototype.slice.call(arguments, 1) : [],
+		var args = (arguments.length > 1) ? $.makeArray(arguments).slice(1) : [],
 			idx = 0,
 			explicit = false,
 			implicit = false
@@ -482,7 +482,7 @@ $.extend({
 		};
 
 		var formatters = {
-			integer : function(value, radix){
+			int : function(value, radix){
 				radix = $.isSet(radix) ? parseInt(radix, 10) : 10;
 				var res = parseInt(value, radix);
 				return !$.isNaN(res) ? ''+res : '';
@@ -1556,10 +1556,10 @@ $.extend({
 	 * Works for fonts already loaded as well.
 	 *
 	 * @param {String|String[]} fonts - the CSS-names of the fonts to wait upon
-	 * @param {?String} [fallbackFontName=sans-serif] - the system font onto which the page falls back if the webfont is not loaded
 	 * @param {Function} callback - the callback to execute once all given webfonts are loaded
+	 * @param {?String} [fallbackFontName=sans-serif] - the system font onto which the page falls back if the webfont is not loaded
 	 **/
-	waitForWebfonts : function(fonts, fallbackFontName, callback) {
+	waitForWebfonts : function(fonts, callback, fallbackFontName) {
 		fonts = $.isArray(fonts) ? fonts : [''+fonts];
 		fallbackFontName = this.isSet(fallbackFontName) ? ''+fallbackFontName : 'sans-serif';
 
@@ -1681,14 +1681,36 @@ $.extend({
 
 
 	/**
-	 * Escapes a string for use in an elements htmlContent. This might
-	 * come in handy if you need to combine insecure db-contents with dynamic markup.
+	 * Return the de-nodified text content of a node-ridden string or a jQuery object.
+	 * Returns the raw text content, with all markup cleanly removed.
+	 * Can also be used to return only the concatenated child text nodes.
 	 *
-	 * @param {String} html - the html-ridden string to escape
+	 * @param {String|Object} nodeInfested - the node-ridden string or jquery object to "clean"
+	 * @param {Boolean} [onlyFirstLevel=false] - true if only the text of direct child text nodes is to be returned
 	 * @returns {String} the escaped string
 	 **/
-	escapeHTML : function(html){
-		return this.elem('p').html(''+html).text();
+	textContent : function(nodeInfested, onlyFirstLevel){
+		onlyFirstLevel = this.isSet(onlyFirstLevel) ? !!onlyFirstLevel : false;
+
+		var res = '';
+		var $holder = (this.isA(nodeInfested, 'object') && this.isSet(nodeInfested.jquery))
+			? nodeInfested
+			: this.elem('p').html(''+nodeInfested)
+		;
+
+		if( onlyFirstLevel ){
+			res = $holder
+				.contents()
+				.filter(function(){
+					return this.nodeType == 3;
+				})
+				.text()
+			;
+		} else {
+			res = $holder.text();
+		}
+
+		return res;
 	},
 
 
