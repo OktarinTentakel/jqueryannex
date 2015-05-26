@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl
- * @version Revision 18 developed and tested with jQuery 1.11.3
+ * @version Revision 19 developed and tested with jQuery 1.11.3
  **/
 
 
@@ -340,7 +340,7 @@ $.extend({
 	 * @param {*} expression - the expression to check
 	 * @param {Boolean} [checkForIdentity=true] - set to false if you want to use default JS-functionality
 	 * @returns {Boolean} true if expression is NaN
-	 */
+	 **/
 	isNaN : function(expression, checkForIdentity){
 		checkForIdentity = this.isSet(checkForIdentity) ? !!checkForIdentity : true;
 
@@ -414,7 +414,7 @@ $.extend({
 	 *
 	 * @param {String} [glue=''] - the separator to use between single strings
 	 * @returns {String} the concatenated string
-	 */
+	 **/
 	strConcat : function(glue){
 		glue = this.isSet(glue) ? ''+glue : '';
 
@@ -449,7 +449,7 @@ $.extend({
 	 * @param {[type]} template [description]
 	 * @returns {String} the formatted string
 	 * @throws general exception on syntax errors
-	 */
+	 **/
 	strFormat : function(template){
 		var args = (arguments.length > 1) ? $.makeArray(arguments).slice(1) : [],
 			idx = 0,
@@ -1023,6 +1023,74 @@ $.extend({
 		} else {
 			return false;
 		}
+	},
+
+
+
+	/**
+	 * Throttle the execution of a function to only execute every n ms.
+	 *
+	 * @param {Integer} ms - the waiting time between executions in milliseconds
+	 * @param {Function} func - the function to throttle
+	 * @param {Boolean} [leadingExecution=true] - defines if the function is executed initially without waiting first
+	 **/
+	throttleExecution : function(ms, func, leadingExecution){
+		leadingExecution = this.isSet(leadingExecution) ? !!leadingExecution : true;
+
+		var nextExecutionWaiting = false,
+			throttleTimer = null
+		;
+
+		return function(){
+			if( !nextExecutionWaiting && !$.isSet(throttleTimer) ){
+				throttleTimer = $.loop(ms, function(){
+					if( nextExecutionWaiting ){
+						func();
+					} else {
+						$.countermand(throttleTimer);
+						throttleTimer = null;
+					}
+
+					nextExecutionWaiting = false;
+				});
+
+				if( leadingExecution ){
+					func();
+				}
+			} else {
+				nextExecutionWaiting = true;
+			}
+		};
+	},
+
+
+
+	/**
+	 * Hold the execution of a function until it has not been called for n ms.
+	 *
+	 * @param {Integer} ms - timeframe in milliseconds without call before execution
+	 * @param {Function} func - the function to hold the execution of
+	 **/
+	holdExecution : function(ms, func){
+		var holdTimer = this.schedule(1, $.noop);
+
+		return function(){
+			holdTimer = $.reschedule(holdTimer, ms, function(){ func(); });
+		};
+	},
+
+
+
+	/**
+	 * Defer the execution of a function until the callstack is empty.
+	 * This works identical to setTimeout(function(){}, 1);
+	 *
+	 * @param {Function} func - the function to defer
+	 * @param {Integer} [delay=1] - the delay to apply to the timeout
+	 **/
+	deferExecution : function(func, delay){
+		delay = this.isSet(delay) ? parseInt(delay, 10) : 1;
+		$.schedule(delay, func);
 	},
 
 
@@ -1887,7 +1955,10 @@ $.fn.extend({
 					this.select();
 				});
 			} else {
-				$(this).attr('selected', 'selected');
+				$(this)
+					.attr('selected', 'selected')
+					.prop('selected', true)
+				;
 			}
 		}
 
@@ -1912,7 +1983,10 @@ $.fn.extend({
 				.off('change', stopperFunc)
 			;
 		} else {
-			$(this).removeAttr('selected');
+			$(this)
+				.removeAttr('selected')
+				.prop('selected', false)
+			;
 		}
 
 		return this;
@@ -1927,7 +2001,10 @@ $.fn.extend({
 	 **/
 	check : function(){
 		if( $(this).is(':checkbox, :radio') ){
-			$(this).attr('checked', 'checked');
+			$(this)
+				.attr('checked', 'checked')
+				.prop('checked', true)
+			;
 		}
 
 		return this;
@@ -1941,7 +2018,10 @@ $.fn.extend({
 	 * @returns {Object} this
 	 **/
 	uncheck : function(){
-		$(this).removeAttr('checked');
+		$(this)
+			.removeAttr('checked')
+			.prop('checked', false)
+		;
 
 		return this;
 	},
@@ -1954,7 +2034,10 @@ $.fn.extend({
 	 * @returns {Object} this
 	 **/
 	enable : function(){
-		$(this).removeAttr('disabled');
+		$(this)
+			.removeAttr('disabled')
+			.prop('disabled', false)
+		;
 
 		return this;
 	},
@@ -1968,7 +2051,10 @@ $.fn.extend({
 	 **/
 	disable : function(){
 		if( $(this).is(':input') ){
-			$(this).attr('disabled', 'disabled');
+			$(this)
+				.attr('disabled', 'disabled')
+				.prop('disabled', true)
+			;
 		}
 
 		return this;
