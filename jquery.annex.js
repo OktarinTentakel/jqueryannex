@@ -13,6 +13,10 @@
  * @version Revision 19 developed and tested with jQuery 1.11.3
  **/
 
+/**
+ * Implement:
+ * promise-interfaces for getCSS, preloadImages, waitForWebfonts, imgLoad
+ **/
 
 
 //--|JQUERY-$-GENERAL-FUNCTIONS----------
@@ -230,7 +234,7 @@ $.extend({
 	 *
 	 * @param {*} expression - the expression to evaluate
 	 * @param {*} defaultValue - the default value to use if the expression is considered empty
-	 * @param {Array} [additionalEmptyValues] - if set, provides a list of additional values to be considered empty, apart from undefined and null
+	 * @param {?Array} [additionalEmptyValues] - if set, provides a list of additional values to be considered empty, apart from undefined and null
 	 * @returns {*} expression of defaultValue
 	 **/
 	orDefault : function(expression, defaultValue, additionalEmptyValues){
@@ -251,7 +255,7 @@ $.extend({
 	 * answering if the query-string exists in its context.
 	 *
 	 * @param {(String|Object)} target - name of the variable to look for (not the variable itself) or a jquery Object
-	 * @param {*} [context=window] - the context in which to look for the variable, holds no meaning for jquery objects
+	 * @param {?*} [context=window] - the context in which to look for the variable, holds no meaning for jquery objects
 	 * @returns {Boolean} variable exists in context or jQuery-set has length > 0
 	 **/
 	exists : function(target, context){
@@ -266,12 +270,17 @@ $.extend({
 				context = window;
 			}
 
-			$.each(target.split("."), function(index, value){
-				res = res && (undefined !== context[''+value]);
-				if( res ){
-					context = context[''+value];
+			var targetChain = target.split('.');
+			$.each(targetChain, function(index, value){
+				if( index < (targetChain.length - 1) ){
+					res = res && $.isSet(context[''+value]);
+					if( res ){
+						context = context[''+value];
+					} else {
+						return false;
+					}
 				} else {
-					return false;
+					res = res && (undefined !== context[''+value]);
 				}
 			});
 		}
@@ -412,7 +421,7 @@ $.extend({
 	/**
 	 * Simply concatenates strings with a glue part using array.join in a handy notation.
 	 *
-	 * @param {String} [glue=''] - the separator to use between single strings
+	 * @param {?String} [glue=''] - the separator to use between single strings
 	 * @returns {String} the concatenated string
 	 **/
 	strConcat : function(glue){
@@ -446,9 +455,10 @@ $.extend({
 	 * $.strFormat('{0:int}, {1:int}, {2:int}: details are for pussies', '1a', 2.222, 3)
 	 * => '1, 2, 3: details are for pussies'
 	 *
-	 * @param {[type]} template [description]
-	 * @returns {String} the formatted string
+	 * @param {String} template [description]
+	 * @param {(...*|String[]|Object.<String,String>)} arguments to insert into template, either as a dictionary, an array of a parameter sequence
 	 * @throws general exception on syntax errors
+	 * @returns {String} the formatted string
 	 **/
 	strFormat : function(template){
 		var args = (arguments.length > 1) ? $.makeArray(arguments).slice(1) : [],
@@ -640,7 +650,7 @@ $.extend({
 	/**
 	 * Returns a "UUID", as close as possible with JavaScript (so not really, but looks like one :).
 	 *
-	 * @param {Boolean} [withoutDashes=false] - defines if UUID shall include dashes or not
+	 * @param {?Boolean} [withoutDashes=false] - defines if UUID shall include dashes or not
 	 * @returns {String} a "UUID"
 	 **/
 	randomUUID : function(withoutDashes){
@@ -702,7 +712,7 @@ $.extend({
 	 *
 	 * @param {Number.Integer} ms - time in milliseconds until execution
 	 * @param {Function} callback - callback function to execute after ms
-	 * @param {(Object|Number.Integer)} [oldTimer] - if set, kills the timer before setting up new one
+	 * @param {?(Object|Number.Integer)} [oldTimer] - if set, kills the timer before setting up new one
 	 * @returns {(Object|null)} new timer or null in case of a param-error
 	 **/
 	schedule : function(ms, callback, oldTimer){
@@ -727,7 +737,7 @@ $.extend({
 	 *
 	 * @param {Number.Integer} ms - time in milliseconds until execution
 	 * @param {Function} callback - callback function to execute after ms
-	 * @param {(Object|Number.Integer)} [oldTimer] - if set, kills the timer before setting up new one
+	 * @param {?(Object|Number.Integer)} [oldTimer] - if set, kills the timer before setting up new one
 	 * @returns {(Object|null)} new timer or null in case of a param-error (does not create new timer object if oldTimer given)
 	 **/
 	pschedule : function(ms, callback, oldTimer){
@@ -794,7 +804,7 @@ $.extend({
 	 *
 	 * @param {Number.Integer} ms - time in milliseconds until execution
 	 * @param {Function} callback - callback function to execute after ms
-	 * @param {(Object|Number.Integer)} [oldLoop] - if set, kills the loop before setting up new one
+	 * @param {?(Object|Number.Integer)} [oldLoop] - if set, kills the loop before setting up new one
 	 * @returns {(Object|null)} new loop or null in case of a param-error
 	 **/
 	loop : function(ms, callback, oldLoop){
@@ -821,7 +831,7 @@ $.extend({
 	 *
 	 * @param {Number.Integer} ms - time in milliseconds until execution
 	 * @param {Function} callback - callback function to execute after ms
-	 * @param {(Object|Number.Integer)} [oldLoop] - if set, kills the loop before setting up new one
+	 * @param {?(Object|Number.Integer)} [oldLoop] - if set, kills the loop before setting up new one
 	 * @returns {(Object|null)} new loop or null in case of a param-error
 	 **/
 	ploop : function(ms, callback, oldLoop){
@@ -866,7 +876,7 @@ $.extend({
 	 * Cancel a timer or loop immediately.
 	 *
 	 * @param {(Object|Number.Integer)} timer - the timer or loop to end
-	 * @param {Boolean} [isInterval] - defines if a timer or a loop is to be stopped, set in case timer is a GUID
+	 * @param {?Boolean} [isInterval] - defines if a timer or a loop is to be stopped, set in case timer is a GUID
 	 **/
 	countermand : function(timer, isInterval){
 		if( this.isSet(timer) ){
@@ -900,7 +910,7 @@ $.extend({
 	 * @param {String} name - name of the state or event you are waiting/polling for
 	 * @param {Function} fCondition - closure to define the state to wait for, returns true if state exists and false if not
 	 * @param {Function} fAction - closure to define action to take place if condition is fullfilled, poll removes itself if this evaluates to true, receives Boolean parameter defining if result has changed
-	 * @param {Function} fElseAction - closure to define action to take place if contition is not fulfilled, receives Boolean parameter defining if result has changed
+	 * @param {?Function} fElseAction - closure to define action to take place if contition is not fulfilled, receives Boolean parameter defining if result has changed
 	 * @param {?Number.Integer} [newLoopMs=250] - new loop wait time in ms, resets global timer if useOwnTimer is not set, otherwise sets local timer for poll
 	 * @param {?Boolean} [useOwnTimer=false] - has to be set and true to tell the poll to use an independent local timer instead of the global one.
 	 * @returns {(Object|null)} new poll or null in case of param error
@@ -1030,9 +1040,10 @@ $.extend({
 	/**
 	 * Throttle the execution of a function to only execute every n ms.
 	 *
-	 * @param {Integer} ms - the waiting time between executions in milliseconds
+	 * @param {Number.Integer} ms - the waiting time between executions in milliseconds
 	 * @param {Function} func - the function to throttle
-	 * @param {Boolean} [leadingExecution=true] - defines if the function is executed initially without waiting first
+	 * @param {?Boolean} [leadingExecution=true] - defines if the function is executed initially without waiting first
+	 * @returns {Function} the throtteling function
 	 **/
 	throttleExecution : function(ms, func, leadingExecution){
 		leadingExecution = this.isSet(leadingExecution) ? !!leadingExecution : true;
@@ -1068,8 +1079,9 @@ $.extend({
 	/**
 	 * Hold the execution of a function until it has not been called for n ms.
 	 *
-	 * @param {Integer} ms - timeframe in milliseconds without call before execution
+	 * @param {Number.Integer} ms - timeframe in milliseconds without call before execution
 	 * @param {Function} func - the function to hold the execution of
+	 * @returns {Function} the holding function
 	 **/
 	holdExecution : function(ms, func){
 		var holdTimer = this.schedule(1, $.noop);
@@ -1086,11 +1098,15 @@ $.extend({
 	 * This works identical to setTimeout(function(){}, 1);
 	 *
 	 * @param {Function} func - the function to defer
-	 * @param {Integer} [delay=1] - the delay to apply to the timeout
+	 * @param {Number.Integer} [delay=1] - the delay to apply to the timeout
+	 * @returns {Function} the deferring function
 	 **/
 	deferExecution : function(func, delay){
 		delay = this.isSet(delay) ? parseInt(delay, 10) : 1;
-		$.schedule(delay, func);
+
+		return function(){
+			$.schedule(delay, func);
+		};
 	},
 
 
@@ -1210,8 +1226,7 @@ $.extend({
 	 * Detects if the browser supports local storage, by testing if something can be stored in it and removed
 	 * afterwards. This test was more or less stolen from modernizr.
 	 *
-	 * @param {String} [testKey=!!!foo!!!] - a key to use as a testkey when setting and removing data, use in case of collision
-	 *
+	 * @param {?String} [testKey=!!!foo!!!] - a key to use as a testkey when setting and removing data, use in case of collision
 	 * @returns {Boolean} true if browser seems to support local storage
 	 **/
 	browserSupportsLocalStorage : function(testKey){
@@ -1229,6 +1244,27 @@ $.extend({
 
 
 	/**
+	 * Detects if the browser supports session storage, by testing if something can be stored in it and removed
+	 * afterwards. This test was more or less stolen from modernizr.
+	 *
+	 * @param {?String} [testKey=!!!foo!!!] - a key to use as a testkey when setting and removing data, use in case of collision
+	 * @returns {Boolean} true if browser seems to support session storage
+	 **/
+	browserSupportsSessionStorage : function(testKey){
+		testKey = this.isSet(testKey) ? ''+testKey : '!!!foo!!!';
+
+	    try {
+	        window.sessionStorage.setItem(testKey, 'bar');
+	        window.sessionStorage.removeItem(testKey);
+	        return true;
+	    } catch(e) {
+	        return false;
+	    }
+	},
+
+
+
+	/**
 	 * Changes the current URL silently by manipulating the browser history.
 	 * Be aware that this replaces the current URL in the history _without_ any further loads.
 	 * This method only works if window.history is supported by the browser, otherwise
@@ -1237,7 +1273,7 @@ $.extend({
 	 * @param {String} url - an absolute or relative url to change the current address to
 	 * @param {?Object} [state] - a serializable object to supply to the popState-event
 	 * @param {?String} [title] - a name/title for the new state, not used in browsers atm
-	 * @param {Boolean} [usePushState] - push new state instead of replacing current
+	 * @param {?Boolean} [usePushState] - push new state instead of replacing current
 	 **/
 	changeUrlSilently : function(url, state, title, usePushState){
 		if( !this.isSet(state) ){
@@ -1283,7 +1319,7 @@ $.extend({
 	 *
 	 * @param {Function} callback - method to execute on popstate
 	 * @param {?String} [name] - namespace for popstate event, to be able to remove only specific handlers
-	 * @param {Boolean} [clearOld] - defines if old handlers should be removed before setting new one
+	 * @param {?Boolean} [clearOld] - defines if old handlers should be removed before setting new one
 	 **/
 	onHistoryChange : function(callback, name, clearOld){
 		if ( this.browserSupportsHistoryManipulation() ) {
@@ -1320,7 +1356,7 @@ $.extend({
 	/**
 	 * Reloads the current window-location. Differentiates between cached and cache-refreshing reload.
 	 *
-	 * @param {Boolean} [quickLoad=false] - if true, load as fast as possible using everything in cache
+	 * @param {?Boolean} [quickLoad=false] - if true, load as fast as possible using everything in cache
 	 **/
 	reload : function(quickLoad){
 		window.location.reload(this.isSet(quickLoad) && quickLoad);
@@ -1368,7 +1404,7 @@ $.extend({
 	 *
 	 * @param {String} url - the URL of the CSS-file to load
 	 * @param {?Object.<String, *>} [options] - config for the call (styletag : true/false, media : screen/print/all/etc., charset : utf-8/etc., id : {String})
-	 * @param {Function} [callback] - function to call after css is loaded and included into DOM, gets included DOM-element as parameter
+	 * @param {?Function} [callback] - function to call after css is loaded and included into DOM, gets included DOM-element as parameter
 	 **/
 	getCSS : function(url, options, callback){
 		var that = this;
@@ -1451,8 +1487,8 @@ $.extend({
 	 * Sets cookies and retrieves them again.
 	 *
 	 * @param {String} name - name of the cookie
-	 * @param {String} [value] - value-string of the cookie
-	 * @param {Object} [options] - config-object for the cookie setting expiries etc., use together with a value
+	 * @param {String} [value] - value-string of the cookie, null removes a value, so to retrieve leave undefined
+	 * @param {?Object} [options] - config-object for the cookie setting expiries etc., use together with a value
 	 * @returns {(void|String)} either nothing, when setting a cookie, or the value of a requested cookie
 	 **/
 	cookie : function(name, value, options) {
@@ -1518,7 +1554,7 @@ $.extend({
 	 * Converts a CSS-URL to a img-src-usable value.
 	 *
 	 * @param {String} cssUrl - the URL from the css
-	 * @param {String} [relativePathPart] - the relative path part of the URL from the css to cut for src-use
+	 * @param {?String} [relativePathPart] - the relative path part of the URL from the css to cut for src-use
 	 * @returns {String} src value or empty string if cssUrl is no CSS-URL-value
 	 **/
 	cssUrlToSrc : function(cssUrl, relativePathPart){
@@ -1753,8 +1789,8 @@ $.extend({
 	 * Returns the raw text content, with all markup cleanly removed.
 	 * Can also be used to return only the concatenated child text nodes.
 	 *
-	 * @param {String|Object} nodeInfested - the node-ridden string or jquery object to "clean"
-	 * @param {Boolean} [onlyFirstLevel=false] - true if only the text of direct child text nodes is to be returned
+	 * @param {(String|Object)} nodeInfested - the node-ridden string or jquery object to "clean"
+	 * @param {?Boolean} [onlyFirstLevel=false] - true if only the text of direct child text nodes is to be returned
 	 * @returns {String} the escaped string
 	 **/
 	textContent : function(nodeInfested, onlyFirstLevel){
@@ -1778,7 +1814,7 @@ $.extend({
 			res = $holder.text();
 		}
 
-		return res;
+		return $.trim(res);
 	},
 
 
@@ -1788,7 +1824,7 @@ $.extend({
 	 *
 	 * @param {String} keyName - the key to bind => up/down/left/right
 	 * @param {Function} callback - callback to call of cursor key use, takes event e
-	 * @param {String} [eventType=keydown] - the event type to use when binding => keypress/keydown/keyup
+	 * @param {?String} [eventType=keydown] - the event type to use when binding => keypress/keydown/keyup
 	 **/
 	bindCursorKey : function(keyName, callback, eventType){
 		var keys = {
@@ -1813,7 +1849,7 @@ $.extend({
 	 * Unbinds a callback to a cursor key, internally identified by keycode.
 	 *
 	 * @param {String} keyName - the key to unbind => up/down/left/right
-	 * @param {String} [eventType=keydown] - the event type to use when binding => keypress/keydown/keyup
+	 * @param {?String} [eventType=keydown] - the event type to use when binding => keypress/keydown/keyup
 	 **/
 	unbindCursorKey : function(keyName, eventType){
 		var keys = {
@@ -1838,10 +1874,15 @@ $.extend({
 	 * Removes all textselections from the current frame if possible.
 	 **/
 	removeSelection : function(){
-		if( window.getSelection ){
+		if( $.exists('getSelection') ){
 			window.getSelection().removeAllRanges();
-		}else if( document.getSelection ){
+		} else if( $.exists('getSelection', document) ){
 			document.getSelection().removeAllRanges();
+		}
+
+		// remove left over input selections for old IEs remaining after proper removeAllRanges
+		if( $.exists('selection', document) ){
+			document.selection.empty();
 		}
 	},
 
@@ -1851,7 +1892,7 @@ $.extend({
 	 * Detects if the current JavaScript-context runs on a (dedicated) touch device.
 	 * Checks these UserAgents by default: iOS-devices, Blackberry, Android, IE mobile, Opera Mobilem Firefox Mobile and Kindle.
 	 *
-	 * @param {Boolean} [inspectUserAgent=false] - defines if the user agent should be inspected additionally to identifying touch events
+	 * @param {?Boolean} [inspectUserAgent=false] - defines if the user agent should be inspected additionally to identifying touch events
 	 * @param {?String[]} [additionalUserAgentIds] - list of string-ids to search for in the user agent additionally to the basic ones
 	 * @param {?Boolean} [onlyConsiderUserAgent=false] - tells the algorithm to ignore feature checks and just go by the user-agent-ids
 	 * @returns {Boolean} true if device knows touch events and or sends fitting useragent
@@ -2184,7 +2225,7 @@ $.fn.extend({
 	/**
 	 * Returns the currently set URL-Anchor on the document(-url) or elements having a src- or href-attribute.
 	 *
-	 * @param {Boolean} [withoutCaret=false] - defines if anchor value should contain leading "#"
+	 * @param {?Boolean} [withoutCaret=false] - defines if anchor value should contain leading "#"
 	 * @returns {(String|null)} current anchor value or null if no anchor in url
 	 **/
 	urlAnchor : function(withoutCaret){
@@ -2274,7 +2315,7 @@ $.fn.extend({
 	 * This method uses getBoundingClientRect(), which has to be supported by the browser, otherwise
 	 * the method will always return true.
 	 *
-	 * @param {Boolean} [mustBeFullyInside=false] - defines if the element has to be fully enclosed in the viewport, default is false
+	 * @param {?Boolean} [mustBeFullyInside=false] - defines if the element has to be fully enclosed in the viewport, default is false
 	 * @returns {Boolean} true if in viewport
 	 **/
 	isInViewport : function(mustBeFullyInside){
@@ -2376,7 +2417,7 @@ $.fn.extend({
 	 * Fixes cross-browser problems with image-loads and fires the event even in case the image is already loaded.
 	 *
 	 * @param {Function} callback - callback to call when all images have been loaded
-	 * @param {Boolean} [needsJqueryDims=false] - tells the check if we expect the loaded image to have readable dimensions
+	 * @param {?Boolean} [needsJqueryDims=false] - tells the check if we expect the loaded image to have readable dimensions
 	 * @returns {Object} this
 	 **/
 	imgLoad : function(callback, needsJqueryDims){
@@ -2463,6 +2504,155 @@ $.fn.extend({
 		}
 
 		return this;
+	},
+
+
+
+	/**
+	 * Extracts all pure text nodes from an Element, starting directly in the element itself.
+	 *
+	 * @param  {?Function} fFilter - a filter function to restrict the returned set, gets called with (textNode, element)
+	 * @param  {?Boolean} onlyFirstLevel - defines if the function should only return text nodes from the very first level
+	 * @return {Object} a jQuery-set of text nodes
+	 **/
+	findTextNodes : function(fFilter, onlyFirstLevel) {
+		fFilter = $.isFunction(fFilter) ? fFilter : function(){ return true };
+		onlyFirstLevel = $.isSet(onlyFirstLevel) ? !!onlyFirstLevel : false;
+
+		var $res = $();
+
+		$.each($(this), function(){
+			var _this_ = this,
+				$set = $(this)
+			;
+
+			if( !onlyFirstLevel ){
+				$set = $set.add($set.find('*'));
+			}
+
+			$set.each(function(){
+				$res = $res.add($(this)
+					.contents()
+					.filter(function(){
+						if( (this.nodeType == 3) && ($.trim($(this).text()) !== '') ){
+							return !!fFilter(this, _this_);
+						} else {
+							return false;
+						}
+					})
+				);
+			});
+		});
+
+		return $res;
+	},
+
+
+
+	/**
+	 * Programmatically create a text selection inside a node, possibly reaching across several child nodes,
+	 * but virtually working the only the raw text content. Can also be used to create a selection in text
+	 * inputs for example.
+	 *
+	 * Hint: At the moment there seems to be a problem with Firefox when trying to create any selection inside a
+	 * textarea or input:text. Still working on that...
+	 *
+	 * @param  {?Number.Integer} [startOffset] - characters to leave out at the beginning of the text content
+	 * @param  {?Number.Integer} [endOffset] - characters to leave out at the end of the text content
+	 * @param  {?Boolean} [returnSelectedText=false] - if true, returns the selected text instead of the element
+	 * @return {(Object|String)} Either this or the selected text
+	 **/
+	createSelection : function(startOffset, endOffset, returnSelectedText){
+		startOffset = $.isSet(startOffset) ? parseInt(startOffset ,10) : null;
+		endOffset = $.isSet(endOffset) ? parseInt(endOffset, 10) : null;
+		returnSelectedText = $.isSet(returnSelectedText) ? !!returnSelectedText : false;
+
+		var selectionText = '';
+
+	    $.each($(this), function(){
+			var range, selection, rangeText;
+
+		    if( $.exists('selectionStart', this) && $.exists('selectionEnd', this) ){
+				$(this).doselect();
+				rangeText = $(this).val();
+				this.selectionStart = startOffset;
+				this.selectionEnd = rangeText.length - endOffset;
+				selectionText = rangeText.substring(this.selectionStart, this.selectionEnd);
+			} else if( $.exists('getSelection') ){
+		        selection = window.getSelection();
+		        range = document.createRange();
+
+				range.selectNodeContents($(this).oo());
+
+				if( $.isSet(startOffset) || $.isSet(endOffset) ){
+					var $textNodes = $(this).findTextNodes(),
+						startNode = $textNodes.first().oo(),
+						startNodeIndex = 0,
+						endNode = $textNodes.last().oo(),
+						endNodeIndex = $textNodes.length - 1
+					;
+
+					if( $.isSet(startOffset) ){
+						var remainingStartOffset = startOffset,
+							startOffsetNodeFound = (remainingStartOffset <= startNode.length)
+						;
+
+						while( !startOffsetNodeFound ){
+							startNodeIndex++;
+							remainingStartOffset -= startNode.length;
+							startNode = $textNodes.eq(startNodeIndex).oo();
+
+							startOffsetNodeFound = (remainingStartOffset <= startNode.length);
+						}
+
+						range.setStart(startNode, remainingStartOffset);
+					}
+
+					if( $.isSet(endOffset) ){
+						var remainingEndOffset = endOffset,
+							endOffsetNodeFound = (remainingEndOffset <= endNode.length)
+						;
+
+						while( !endOffsetNodeFound ){
+							endNodeIndex--;
+							remainingEndOffset -= endNode.length;
+							endNode = $textNodes.eq(endNodeIndex).oo();
+
+							endOffsetNodeFound = (remainingEndOffset <= endNode.length);
+						}
+
+						range.setEnd(endNode, endNode.length - remainingEndOffset);
+					}
+				}
+
+		        selection.removeAllRanges();
+		        selection.addRange(range);
+
+				selectionText = range.toString();
+		    } else if( $.exists('body.createTextRange', document) ){
+		        range = document.body.createTextRange();
+		        range.moveToElementText($(this).oo());
+
+				if( $.isSet(startOffset) ){
+					range.moveStart('character', startOffset);
+				}
+
+				if( $.isSet(endOffset) ){
+					range.moveEnd('character', -endOffset);
+				}
+
+		        range.select();
+
+				selectionText = range.text;
+			}
+		});
+
+
+		if( !returnSelectedText ){
+			return this;
+		} else {
+			return selectionText;
+		}
 	},
 
 
@@ -2561,7 +2751,7 @@ $.fn.extend({
 	 * Treats touchstart, touchmove and touchend events on the element internally
 	 * as mousedown, mousemove and mouseup events and remaps event coordinates correctly.
 	 *
-	 * @param {Boolean} [ignoreChildren=false] - defines if only the element itself should count and whether to ignore bubbling
+	 * @param {?Boolean} [ignoreChildren=false] - defines if only the element itself should count and whether to ignore bubbling
 	 * @returns {Object} this
 	 **/
 	simulateTouchEvents : function(ignoreChildren){
