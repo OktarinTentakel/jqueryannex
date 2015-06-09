@@ -10,13 +10,9 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl
- * @version Revision 19 developed and tested with jQuery 1.11.3
+ * @version Revision 20 developed and tested with jQuery 1.11.3
  **/
 
-/**
- * Implement:
- * promise-interfaces for getCSS, preloadImages, waitForWebfonts, imgLoad
- **/
 
 
 //--|JQUERY-$-GENERAL-FUNCTIONS----------
@@ -1405,6 +1401,7 @@ $.extend({
 	 * @param {String} url - the URL of the CSS-file to load
 	 * @param {?Object.<String, *>} [options] - config for the call (styletag : true/false, media : screen/print/all/etc., charset : utf-8/etc., id : {String})
 	 * @param {?Function} [callback] - function to call after css is loaded and included into DOM, gets included DOM-element as parameter
+	 * @returns {jqXHR} the deferred object from the internally used $.get
 	 **/
 	getCSS : function(url, options, callback){
 		var that = this;
@@ -1422,7 +1419,7 @@ $.extend({
 
 		options = defaultOptions;
 
-		$.get(url, function(data){
+		return $.get(url, function(data){
 			if( !options.styletag ){
 				$res = that.elem('link', {
 					'rel' : 'stylesheet',
@@ -1580,11 +1577,15 @@ $.extend({
 	 * So you can either just use the url again, or, to be super-sure, call the method again, with just the image name to get the URL.
 	 *
 	 * @param {(String|String[]|Object.<String, String>)} images - an URL, an array of URLS or a plain object containing named URLs. In case the string is an already used name, the image-object is returned.
-	 * @param {Function} [callback] - callback to call when all images have loaded, this also fires on already loaded images if inserted again
-	 * @returns {(Image|Object.<String, String>)} either returns a requested cached image or the currently added named/unnamed images as saved
+	 * @param {?Function} [callback] - callback to call when all images have loaded, this also fires on already loaded images if inserted again
+	 * @param {?Boolean} [returnCollection=false] - defines if the function should return the collection in which the images where inserted instead of the deferred object
+	 * @returns {(Deferred|Object.<String, String>|Image)} either returns a deferred object (does not fail atm), the currently added named/unnamed images as saved (if defined by returnCollection) or a requested cached image
 	 **/
-	preloadImages : function(images, callback){
+	preloadImages : function(images, callback, returnCollection){
+		returnCollection = this.isSet(returnCollection) ? !!returnCollection : false;
+
 		var res = null;
+		var deferred = $.Deferred();
 
 		if( !$.isPlainObject(images) && !$.isArray(images) ){
 			image = ''+images;
@@ -1630,12 +1631,15 @@ $.extend({
 
 		var targetCount = imageList.length;
 		var blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
-		$.each(imageList, function(index, value){
+
+		// xxx remove if imgLoad solution proves robust
+		/*$.each(imageList, function(index, value){
 			$(value).on('load.preload', function(e){
 				if( this.src != blank ){
 					if( (--targetCount <= 0) && $.isFunction(callback) ){
 						$.each(imageList, function(index, value){ $(this).off('load.preload'); });
 						callback(imageList, e);
+						deferred.resolve();
 					}
 				} else {
 					var $target = $(this);
@@ -1648,9 +1652,20 @@ $.extend({
 				value.src = blank;
 				value.src = src;
 			}
+		});*/
+
+		$(imageList).imgLoad(function(targets, e){
+			if( $.isFunction(callback) ){
+				callback(targets, e);
+			}
+			deferred.resolve();
 		});
 
-		return res;
+		if( returnCollection ){
+			return res;
+		} else {
+			return deferred;
+		}
 	},
 
 
@@ -1660,12 +1675,15 @@ $.extend({
 	 * Works for fonts already loaded as well.
 	 *
 	 * @param {String|String[]} fonts - the CSS-names of the fonts to wait upon
-	 * @param {Function} callback - the callback to execute once all given webfonts are loaded
+	 * @param {?Function} callback - the callback to execute once all given webfonts are loaded
 	 * @param {?String} [fallbackFontName=sans-serif] - the system font onto which the page falls back if the webfont is not loaded
+	 * @returns {Deferred} a deferred object (not failing atm)
 	 **/
 	waitForWebfonts : function(fonts, callback, fallbackFontName) {
 		fonts = $.isArray(fonts) ? fonts : [''+fonts];
 		fallbackFontName = this.isSet(fallbackFontName) ? ''+fallbackFontName : 'sans-serif';
+
+		var deferred = $.Deferred();
 
 		var loadedFonts = 0;
 		for(var i = 0; i < fonts.length; i++){
@@ -1703,16 +1721,23 @@ $.extend({
 						}
 
 						if( loadedFonts == fonts.length ){
-							callback();
+							if( $.isFunction(callback) ){
+								callback();
+							}
+							deferred.resolve();
 							return true;
 						}
 					}
+
+					return false;
 				};
 
 				if( !fCheckFont() ){
 					tCheckFontLoaded = this.loop(50, fCheckFont);
 				}
 		}
+
+		return deferred;
 	},
 
 
