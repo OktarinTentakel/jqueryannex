@@ -28,7 +28,7 @@ $.extend({
 	 **/
 	jqueryAnnexData : {
 		logging : {
-			originalLoggingFunction : ((window['console'] !== undefined) && $.isFunction(console.log)) ? console.log : $.noop,
+			originalLoggingFunction : ((window.console !== undefined) && $.isFunction(console.log)) ? console.log : $.noop,
 			enabled : true,
 			xlog : {}
 		},
@@ -478,10 +478,11 @@ $.extend({
 				key = '0.'+key;
 			}
 
-			var match;
-			while( match = /(.+?)[.](.+)/.exec(key) ){
+			var match = /(.+?)[.](.+)/.exec(key);
+			while( match ){
 				object = fResolve(object, match[1]);
 				key = match[2];
+				match = /(.+?)[.](.+)/.exec(key);
 			}
 
 			return fResolve(object, key);
@@ -2541,7 +2542,7 @@ $.fn.extend({
 	 * @return {Object} a jQuery-set of text nodes
 	 **/
 	findTextNodes : function(fFilter, onlyFirstLevel) {
-		fFilter = $.isFunction(fFilter) ? fFilter : function(){ return true };
+		fFilter = $.isFunction(fFilter) ? fFilter : function(){ return true; };
 		onlyFirstLevel = $.isSet(onlyFirstLevel) ? !!onlyFirstLevel : false;
 
 		var $res = $();
@@ -2800,7 +2801,7 @@ $.fn.extend({
 						e.target.__ajqmeclk = objectEvents;
 						eventNeedsReplacement =
 							$.isSet(objectEvents)
-							&& ($.isSet(objectEvents['click']) || $.isSet(objectEvents['mousedown']) || $.isSet(objectEvents['mouseup']) || $.isSet(objectEvents['mousemove']))
+							&& ($.isSet(objectEvents.click) || $.isSet(objectEvents.mousedown) || $.isSet(objectEvents.mouseup) || $.isSet(objectEvents.mousemove))
 						;
 					} else {
 						eventNeedsReplacement = false;

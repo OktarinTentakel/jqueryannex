@@ -10,7 +10,7 @@ Sites: [project](http://www.ifschleife.de/jqueryannex), [github](https://github.
 
 What is this?
 -------------
-Annex is a jQuery-core-expanding collection of "nice to have" methods you'll need more often than not. The basic idea was, and is to streamline most vanilla-js leftovers every javascript dev still has to deal with (like timeouts) and provide methods for those things as well as the stuff everyone searches for in jQuery at least once, but which aren't there (yet).
+Annex is a jQuery-core-expanding collection of "nice to have" methods you'll need more often than not. The basic idea was (and is) to streamline most vanilla-js leftovers every javascript dev still has to deal with (like timeouts) and provide methods for those things as well as the stuff everyone searches for in jQuery at least once, but which aren't there (yet).
 
 An example? Load a stylesheet the same way you'd load a script with getScript().
 
