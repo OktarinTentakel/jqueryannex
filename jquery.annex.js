@@ -9,10 +9,24 @@
  *
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
- * @author Sebastian Schlapkohl
- * @version Revision 20 developed and tested with jQuery 1.11.3
+ * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
+ * @version Revision 21 developed and tested with jQuery 1.11.3
  **/
 
+
+/*
+	TODO:
+	test new methods and check documentation
+
+	checked:
+	- remByPx
+	- hookUp
+	- dataDuo / removeDataDuo
+	- scrollTo
+
+	not checked:
+	- highDpiBackgroundImage
+ */
 
 
 //--|JQUERY-$-GENERAL-FUNCTIONS----------
@@ -31,6 +45,10 @@ $.extend({
 			originalLoggingFunction : ((window.console !== undefined) && $.isFunction(console.log)) ? console.log : $.noop,
 			enabled : true,
 			xlog : {}
+		},
+		inheritance : {
+			initializing : false,
+			fnTest : /xyz/.test(function(){ return 'xyz'; }) ? /\b_super\b/ : /.*/
 		},
 		polls : {
 			defaultLoop : null,
@@ -54,6 +72,10 @@ $.extend({
 		preloadedImages : {
 			unnamed : [],
 			named : {}
+		},
+		highDpiBackgroundImages : {
+			targetClosures : [],
+			checkTimer : {id : window.setTimeout($.noop, 1), type : 'timeout'}
 		}
 	},
 
@@ -167,6 +189,32 @@ $.extend({
 
 
 	/**
+	 * Simple Base function for inheritance-capable JS-objects.
+	 * Adapted from: Simple JavaScript Inheritance By John Resig http://ejohn.org/ MIT Licensed. Inspired by base2 and Prototype.
+	 *
+	 * To create an object from which you may further inherit, instantiate an object by extending $.Class.
+	 *
+	 * var SuperPoweredFoobar = $.Class.extend({
+	 *     init : function(){}
+	 * });
+	 *
+	 * After this you can create a new SuperPoweredFoobar by simply instantiating
+	 *
+	 * var foobar1 = new SuperPoweredFoobar();
+	 *
+	 * .init() is the default constructor and will automatically be called with the given parameters.
+	 *
+	 * Inherit from SuperPoweredFoobar by using SuperPoweredFoobar.extend() the same way.
+	 *
+	 * Use _super to reference the parent class or call the parent constructor via this._super();
+	 **/
+	Class : function(){
+		// see INITIALIZATIONS below for extend() source
+	},
+
+
+
+	/**
 	 * Classical assert method. If not condition, throw assert exception.
 	 *
 	 * @param {Boolean} condition - defines if an assertion is successful
@@ -255,7 +303,9 @@ $.extend({
 	 * @returns {Boolean} variable exists in context or jQuery-set has length > 0
 	 **/
 	exists : function(target, context){
-		var res = true;
+		var _this_ = this,
+			res = true
+		;
 
 		if( this.isA(target, 'object') && this.isSet(target.jquery) ){
 			return target.length > 0;
@@ -269,7 +319,7 @@ $.extend({
 			var targetChain = target.split('.');
 			$.each(targetChain, function(index, value){
 				if( index < (targetChain.length - 1) ){
-					res = res && $.isSet(context[''+value]);
+					res = res && _this_.isSet(context[''+value]);
 					if( res ){
 						context = context[''+value];
 					} else {
@@ -457,7 +507,8 @@ $.extend({
 	 * @returns {String} the formatted string
 	 **/
 	strFormat : function(template){
-		var args = (arguments.length > 1) ? $.makeArray(arguments).slice(1) : [],
+		var _this_ = this,
+			args = (arguments.length > 1) ? $.makeArray(arguments).slice(1) : [],
 			idx = 0,
 			explicit = false,
 			implicit = false
@@ -490,16 +541,16 @@ $.extend({
 
 		var formatters = {
 			int : function(value, radix){
-				radix = $.isSet(radix) ? parseInt(radix, 10) : 10;
+				radix = _this_.isSet(radix) ? parseInt(radix, 10) : 10;
 				var res = parseInt(value, radix);
-				return !$.isNaN(res) ? ''+res : '';
+				return !_this_.isNaN(res) ? ''+res : '';
 			},
 			float : function(value, format){
-				format = $.isSet(format) ? ''+format : null;
+				format = _this_.isSet(format) ? ''+format : null;
 
 				var res = null;
 
-				if( $.isSet(format) ){
+				if( _this_.isSet(format) ){
 					var precision = 0;
 
 					try {
@@ -515,7 +566,7 @@ $.extend({
 					res = parseFloat(value);
 				}
 
-				return !$.isNaN(res) ? ''+res : '';
+				return !_this_.isNaN(res) ? ''+res : '';
 			}
 		};
 
@@ -541,7 +592,7 @@ $.extend({
 					;
 
 					if( formatterParts.length > 1 ){
-						formatterArg = $.strReplace(')', '', formatterParts[1]);
+						formatterArg = _this_.strReplace(')', '', formatterParts[1]);
 					}
 
 					try {
@@ -558,7 +609,7 @@ $.extend({
 				}
 
 				ref = fLookup(args, key);
-				value = $.isSet(ref) ? ref : '';
+				value = _this_.isSet(ref) ? ref : '';
 			} else {
 				if( explicit ){
 					throw 'strFormat | cannot switch from explicit to implicit numbering';
@@ -567,11 +618,11 @@ $.extend({
 				}
 
 				ref = args[idx];
-				value = $.isSet(ref) ? ref : '';
+				value = _this_.isSet(ref) ? ref : '';
 				idx++;
 			}
 
-			return $.isSet(formatter) ? formatter(value, formatterArg) : value;
+			return _this_.isSet(formatter) ? formatter(value, formatterArg) : value;
 		});
 	},
 
@@ -664,7 +715,7 @@ $.extend({
 		var itoh = '0123456789ABCDEF';
 		var i = 0;
 
-		for (i = 0; i < uuidLength; i++) s[i] = Math.floor(Math.random()*0x10);
+		for (i = 0; i < uuidLength; i++) s[i] = Math.floor(Math.random() * 0x10);
 
 		// Conform to RFC-4122, section 4.4
 		s[withoutDashes ? 12 : 14] = 4;
@@ -915,6 +966,8 @@ $.extend({
 	poll : function(name, fCondition, fAction, fElseAction, newLoopMs, useOwnTimer){
 		name = $.trim(''+name);
 
+		var _this_ = this;
+
 		if( (name !== '') && $.isFunction(fCondition) && $.isFunction(fAction) ){
 			fElseAction = $.isFunction(fElseAction) ? fElseAction : $.noop;
 
@@ -940,10 +993,10 @@ $.extend({
 				newPoll.loop = this.loop(!this.isSet(newLoopMs) ? 250 : parseInt(newLoopMs, 10), function(){
 					if( newPoll.condition() ){
 						if( newPoll.action(newPoll.lastPollResult === false) ){
-							$.countermand(newPoll.loop);
+							_this_.countermand(newPoll.loop);
 							newPoll.loop = null;
-							delete $.jqueryAnnexData.polls.activePolls[newPoll.name];
-							$.jqueryAnnexData.polls.activePollCount--;
+							delete _this_.jqueryAnnexData.polls.activePolls[newPoll.name];
+							_this_.jqueryAnnexData.polls.activePollCount--;
 						}
 						newPoll.lastPollResult = true;
 					} else {
@@ -970,13 +1023,13 @@ $.extend({
 				}
 
 				this.jqueryAnnexData.polls.defaultLoop = this.loop(!this.isSet(newLoopMs) ? 250 : parseInt(newLoopMs, 10), function(){
-					if( $.jqueryAnnexData.polls.activePollCount > 0 ){
-						$.each($.jqueryAnnexData.polls.activePolls, function(name, poll){
-							if( !$.isSet(poll.loop) ){
+					if( _this_.jqueryAnnexData.polls.activePollCount > 0 ){
+						$.each(_this_.jqueryAnnexData.polls.activePolls, function(name, poll){
+							if( !_this_.isSet(poll.loop) ){
 								if( poll.condition() ){
 									if( poll.action(poll.lastPollResult === false) ){
-										delete $.jqueryAnnexData.polls.activePolls[name];
-										$.jqueryAnnexData.polls.activePollCount--;
+										delete _this_.jqueryAnnexData.polls.activePolls[name];
+										_this_.jqueryAnnexData.polls.activePollCount--;
 									}
 									poll.lastPollResult = true;
 								} else {
@@ -986,8 +1039,8 @@ $.extend({
 							}
 						});
 					} else {
-						$.countermand($.jqueryAnnexData.polls.defaultLoop);
-						$.jqueryAnnexData.polls.defaultLoop = null;
+						_this_.countermand(_this_.jqueryAnnexData.polls.defaultLoop);
+						_this_.jqueryAnnexData.polls.defaultLoop = null;
 					}
 				});
 			}
@@ -1045,17 +1098,18 @@ $.extend({
 	throttleExecution : function(ms, func, leadingExecution){
 		leadingExecution = this.isSet(leadingExecution) ? !!leadingExecution : true;
 
-		var nextExecutionWaiting = false,
+		var _this_ = this,
+			nextExecutionWaiting = false,
 			throttleTimer = null
 		;
 
 		return function(){
-			if( !nextExecutionWaiting && !$.isSet(throttleTimer) ){
-				throttleTimer = $.loop(ms, function(){
+			if( !nextExecutionWaiting && !_this_.isSet(throttleTimer) ){
+				throttleTimer = _this_.loop(ms, function(){
 					if( nextExecutionWaiting ){
 						func();
 					} else {
-						$.countermand(throttleTimer);
+						_this_.countermand(throttleTimer);
 						throttleTimer = null;
 					}
 
@@ -1081,10 +1135,12 @@ $.extend({
 	 * @returns {Function} the holding function
 	 **/
 	holdExecution : function(ms, func){
-		var holdTimer = this.schedule(1, $.noop);
+		var _this_ = this,
+			holdTimer = this.schedule(1, $.noop)
+		;
 
 		return function(){
-			holdTimer = $.reschedule(holdTimer, ms, function(){ func(); });
+			holdTimer = _this_.reschedule(holdTimer, ms, function(){ func(); });
 		};
 	},
 
@@ -1101,8 +1157,10 @@ $.extend({
 	deferExecution : function(func, delay){
 		delay = this.isSet(delay) ? parseInt(delay, 10) : 1;
 
+		var _this_ = this;
+
 		return function(){
-			$.schedule(delay, func);
+			_this_.schedule(delay, func);
 		};
 	},
 
@@ -1119,6 +1177,8 @@ $.extend({
 	 * @param {?String} [target] - name of the window to perform the redirect to/in
 	 **/
 	redirect : function(url, params, anchor, postParams, target){
+		var _this_ = this;
+
 		var reload = !this.isSet(url);
 		if( !this.isSet(url) ){
 			url = window.location.href;
@@ -1192,10 +1252,10 @@ $.extend({
 			$.each(postParams, function(index, value){
 				if( $.isArray(value) ){
 					$.each(value, function(_index_, _value_){
-						redirectForm.append($.elem('input', {type : 'hidden', name : index+'[]', value : ''+_value_}));
+						redirectForm.append(_this_.elem('input', {type : 'hidden', name : index+'[]', value : ''+_value_}));
 					});
 				} else {
-					redirectForm.append($.elem('input', {type : 'hidden', name : ''+index, value : ''+value}));
+					redirectForm.append(_this_.elem('input', {type : 'hidden', name : ''+index, value : ''+value}));
 				}
 			});
 			$('body').append(redirectForm);
@@ -1319,6 +1379,8 @@ $.extend({
 	 * @param {?Boolean} [clearOld] - defines if old handlers should be removed before setting new one
 	 **/
 	onHistoryChange : function(callback, name, clearOld){
+		var _this_ = this;
+
 		if ( this.browserSupportsHistoryManipulation() ) {
 			name = this.isSet(name) ? '.'+name : '';
 			if( clearOld ){
@@ -1327,10 +1389,10 @@ $.extend({
 			$(window).on('popstate'+name, function(e){
 				callback(
 					{
-						state : $.jqueryAnnexData.history.currentState,
-						title : $.jqueryAnnexData.history.currentTitle,
-						host : $.jqueryAnnexData.history.currentHost,
-						path : $.jqueryAnnexData.history.currentPath
+						state : _this_.jqueryAnnexData.history.currentState,
+						title : _this_.jqueryAnnexData.history.currentTitle,
+						host : _this_.jqueryAnnexData.history.currentHost,
+						path : _this_.jqueryAnnexData.history.currentPath
 					},
 					{
 						state : e.state,
@@ -1340,10 +1402,10 @@ $.extend({
 					}
 				);
 
-				$.jqueryAnnexData.history.currentState = e.state;
-				$.jqueryAnnexData.history.currentTitle = ''+e.title;
-				$.jqueryAnnexData.history.currentHost = window.location.host;
-				$.jqueryAnnexData.history.currentPath = window.location.pathname;
+				_this_.jqueryAnnexData.history.currentState = e.state;
+				_this_.jqueryAnnexData.history.currentTitle = ''+e.title;
+				_this_.jqueryAnnexData.history.currentHost = window.location.host;
+				_this_.jqueryAnnexData.history.currentPath = window.location.pathname;
 			});
 		}
 	},
@@ -1402,10 +1464,10 @@ $.extend({
 	 * @param {String} url - the URL of the CSS-file to load
 	 * @param {?Object.<String, *>} [options] - config for the call (styletag : true/false, media : screen/print/all/etc., charset : utf-8/etc., id : {String})
 	 * @param {?Function} [callback] - function to call after css is loaded and included into DOM, gets included DOM-element as parameter
-	 * @returns {jqXHR} the deferred object from the internally used $.get
+	 * @returns {jqXHR} the promise object from the internally used $.get
 	 **/
 	getCSS : function(url, options, callback){
-		var that = this;
+		var _this_ = this;
 		var $res = null;
 
 		var defaultOptions = {
@@ -1422,31 +1484,31 @@ $.extend({
 
 		return $.get(url, function(data){
 			if( !options.styletag ){
-				$res = that.elem('link', {
+				$res = _this_.elem('link', {
 					'rel' : 'stylesheet',
 					'type' : 'text/css',
 					'media' : options.media || 'screen',
 					'href' : ''+url
 				});
 			} else {
-				$res = that.elem('style', {'type' : 'text/css'}, data);
+				$res = _this_.elem('style', {'type' : 'text/css'}, data);
 			}
 
-			if( that.isSet(options.charset) ){
+			if( _this_.isSet(options.charset) ){
 				$res.attr('charset', ''+options.charset);
 			}
 
-			if( that.isSet(options.id) ){
+			if( _this_.isSet(options.id) ){
 				if( $.isFunction(callback) ){
 					callback = (function(callback){
 						return function(){
-							$res.attr('data-id', ''+options.id);
+							$res.dataDuo('id', ''+options.id);
 							callback($res);
 						};
 					})(callback);
 				} else {
 					callback = function(){
-						$res.attr('data-id', ''+options.id);
+						$res.dataDuo('id', ''+options.id);
 					};
 				}
 			}
@@ -1461,7 +1523,7 @@ $.extend({
 				}
 
 				if( $.isFunction(callback) ){
-					that.schedule(100, function(){ callback($res); });
+					_this_.schedule(100, function(){ callback($res); });
 				}
 			} else {
 				if( $('head style').length > 0 ){
@@ -1543,6 +1605,8 @@ $.extend({
 	 * @returns {Number.Integer} true integer representation of the given value
 	 **/
 	cssToInt : function(cssVal){
+		cssVal = ''+cssVal;
+
 		return parseInt(cssVal.replace(/(px|em|%)$/, ''), 10);
 	},
 
@@ -1573,20 +1637,45 @@ $.extend({
 
 
 	/**
+	 * Calculates a rem value based on a given px value.
+	 * As a default this method takes the font-size (supposedly being in px) of the html-container.
+	 * You can overwrite this behaviour by setting initial to an int to use as a base px value or
+	 * to a string, which then defines a new selector to get the initial font-size.
+	 *
+	 * In most cases you will have to define the initial value via a constant or a selector to a container
+	 * with non-changing font-size, since you can never be sure which relative font-size applies atm, even on first
+	 * call, after dom ready.
+	 *
+	 * @param  {Number.Integer} px - the pixel value to convert to rem
+	 * @param  {?(Number.Integer|String)} [initial='html'] - either a pixel value to use as a conversion base or a selector to an element to get the initial font-size from
+	 * @returns {String} the rem value string to use in a css definition
+	 **/
+	remByPx : function(px, initial){
+		px = parseInt(px, 10);
+		initial = this.isSet(initial) ? initial : 'html';
+
+		return (px / (this.isInt(initial) ? initial : this.cssToInt($(''+initial).css('font-size')))) + 'rem';
+	},
+
+
+
+	/**
 	 * Preloads images by URL.
 	 * Images can be preloaded by name and are thereby retrievable afterwards or anonymously.
 	 * So you can either just use the url again, or, to be super-sure, call the method again, with just the image name to get the URL.
 	 *
 	 * @param {(String|String[]|Object.<String, String>)} images - an URL, an array of URLS or a plain object containing named URLs. In case the string is an already used name, the image-object is returned.
 	 * @param {?Function} [callback] - callback to call when all images have loaded, this also fires on already loaded images if inserted again
-	 * @param {?Boolean} [returnCollection=false] - defines if the function should return the collection in which the images where inserted instead of the deferred object
-	 * @returns {(Deferred|Object.<String, String>|Image)} either returns a deferred object (does not fail atm), the currently added named/unnamed images as saved (if defined by returnCollection) or a requested cached image
+	 * @param {?Boolean} [returnCollection=false] - defines if the function should return the collection in which the images where inserted instead of the promise object
+	 * @returns {(Promise|Object.<String, String>|Image)} either returns a promise object (does not fail atm), the currently added named/unnamed images as saved (if defined by returnCollection) or a requested cached image
 	 **/
 	preloadImages : function(images, callback, returnCollection){
 		returnCollection = this.isSet(returnCollection) ? !!returnCollection : false;
 
-		var res = null;
-		var deferred = $.Deferred();
+		var _this_ = this,
+			res = null,
+			deferred = $.Deferred()
+		;
 
 		if( !$.isPlainObject(images) && !$.isArray(images) ){
 			image = ''+images;
@@ -1605,7 +1694,7 @@ $.extend({
 				key = ''+key;
 				value = ''+value;
 
-				if( !$.exists(key, $.jqueryAnnexData.preloadedImages.named) ){
+				if( !_this_.exists(key, _this_.jqueryAnnexData.preloadedImages.named) ){
 					newImages[key] = new Image();
 					newImages[key].src = value;
 				}
@@ -1618,7 +1707,7 @@ $.extend({
 			$.each(images, function(index, value){
 				var newImage = new Image();
 				newImage.src = ''+value;
-				$.jqueryAnnexData.preloadedImages.unnamed.push(newImage);
+				_this_.jqueryAnnexData.preloadedImages.unnamed.push(newImage);
 			});
 
 			res = this.jqueryAnnexData.preloadedImages.unnamed;
@@ -1644,7 +1733,7 @@ $.extend({
 					}
 				} else {
 					var $target = $(this);
-					$.schedule(10, function(){ $target.trigger('load.preload'); });
+					_this_.schedule(10, function(){ $target.trigger('load.preload'); });
 				}
 			});
 
@@ -1665,7 +1754,7 @@ $.extend({
 		if( returnCollection ){
 			return res;
 		} else {
-			return deferred;
+			return deferred.promise();
 		}
 	},
 
@@ -1678,15 +1767,17 @@ $.extend({
 	 * @param {String|String[]} fonts - the CSS-names of the fonts to wait upon
 	 * @param {?Function} callback - the callback to execute once all given webfonts are loaded
 	 * @param {?String} [fallbackFontName=sans-serif] - the system font onto which the page falls back if the webfont is not loaded
-	 * @returns {Deferred} a deferred object (not failing atm)
+	 * @returns {Promise} a promise object (not failing atm)
 	 **/
 	waitForWebfonts : function(fonts, callback, fallbackFontName) {
 		fonts = $.isArray(fonts) ? fonts : [''+fonts];
 		fallbackFontName = this.isSet(fallbackFontName) ? ''+fallbackFontName : 'sans-serif';
 
-		var deferred = $.Deferred();
+		var _this_ = this,
+			deferred = $.Deferred(),
+			loadedFonts = 0
+		;
 
-		var loadedFonts = 0;
 		for(var i = 0; i < fonts.length; i++){
 				var $node = this.elem('span')
 					.html('giItT1WQy@!-/#')
@@ -1717,8 +1808,8 @@ $.extend({
 					}
 
 					if( loadedFonts >= fonts.length ){
-						if( $.isSet(tCheckFontLoaded) ){
-							$.countermand(tCheckFontLoaded);
+						if( _this_.isSet(tCheckFontLoaded) ){
+							_this_.countermand(tCheckFontLoaded);
 						}
 
 						if( loadedFonts == fonts.length ){
@@ -1738,7 +1829,7 @@ $.extend({
 				}
 		}
 
-		return deferred;
+		return deferred.promise();
 	},
 
 
@@ -1771,8 +1862,8 @@ $.extend({
 	 * @returns {Boolean} true if value may be id
 	 **/
 	isPossibleId : function(testVal, prefix, postfix, dontMaskFixes){
-		prefix = $.isSet(prefix) ? ''+prefix : '';
-		postfix = $.isSet(postfix) ? ''+postfix : '';
+		prefix = this.isSet(prefix) ? ''+prefix : '';
+		postfix = this.isSet(postfix) ? ''+postfix : '';
 
 		var rex = null;
 		if( !dontMaskFixes ){
@@ -1900,14 +1991,14 @@ $.extend({
 	 * Removes all textselections from the current frame if possible.
 	 **/
 	removeSelection : function(){
-		if( $.exists('getSelection') ){
+		if( this.exists('getSelection') ){
 			window.getSelection().removeAllRanges();
-		} else if( $.exists('getSelection', document) ){
+		} else if( this.exists('getSelection', document) ){
 			document.getSelection().removeAllRanges();
 		}
 
 		// remove left over input selections for old IEs remaining after proper removeAllRanges
-		if( $.exists('selection', document) ){
+		if( this.exists('selection', document) ){
 			document.selection.empty();
 		}
 	},
@@ -1924,10 +2015,11 @@ $.extend({
 	 * @returns {Boolean} true if device knows touch events and or sends fitting useragent
 	 **/
 	contextIsTouchDevice : function(inspectUserAgent, additionalUserAgentIds, onlyConsiderUserAgent){
-		var that = this;
-		var touchEventsPresent = 'createTouch' in document;
-		var res = onlyConsiderUserAgent ? true : touchEventsPresent;
-		var ua = navigator.userAgent;
+		var _this_ = this,
+			touchEventsPresent = 'createTouch' in document,
+			res = onlyConsiderUserAgent ? true : touchEventsPresent,
+			ua = navigator.userAgent
+		;
 
 		if( this.isSet(inspectUserAgent) && inspectUserAgent ){
 			res =
@@ -1947,7 +2039,7 @@ $.extend({
 				$.each(additionalUserAgentIds, function(index, value){
 					var rex = new RegExp(value, 'i');
 					var matches = rex.exec(ua);
-					res = (touchEventsPresent && res) || (touchEventsPresent && that.isSet(matches));
+					res = (touchEventsPresent && res) || (touchEventsPresent && _this_.isSet(matches));
 				});
 			}
 		}
@@ -2142,20 +2234,17 @@ $.fn.extend({
 	 * @returns {Object} this
 	 **/
 	setElementIdentity : function(id, classes, style, $inheritFrom){
-		var that = this;
+		var _this_ = this;
 		var copyAttrs = ['id', 'class', 'style'];
 
 		if( $.isSet($inheritFrom) && $.isA($inheritFrom, 'object') ){
 			$.each($inheritFrom[0].attributes, function(index, attribute){
 				if( $.inArray(attribute.name, copyAttrs) != -1 ){
-					$(that).attr(attribute.name, attribute.value);
+					$(_this_).attr(attribute.name, attribute.value);
 				} else if( attribute.name.indexOf('data-') === 0 ){
-					$(that)
-						.attr(attribute.name, attribute.value)
-						.data($.strReplace('data-', '', attribute.name), attribute.value)
-					;
+					$(_this_).dataDuo(attribute.name, attribute.value);
 				} else if( attribute.name.indexOf('on') === 0 ){
-					$(that).on(attribute.name.substring(2)+'.frommarkup', function(){ eval(attribute.value); });
+					$(_this_).on(attribute.name.substring(2)+'.frommarkup', function(){ eval(attribute.value); });
 				}
 			});
 		}
@@ -2167,7 +2256,7 @@ $.fn.extend({
 		if( $.isSet(classes) ){
 			if( $.isArray(classes) ){
 				$.each(classes, function(index, value){
-					$(that).addClass(value);
+					$(_this_).addClass(value);
 				});
 			} else {
 				$(this).attr('class', ($.isSet($(this).attr('class')) ? $(this).attr('class')+' ' : '')+classes);
@@ -2176,10 +2265,144 @@ $.fn.extend({
 
 		if( $.isSet(style) ){
 			if( $.isPlainObject(style) ){
-				$(that).css(style);
+				$(this).css(style);
 			} else {
 				$(this).attr('style', ($.isSet($(this).attr('style')) ? $(this).attr('style')+' ' : '')+style);
 			}
+		}
+
+		return this;
+	},
+
+
+
+	/**
+	 * Offers an execution frame for element preparation like setting handlers and transforming dom.
+	 * Takes a function including the initialization code of a (set of) element(s) and wraps it with
+	 * a check if this initialization was already executed (has data-hooked-up="true" then) as well
+	 * as a document ready handler to make sure no initializations are executed with a half ready dom.
+	 *
+	 * If the initialization returns a promise, this promise will be returned if returnPromise is set true.
+	 * If returnPromise is set true without fInitialization returning a promise the promise is always immediately resolved.
+	 *
+	 * @param {Function} fInitialization - the function containing all initialization code for the element(s), this-context is set
+	 * @param {?Boolean} [returnPromise=false] - if true, forces the function to return a promise object, if possible the result of fInitialization
+	 * @returns {(Object|Promise)} this or a promise
+	 **/
+	hookUp : function(fInitialization, returnPromise){
+		returnPromise = $.isSet(returnPromise) ? !!returnPromise : false;
+
+		var deferred = $.Deferred();
+		deferred.resolve();
+		var promise = deferred.promise();
+
+		$(this).each(function(){
+			if( $(this).dataDuo('hooked-up') !== true ){
+				var _this_ = this;
+
+				$(function(){
+					var initPromise = $.proxy(fInitialization, _this_)();
+
+					if(
+						$.isSet(initPromise)
+						&& $.isFunction(initPromise.promise)
+						&& $.isFunction(initPromise.done)
+						&& $.isFunction(initPromise.fail)
+					){
+						promise = initPromise;
+					}
+
+					$(_this_).dataDuo('hooked-up', true);
+				});
+			}
+		});
+
+		if( returnPromise ){
+			return promise;
+		} else {
+			return this;
+		}
+	},
+
+
+
+	/**
+	 * Sets and retrieves the element's data attributes like jQuery's original data(), but transparently also updates
+	 * the corresponding data-*-attr as far as possible with the given value.
+	 *
+	 * Returns the current value if attrValue is not set. For the attribute representation everything not an object or
+	 * array gets casted to string. Objects and arrays are JSON.stringifyed. Functions are executed and their return
+	 * values are used. The prop always keeps the raw value.
+	 *
+	 * On returning a value the function always returns the prop if present, else it tries to parse the attribute from
+	 * JSON. If that fails the value is returned as a string. If the prop is missing it will be restored on read with
+	 * the return value.
+	 *
+	 * @param  {String} attrName - the data attr/prop name
+	 * @param  {?*} attrValue - the value to set
+	 * @returns {*} the previously set value (on get) or this (on set)
+	 **/
+	dataDuo : function(attrName, attrValue){
+		attrName = $.isSet(attrName) ? ''+attrName : null;
+
+		var res = null,
+			attrValueString = ''
+		;
+
+		if( $.isFunction(attrValue) ){
+			attrValue = attrValue();
+		}
+
+		if( attrValue !== undefined ){
+			if( $.isA(attrValue, 'object') || $.isA(attrValue, 'array') ){
+				try {
+					attrValueString = JSON.stringify(attrValue);
+				} catch(ex){
+					attrValueString = ''+attrValue;
+				}
+			} else {
+				attrValueString = ''+attrValue;
+			}
+		}
+
+		if( $.isSet(attrName) ){
+			if( attrValue !== undefined ){
+				$(this).data(attrName, attrValue);
+				$(this).attr('data-'+attrName, attrValueString);
+				res = this;
+			} else {
+				res = $(this).data(attrName);
+				if( !$.isSet(res) ){
+					try {
+						res = JSON.parse($(this).attr('data-'+attrName));
+					} catch(ex){
+						res = $(this).attr('data-'+attrName);
+					}
+
+					$(this).data(attrName, res);
+				}
+			}
+		}
+
+		return res;
+	},
+
+
+
+	/**
+	 * Remove previously set data (with data() or dataDuo()) from the dom as well as from the markup data-*-attr.
+	 *
+	 * @param  {String} attrName - the data attr/prop name
+	 * @returns {Object} this
+	 **/
+	removeDataDuo : function(attrName){
+		attrName = $.isSet(attrName) ? ''+attrName : null;
+
+		if( $.isSet(attrName) ){
+			$(this)
+				.removeAttr('data-'+attrName)
+				.removeData(attrName)
+			;
 		}
 
 		return this;
@@ -2382,6 +2605,59 @@ $.fn.extend({
 			bb.left >= viewportBounds.left &&
 			bb.bottom <= viewportBounds.bottom
 		);
+	},
+
+
+
+	/**
+	 * Scrolls the viewport to the first matched element's position.
+	 * Does not do anything if target element is already fully in viewport, unless scrollEvenIfFullyInViewport is set to
+	 * true. Uses getBoundingClientRect to measure viewport check, scrolls always if missing.
+	 *
+	 * @param  {?Function} [callback=$.noop] - callback to fire when scrolling is done, also fires if scrolling was not needed
+	 * @param  {?Number.Integer} [durationMs=1000] - duration of the scrolling animation
+	 * @param  {?Number.Integer} [offset=0] - offset from the viewport center to apply to the end position
+	 * @param  {?Boolean} [scrollEvenIfFullyInViewport=false] - if true, forces method to always scroll no matter the element's position
+	 * @returns {Object} this
+	 */
+	scrollTo : function(callback, durationMs, offset, scrollEvenIfFullyInViewport){
+		callback = $.isFunction(callback) ? callback : $.noop;
+		durationMs = $.isSet(durationMs) ? parseInt(durationMs, 10) : 1000;
+		offset = $.isSet(offset) ? parseInt(offset, 10) : 0;
+		scrollEvenIfFullyInViewport = $.isSet(scrollEvenIfFullyInViewport) ? !!scrollEvenIfFullyInViewport : false;
+
+		var callbackFired = false,
+			vpHeight = window.innerHeight || $(window).height(),
+			isInViewport = $(this).isInViewport(true)
+		;
+
+		try {
+			$(this).first().oo().getBoundingClientRect();
+		} catch(err){
+			isInViewport = false;
+		}
+
+		if( scrollEvenIfFullyInViewport || !isInViewport ){
+			$('html, body')
+				.stop(true)
+				.animate(
+					{scrollTop: $(this).offset().top - Math.round(vpHeight / 2) + offset},
+					durationMs,
+					function(){
+						if( !callbackFired ){
+							callback();
+							callbackFired = true;
+						}
+					}
+				);
+		} else {
+			if( !callbackFired ){
+				callback();
+				callbackFired = true;
+			}
+		}
+
+		return this;
 	},
 
 
@@ -2845,6 +3121,133 @@ $.fn.extend({
 
 
 	/**
+	 * ALPHA - needs to be tested in dev, may not work yet
+	 *
+	 * Configures and sets the element's background image to a normal or highdpi-version depending on the display context.
+	 *
+	 * images is an array of the form [{}, {}, ...], where each object should look like this (widths and heights being optional):
+	 * {standard : {url : '...', width : 150, height : 150}, highdpi : {url : '...', width : 150, height : 150}}
+	 * To supply a single background you can also just provide one object.
+	 *
+	 * This function tries to implement a smart way of selecting the right image version.
+	 * If image/container dimensions are set the highdpi-version is chosen based on contextHasHighDpi(), but if
+	 * dimensions were not defined, it's tried to determine the maxpage width, either per pageMaxWidth or by looking
+	 * at css max-width of body and the high dpi is only applied if the viewport is larger than half the max size, so
+	 * we'll never load giant images unnecessarily on small devices, although they may have high dpi. You can force this
+	 * behaviour with ignoreDims.
+	 *
+	 * All images hooked via this function are polled and adapted with a delay after each resize.
+	 *
+	 * If no dimensions are set on the image the element's css is resposible to set a background-size value.
+	 *
+	 * @param  {(Object|Array)} images - the image(s) to apply, see definition in description above
+	 * @param  {?(Number.Integer|String)} [pageMaxWidth=*max-width of body or 0*] - either the page max size directly or a selector to get the max-size from via css
+	 * @param  {?Boolean} [ignoreDims=false] - if set, always tries to keep viewport vs. page max size in mind before setting image version, even if dims are set
+	 * @param  {?Number.Integer} [reactionDelayMs=500] - the delay after each window resize before the images are checked and adapted
+	 * @returns {Object} this
+	 **/
+	highDpiBackgroundImage : function(images, pageMaxWidth, ignoreDims, reactionDelayMs){
+		images = $.isPlainObject(images) ? [images] : images;
+		pageMaxWidth = $.isInt(pageMaxWidth) ? pageMaxWidth : ($.isSet(pageMaxWidth) ? $.cssToInt($(''+pageMaxWidth).css('max-width')) : null);
+		ignoreDims = $.isSet(ignoreDims) ? !!ignoreDims : false;
+		reactionDelayMs = $.isSet(reactionDelayMs) ? parseInt(reactionDelayMs, 10) : 500;
+
+		if( !$.isSet(pageMaxWidth) ){
+			pageMaxWidth = $.cssToInt($('body').css('max-width'));
+
+			if( $.isNaN(pageMaxWidth) ){
+				pageMaxWidth = 0;
+			}
+		}
+
+		var _this_ = this;
+
+		var fSelectImageVersion = function(){
+			if( $.isInDom($(_this_)) ){
+				var imagesToPreload = [],
+					cssImgUrls = '',
+					cssImgSizes = '',
+					highDpi = $.contextHasHighDpi(),
+					vpWidth = window.innerWidth || $(window).width()
+				;
+
+				for( var imageIndex = 0; imageIndex < images.length; imageIndex++ ){
+					var image = images[imageIndex];
+
+					if( $.exists('standard.url', image) ){
+						if( !$.exists('highdpi', image)  ){
+							image.highdpi = $.extend({}, image.standard);
+						}
+
+						var smartAdapt = !$.isSet(image.standard.width, image.standard.height, image.highdpi.width, image.highdpi.height) && !ignoreDims,
+							imageToUse = {
+								url : image.standard.url,
+								width: image.standard.width,
+								height : image.standard.height
+							}
+						;
+
+						if(
+							(smartAdapt && (vpWidth > (pageMaxWidth / 2)) && highDpi)
+							|| (!smartAdapt && highDpi)
+						){
+							imageToUse.url = image.highdpi.url;
+							imageToUse.width = parseInt(image.highdpi.width, 10);
+							imageToUse.height = parseInt(image.highdpi.height, 10);
+						}
+
+						imagesToPreload.push(imageToUse.url);
+						cssImgUrls += ((cssImgUrls !== '') ? ', ' : '') + 'url('+imageToUse.url+')';
+						if( $.isSet(imageToUse.width, imageToUse.height) && (imageToUse.width > 0) && (imageToUse.height > 0) ){
+							cssImgSizes += ((cssImgSizes !== '') ? ', ' : '') + imageToUse.width+'px '+imageToUse.height+'px';
+						}
+					} else {
+						$.log('highDpiBackgroundImage | image is missing a standard dict:', image);
+					}
+				}
+
+				var preloadImage = null;
+				var preloadedCount = 0;
+				for( var imageToPreloadIndex = 0; imageToPreloadIndex < imagesToPreload.length; imageToPreloadIndex++ ){
+					preloadImage = new Image();
+					$(preloadImage).imgLoad(function(){
+						preloadedCount++;
+						if( preloadedCount >= imagesToPreload.length ){
+							$(_this_)
+								.css('background-image', cssImgUrls)
+								.cssCrossBrowser('background-size', cssImgSizes)
+							;
+						}
+					});
+					preloadImage.src = imagesToPreload[imageToPreloadIndex];
+				}
+			}
+		};
+
+		fSelectImageVersion();
+		$.jqueryAnnexData.highDpiBackgroundImages.targetClosures.push(fSelectImageVersion);
+
+		$(window)
+			.off('resize.highDpiBackgroundImages')
+			.on('resize.highDpiBackgroundImages', function(){
+				$.jqueryAnnexData.highDpiBackgroundImages.checkTimer = $.reschedule(
+					$.jqueryAnnexData.highDpiBackgroundImages.checkTimer,
+					reactionDelayMs,
+					function(){
+						for( var i = 0; i < $.jqueryAnnexData.highDpiBackgroundImages.targetClosures.length; i++ ){
+							$.jqueryAnnexData.highDpiBackgroundImages.targetClosures[i]();
+						}
+					}
+				);
+			})
+		;
+
+		return this;
+	},
+
+
+
+	/**
 	 * Creates a neutral, invisible sandbox in the given context, to mess around with.
 	 *
 	 * @returns {Object} this
@@ -2880,3 +3283,53 @@ $.fn.extend({
 	xxx: function(element) {}
 
 });*/
+
+
+
+//--|PROPERTY-INITIALIZATIONS----------
+
+// see $.Class above for signature
+$.Class.extend = function(child){
+	var _super = this.prototype;
+
+	$.jqueryAnnexData.inheritance.initializing = true;
+	var prototype = new this();
+	$.jqueryAnnexData.inheritance.initializing = false;
+
+	for( var name in child ){
+		prototype[name] =
+			(
+				(typeof child[name] == 'function')
+				&& (typeof _super[name] == 'function')
+				&& $.jqueryAnnexData.inheritance.fnTest.test(child[name])
+			)
+			? (
+				(function(name, fn){
+					return function(){
+						var tmp = this._super;
+
+						this._super = _super[name];
+
+						var ret = fn.apply(this, arguments);
+						this._super = tmp;
+
+						return ret;
+					};
+				})(name, child[name])
+			)
+			: child[name]
+		;
+	}
+
+	function Class(){
+		if( !$.jqueryAnnexData.inheritance.initializing && this.init ){
+			this.init.apply(this, arguments);
+		}
+	}
+
+	Class.prototype = prototype;
+	Class.prototype.constructor = Class;
+	Class.extend = arguments.callee;
+
+	return Class;
+};
