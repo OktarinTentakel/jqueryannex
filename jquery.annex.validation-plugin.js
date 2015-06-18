@@ -950,7 +950,7 @@ $.extend($.jqueryAnnexData, {
 $.extend({
 
 	triggerValidation : function(targetGroup){
-		targetGroup = $.isSet(targetGroup) ? ''+targetGroup : 'all';
+		targetGroup = $.orDefault(targetGroup, 'all', 'string');
 		$.jqueryAnnexData.validation.functions.validate($.jqueryAnnexData.validation.config.registeredTargets[targetGroup]);
 	},
 
@@ -1007,16 +1007,9 @@ $.extend({
 $.fn.extend({
 
 	setValidation : function(validators, callback, $errorContainer, $container, targetGroup, suppressSubmit){
-		if( !$.isSet(validators) ){
-			validators = [];
-		}
-		if( !$.isArray(validators) ){
-			validators = [validators];
-		}
-
-		targetGroup = $.isSet(targetGroup) ? ''+targetGroup : 'all';
-
-		suppressSubmit = $.isSet(suppressSubmit) ? (suppressSubmit === true) : false;
+		validators = $.orDefault(validators, [], 'array');
+		targetGroup = $.orDefault(targetGroup, 'all', 'string');
+		suppressSubmit = $.orDefault(suppressSubmit, false, 'bool');
 
 		if( !$.isSet($container) ){
 			$container = $(this).closest('form');
@@ -1124,7 +1117,7 @@ $.fn.extend({
 
 
 	unsetValidation : function(ignoreMissingValidationData, targetGroup){
-		ignoreMissingValidationData = $.isSet(ignoreMissingValidationData) ? ignoreMissingValidationData : false;
+		ignoreMissingValidationData = $.orDefault(ignoreMissingValidationData, false, 'bool');
 		targetGroup = ($.isSet(targetGroup) && $.jqueryAnnexData.validation.config.registeredTargets[targetGroup]) ? ''+targetGroup : null;
 
 		// handle all set members individually to clearly identify them in registeredTarget-array

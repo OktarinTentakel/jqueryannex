@@ -23,6 +23,7 @@
 	- hookUp
 	- dataDuo / removeDataDuo
 	- scrollTo
+	- orDefault
 
 	not checked:
 	- highDpiBackgroundImage
