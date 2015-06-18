@@ -224,7 +224,7 @@ $.extend({
 	 **/
 	assert : function(condition, message){
 		if( !condition ){
-			message = this.isSet(message) ? ''+message : 'assert exception: assertion failed';
+			message = this.orDefault(message, 'assert exception: assertion failed', 'string');
 			throw message;
 		}
 	},
@@ -278,16 +278,46 @@ $.extend({
 	 *
 	 * @param {*} expression - the expression to evaluate
 	 * @param {*} defaultValue - the default value to use if the expression is considered empty
+	 * @param {?(String|Function)} caster - either a default caster by name ('string', 'String', 'int', 'integer', 'Integer', 'bool', 'boolean', 'Boolean', 'float', 'Float', 'array', 'Array') or a function getting the value and returning the transformed value
 	 * @param {?Array} [additionalEmptyValues] - if set, provides a list of additional values to be considered empty, apart from undefined and null
 	 * @returns {*} expression of defaultValue
 	 **/
-	orDefault : function(expression, defaultValue, additionalEmptyValues){
+	orDefault : function(expression, defaultValue, caster, additionalEmptyValues){
 		additionalEmptyValues = $.isArray(additionalEmptyValues) ? additionalEmptyValues : [additionalEmptyValues];
+
+		if( $.isSet(caster) ){
+			if(
+				!$.isFunction(caster)
+				&& ($.inArray(caster, [
+					'string', 'String',
+					'int', 'integer', 'Integer',
+					'bool', 'boolean', 'Boolean',
+					'float', 'Float',
+					'array', 'Array'
+				]) >= 0)
+			){
+				if( $.inArray(caster, ['string', 'String']) >= 0 ){
+					caster = function(value){ return ''+value; };
+				} else if( $.inArray(caster, ['int', 'integer', 'Integer']) >= 0 ){
+					caster = function(value){ return parseInt(value, 10); };
+				} else if( $.inArray(caster, ['bool', 'boolean', 'Boolean']) >= 0 ){
+					caster = function(value){ return !!value; };
+				} else if( $.inArray(caster, ['float', 'Float']) >= 0 ){
+					caster = function(value){ return parseFloat(value); };
+				} else if( $.inArray(caster, ['array', 'Array']) >= 0 ){
+					caster = function(value){ return !$.isArray(value) ? [value] : value; };
+				}
+			} else if( !$.isFunction(caster) ){
+				caster = function(value){ return value; };
+			}
+		} else {
+			caster = function(value){ return value; };
+		}
 
 		if( !this.isSet(expression) || ($.inArray(expression, additionalEmptyValues) >= 0) ){
 			return defaultValue;
 		} else {
-			return expression;
+			return caster(expression);
 		}
 	},
 
@@ -397,7 +427,7 @@ $.extend({
 	 * @returns {Boolean} true if expression is NaN
 	 **/
 	isNaN : function(expression, checkForIdentity){
-		checkForIdentity = this.isSet(checkForIdentity) ? !!checkForIdentity : true;
+		checkForIdentity = this.orDefault(checkForIdentity, true, 'bool');
 
 		if( checkForIdentity ){
 			return expression !== expression;
@@ -471,7 +501,7 @@ $.extend({
 	 * @returns {String} the concatenated string
 	 **/
 	strConcat : function(glue){
-		glue = this.isSet(glue) ? ''+glue : '';
+		glue = this.orDefault(glue, '', 'string');
 
 		var args = $.makeArray(arguments).slice(1);
 
@@ -541,12 +571,12 @@ $.extend({
 
 		var formatters = {
 			int : function(value, radix){
-				radix = _this_.isSet(radix) ? parseInt(radix, 10) : 10;
+				radix = _this_.orDefault(radix, 10, 'int');
 				var res = parseInt(value, radix);
 				return !_this_.isNaN(res) ? ''+res : '';
 			},
 			float : function(value, format){
-				format = _this_.isSet(format) ? ''+format : null;
+				format = _this_.orDefault(format, null, 'string');
 
 				var res = null;
 
@@ -609,7 +639,7 @@ $.extend({
 				}
 
 				ref = fLookup(args, key);
-				value = _this_.isSet(ref) ? ref : '';
+				value = _this_.orDefault(ref, '');
 			} else {
 				if( explicit ){
 					throw 'strFormat | cannot switch from explicit to implicit numbering';
@@ -618,7 +648,7 @@ $.extend({
 				}
 
 				ref = args[idx];
-				value = _this_.isSet(ref) ? ref : '';
+				value = _this_.orDefault(ref, '');
 				idx++;
 			}
 
@@ -990,7 +1020,7 @@ $.extend({
 			};
 
 			if( this.isSet(useOwnTimer) && useOwnTimer ){
-				newPoll.loop = this.loop(!this.isSet(newLoopMs) ? 250 : parseInt(newLoopMs, 10), function(){
+				newPoll.loop = this.loop(this.orDefault(newLoopMs, 250, 'int'), function(){
 					if( newPoll.condition() ){
 						if( newPoll.action(newPoll.lastPollResult === false) ){
 							_this_.countermand(newPoll.loop);
@@ -1022,7 +1052,7 @@ $.extend({
 					this.countermand(this.jqueryAnnexData.polls.defaultLoop);
 				}
 
-				this.jqueryAnnexData.polls.defaultLoop = this.loop(!this.isSet(newLoopMs) ? 250 : parseInt(newLoopMs, 10), function(){
+				this.jqueryAnnexData.polls.defaultLoop = this.loop(this.orDefault(newLoopMs, 250, 'int'), function(){
 					if( _this_.jqueryAnnexData.polls.activePollCount > 0 ){
 						$.each(_this_.jqueryAnnexData.polls.activePolls, function(name, poll){
 							if( !_this_.isSet(poll.loop) ){
@@ -1096,7 +1126,7 @@ $.extend({
 	 * @returns {Function} the throtteling function
 	 **/
 	throttleExecution : function(ms, func, leadingExecution){
-		leadingExecution = this.isSet(leadingExecution) ? !!leadingExecution : true;
+		leadingExecution = this.orDefault(leadingExecution, true, 'bool');
 
 		var _this_ = this,
 			nextExecutionWaiting = false,
@@ -1155,7 +1185,7 @@ $.extend({
 	 * @returns {Function} the deferring function
 	 **/
 	deferExecution : function(func, delay){
-		delay = this.isSet(delay) ? parseInt(delay, 10) : 1;
+		delay = this.orDefault(delay, 1, 'int');
 
 		var _this_ = this;
 
@@ -1190,7 +1220,7 @@ $.extend({
 
 		var urlParts = url.split('?', 2);
 		url = urlParts[0];
-		var presentParamString = this.isSet(urlParts[1]) ? urlParts[1] : '';
+		var presentParamString = this.orDefault(urlParts[1], '');
 
 		var presentParams = {};
 		if( presentParamString.length > 0 ){
@@ -1287,7 +1317,7 @@ $.extend({
 	 * @returns {Boolean} true if browser seems to support local storage
 	 **/
 	browserSupportsLocalStorage : function(testKey){
-		testKey = this.isSet(testKey) ? ''+testKey : '!!!foo!!!';
+		testKey = this.orDefault(testKey, '!!!foo!!!', 'string');
 
 	    try {
 	        window.localStorage.setItem(testKey, 'bar');
@@ -1308,7 +1338,7 @@ $.extend({
 	 * @returns {Boolean} true if browser seems to support session storage
 	 **/
 	browserSupportsSessionStorage : function(testKey){
-		testKey = this.isSet(testKey) ? ''+testKey : '!!!foo!!!';
+		testKey = this.orDefault(testKey, '!!!foo!!!', 'string');
 
 	    try {
 	        window.sessionStorage.setItem(testKey, 'bar');
@@ -1333,13 +1363,8 @@ $.extend({
 	 * @param {?Boolean} [usePushState] - push new state instead of replacing current
 	 **/
 	changeUrlSilently : function(url, state, title, usePushState){
-		if( !this.isSet(state) ){
-			state = '';
-		}
-
-		if( !this.isSet(title) ){
-			title = '';
-		}
+		state = this.orDefault(state, '');
+		title = this.orDefault(title, '');
 
 		if ( window.history ) {
 			if( usePushState && window.history.pushState ){
@@ -1433,8 +1458,8 @@ $.extend({
 	 * @returns {Window} the newly opened window/tab
 	 **/
 	openWindow : function(url, options, parentWindow, tryAsPopup){
-		parentWindow = this.isSet(parentWindow) ? parentWindow : window;
-		tryAsPopup = this.isSet(tryAsPopup) ? !!tryAsPopup : false;
+		parentWindow = this.orDefault(parentWindow, window);
+		tryAsPopup = this.orDefault(tryAsPopup, false, 'bool');
 
 		var windowName = '';
 		var optionArray = [];
@@ -1652,7 +1677,7 @@ $.extend({
 	 **/
 	remByPx : function(px, initial){
 		px = parseInt(px, 10);
-		initial = this.isSet(initial) ? initial : 'html';
+		initial = this.orDefault(initial, 'html');
 
 		return (px / (this.isInt(initial) ? initial : this.cssToInt($(''+initial).css('font-size')))) + 'rem';
 	},
@@ -1670,7 +1695,7 @@ $.extend({
 	 * @returns {(Promise|Object.<String, String>|Image)} either returns a promise object (does not fail atm), the currently added named/unnamed images as saved (if defined by returnCollection) or a requested cached image
 	 **/
 	preloadImages : function(images, callback, returnCollection){
-		returnCollection = this.isSet(returnCollection) ? !!returnCollection : false;
+		returnCollection = this.orDefault(returnCollection, false, 'bool');
 
 		var _this_ = this,
 			res = null,
@@ -1771,7 +1796,7 @@ $.extend({
 	 **/
 	waitForWebfonts : function(fonts, callback, fallbackFontName) {
 		fonts = $.isArray(fonts) ? fonts : [''+fonts];
-		fallbackFontName = this.isSet(fallbackFontName) ? ''+fallbackFontName : 'sans-serif';
+		fallbackFontName = this.orDefault(fallbackFontName, 'sans-serif', 'string');
 
 		var _this_ = this,
 			deferred = $.Deferred(),
@@ -1862,8 +1887,8 @@ $.extend({
 	 * @returns {Boolean} true if value may be id
 	 **/
 	isPossibleId : function(testVal, prefix, postfix, dontMaskFixes){
-		prefix = this.isSet(prefix) ? ''+prefix : '';
-		postfix = this.isSet(postfix) ? ''+postfix : '';
+		prefix = this.orDefault(prefix, '', 'string');
+		postfix = this.orDefault(postfix, '', 'string');
 
 		var rex = null;
 		if( !dontMaskFixes ){
@@ -1911,7 +1936,7 @@ $.extend({
 	 * @returns {String} the escaped string
 	 **/
 	textContent : function(nodeInfested, onlyFirstLevel){
-		onlyFirstLevel = this.isSet(onlyFirstLevel) ? !!onlyFirstLevel : false;
+		onlyFirstLevel = this.orDefault(onlyFirstLevel, false, 'bool');
 
 		var res = '';
 		var $holder = (this.isA(nodeInfested, 'object') && this.isSet(nodeInfested.jquery))
@@ -2290,7 +2315,7 @@ $.fn.extend({
 	 * @returns {(Object|Promise)} this or a promise
 	 **/
 	hookUp : function(fInitialization, returnPromise){
-		returnPromise = $.isSet(returnPromise) ? !!returnPromise : false;
+		returnPromise = $.orDefault(returnPromise, false, 'bool');
 
 		var deferred = $.Deferred();
 		deferred.resolve();
@@ -2343,7 +2368,7 @@ $.fn.extend({
 	 * @returns {*} the previously set value (on get) or this (on set)
 	 **/
 	dataDuo : function(attrName, attrValue){
-		attrName = $.isSet(attrName) ? ''+attrName : null;
+		attrName = $.orDefault(attrName, null, 'string');
 
 		var res = null,
 			attrValueString = ''
@@ -2396,7 +2421,7 @@ $.fn.extend({
 	 * @returns {Object} this
 	 **/
 	removeDataDuo : function(attrName){
-		attrName = $.isSet(attrName) ? ''+attrName : null;
+		attrName = $.orDefault(attrName, null, 'string');
 
 		if( $.isSet(attrName) ){
 			$(this)
@@ -2622,9 +2647,9 @@ $.fn.extend({
 	 */
 	scrollTo : function(callback, durationMs, offset, scrollEvenIfFullyInViewport){
 		callback = $.isFunction(callback) ? callback : $.noop;
-		durationMs = $.isSet(durationMs) ? parseInt(durationMs, 10) : 1000;
-		offset = $.isSet(offset) ? parseInt(offset, 10) : 0;
-		scrollEvenIfFullyInViewport = $.isSet(scrollEvenIfFullyInViewport) ? !!scrollEvenIfFullyInViewport : false;
+		durationMs = $.orDefault(durationMs, 1000, 'int');
+		offset = $.orDefault(offset, 0, 'int');
+		scrollEvenIfFullyInViewport = $.orDefault(scrollEvenIfFullyInViewport, false, 'bool');
 
 		var callbackFired = false,
 			vpHeight = window.innerHeight || $(window).height(),
@@ -2819,7 +2844,7 @@ $.fn.extend({
 	 **/
 	findTextNodes : function(fFilter, onlyFirstLevel) {
 		fFilter = $.isFunction(fFilter) ? fFilter : function(){ return true; };
-		onlyFirstLevel = $.isSet(onlyFirstLevel) ? !!onlyFirstLevel : false;
+		onlyFirstLevel = $.orDefault(onlyFirstLevel, false, 'bool');
 
 		var $res = $();
 
@@ -2865,9 +2890,9 @@ $.fn.extend({
 	 * @return {(Object|String)} Either this or the selected text
 	 **/
 	createSelection : function(startOffset, endOffset, returnSelectedText){
-		startOffset = $.isSet(startOffset) ? parseInt(startOffset ,10) : null;
-		endOffset = $.isSet(endOffset) ? parseInt(endOffset, 10) : null;
-		returnSelectedText = $.isSet(returnSelectedText) ? !!returnSelectedText : false;
+		startOffset = $.orDefault(startOffset, null, 'int');
+		endOffset = $.orDefault(endOffset, null, 'int');
+		returnSelectedText = $.orDefault(returnSelectedText, false, 'bool');
 
 		var selectionText = '';
 
@@ -2991,17 +3016,9 @@ $.fn.extend({
 	 * @returns {Object} this
 	 **/
 	registerMailto : function(tld, beforeAt, afterAtWithoutTld, subject, body, writeToElem, eventType){
-		if( !$.isSet(eventType) ){
-			eventType = 'click';
-		}
-
-		if( !$.isSet(subject) ){
-			subject = '';
-		}
-
-		if( !$.isSet(body) ){
-			body = '';
-		}
+		eventType = $.orDefault(eventType, 'click', 'string');
+		subject = $.orDefault(subject, '', 'string');
+		body = $.orDefault(body, '', 'string');
 
 		$(this).on(eventType, function(){
 			$.redirect('mailto:'+beforeAt+'@'+afterAtWithoutTld+'.'+tld+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body));
@@ -3028,9 +3045,7 @@ $.fn.extend({
 	 * @returns {Object} this
 	 **/
 	registerTel : function(regionPart, firstTelPart, countryPart, secondTelPart, writeToElem, eventType){
-		if( !$.isSet(eventType) ){
-			eventType = 'click';
-		}
+		eventType = $.orDefault(eventType, 'click', 'string');
 
 		if( (''+countryPart).indexOf('+') !== 0 ){
 			countryPart = '+'+countryPart;
@@ -3149,8 +3164,8 @@ $.fn.extend({
 	highDpiBackgroundImage : function(images, pageMaxWidth, ignoreDims, reactionDelayMs){
 		images = $.isPlainObject(images) ? [images] : images;
 		pageMaxWidth = $.isInt(pageMaxWidth) ? pageMaxWidth : ($.isSet(pageMaxWidth) ? $.cssToInt($(''+pageMaxWidth).css('max-width')) : null);
-		ignoreDims = $.isSet(ignoreDims) ? !!ignoreDims : false;
-		reactionDelayMs = $.isSet(reactionDelayMs) ? parseInt(reactionDelayMs, 10) : 500;
+		ignoreDims = $.orDefault(ignoreDims, false, 'bool');
+		reactionDelayMs = $.orDefault(reactionDelayMs, 500, 'int');
 
 		if( !$.isSet(pageMaxWidth) ){
 			pageMaxWidth = $.cssToInt($('body').css('max-width'));
