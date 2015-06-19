@@ -14,21 +14,6 @@
  **/
 
 
-/*
-	TODO:
-	test new methods and check documentation
-
-	checked:
-	- remByPx
-	- hookUp
-	- dataDuo / removeDataDuo
-	- scrollTo
-	- orDefault
-
-	not checked:
-	- highDpiBackgroundImage
- */
-
 
 //--|JQUERY-$-GENERAL-FUNCTIONS----------
 
@@ -3137,8 +3122,6 @@ $.fn.extend({
 
 
 	/**
-	 * ALPHA - needs to be tested in dev, may not work yet
-	 *
 	 * Configures and sets the element's background image to a normal or highdpi-version depending on the display context.
 	 *
 	 * images is an array of the form [{}, {}, ...], where each object should look like this (widths and heights being optional):
@@ -3179,7 +3162,7 @@ $.fn.extend({
 		var _this_ = this;
 
 		var fSelectImageVersion = function(){
-			if( $.isInDom($(_this_)) ){
+			if( $(_this_).isInDom() ){
 				var imagesToPreload = [],
 					cssImgUrls = '',
 					cssImgSizes = '',
@@ -3195,7 +3178,7 @@ $.fn.extend({
 							image.highdpi = $.extend({}, image.standard);
 						}
 
-						var smartAdapt = !$.isSet(image.standard.width, image.standard.height, image.highdpi.width, image.highdpi.height) && !ignoreDims,
+						var smartAdapt = !$.isSet(image.standard.width, image.standard.height, image.highdpi.width, image.highdpi.height) || ignoreDims,
 							imageToUse = {
 								url : image.standard.url,
 								width: image.standard.width,
