@@ -3051,6 +3051,175 @@ $.fn.extend({
 
 
 	/**
+	 * Transforms :radio, :checkbox, select and :file to stylable representations of themselves.
+	 * This method mostly wraps the inputs in labels, if none is present and sets up event handlers for
+	 * interactions between the label and the widget. This method only sets the most basic styling necessary for
+	 * the proposed functionality, everything visual has to be defined via CSS.
+	 *
+	 * :checkbox / :radio
+	 * - find the closest label*
+	 * - toggle class "checked" on the label on input change
+	 * - in case of :radio syncs all inputs with same name
+	 * - change is triggered automatically since label is connected to (now invisible) input
+	 *
+	 * select
+	 * - create a selectProxy-element
+	 * - insert a selectLabel into it, displaying the currently selected value text
+	 * - insert the select invisible on top
+	 * - position select and label fittingly over each other with select on top to catch clicks
+	 *
+	 * :file
+	 * - find the closest label*
+	 * - position the :file invisibly in the label, receiving clicks from the label
+	 * - if the label does not enclose the input at the start, the input will be put into it and for-attrs will be removed
+	 *
+	 * *finding the closest label first tries to find an existing label by id, then looks at parent()
+	 *  and wraps the input in a label if no label could be found
+	 *
+	 * @param  {?String} [labelText] - if set, sets this text as the text content of the input labels if any, does nothing for select
+	 * @returns {Object} this
+	 **/
+	makeStylable : function(labelText){
+		labelText = $.orDefault(labelText, null, 'string');
+
+		var _this_ = this;
+
+		var fGetClosestLabel = function($target){
+			var hasId = $.isSet($target.attr('id')),
+				$label = []
+			;
+
+			if( hasId ){
+				$label = $('label[for='+$target.attr('id')+']');
+			}
+
+			if( $label.length === 0 ){
+				$label = $target.parent('label');
+			}
+
+			if( $label.length === 0 ){
+				$target.wrap('<label></label>');
+				$label = $target.parent('label');
+			}
+
+			return $label;
+		};
+
+		var fSetLabelText = function($label){
+			if( $.isSet(labelText) ){
+				var $textNodes = $label.findTextNodes();
+
+				if( $textNodes.length > 0 ){
+					$textNodes.each(function(){
+						$(this).oo().textContent = labelText;
+					});
+				} else {
+					$label.append(labelText);
+				}
+			}
+		};
+
+		var $label, $siblingLabel, $selectProxy;
+		$(this).each(function(){
+			if( $(this).is(':checkbox, :radio') ){
+				$label = fGetClosestLabel($(this));
+				fSetLabelText($label);
+
+				$(this)
+					.on('change', function(){
+						if( $(this).is(':checked') ){
+							$label.addClass('checked');
+						} else {
+							$label.removeClass('checked');
+						}
+
+						if( $(this).is(':radio') && $.isSet($(this).attr('name')) ){
+							$(':radio[name='+$(this).attr('name')+']').not($(this)).each(function(){
+								$siblingLabel = fGetClosestLabel($(this));
+								$siblingLabel.removeClass('checked');
+							});
+						}
+					})
+				;
+
+				if( $(this).is(':visible') ){
+					$(this).hide();
+				}
+			} else if( $(this).is('select') ){
+				$(this).css({
+					'opacity' : 0.01,
+					'position' : 'relative',
+					'width' : '100%',
+					'height' : '100%'
+				});
+
+				$label = $.elem('span')
+					.addClass('selectlabel')
+					.css({
+						'position' : 'absolute',
+						'top' : 0,
+						'right' : 0,
+						'bottom' : 0,
+						'left' : 0
+					})
+					.text($(this).children('option').first().text())
+				;
+
+				$selectProxy = $.elem('div')
+					.addClass('selectproxy')
+					.css('position', 'relative')
+				;
+
+				if( $.isSet($(this).attr('id')) ){
+					$selectProxy.attr('id', 'selectproxy-for-'+$(this).attr('id'));
+				}
+
+				$(this).before($selectProxy);
+				$selectProxy
+					.append($label)
+					.append($(this))
+				;
+
+				$(this)
+					.on('click', function(e){
+						e.stopPropagation();
+					})
+					.on('change', function(){
+						$label.text($(this).children('option:selected').first().text());
+					})
+					.triggerHandler('change')
+				;
+
+				$selectProxy.on('click', function(){
+					$(this).children('select').click();
+				});
+			} else if( $(this).is(':file') ){
+				$label = fGetClosestLabel($(this));
+				$label
+					.append($(this))
+					.removeAttr('for')
+				;
+				fSetLabelText($label);
+
+				$label.css('position', 'relative');
+
+				$(this).css({
+					'opacity' : 0.01,
+					'position' : 'absolute',
+					'width' : 1,
+					'height' : 1,
+					'top' : 0,
+					'left' : 0
+				});
+			}
+		});
+
+		return this;
+	},
+
+
+
+	/**
 	 * Treats touchstart, touchmove and touchend events on the element internally
 	 * as mousedown, mousemove and mouseup events and remaps event coordinates correctly.
 	 *
