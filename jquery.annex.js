@@ -3076,10 +3076,12 @@ $.fn.extend({
 	 * *finding the closest label first tries to find an existing label by id, then looks at parent()
 	 *  and wraps the input in a label if no label could be found
 	 *
+	 * @param  {?String} [containerClass] - if set, adds this class string to the input's newly created container element
 	 * @param  {?String} [labelText] - if set, sets this text as the text content of the input labels if any, does nothing for select
 	 * @returns {Object} this
 	 **/
-	makeStylable : function(labelText){
+	makeStylable : function(containerClass, labelText){
+		containerClass = $.orDefault(containerClass, null, 'string');
 		labelText = $.orDefault(labelText, null, 'string');
 
 		var _this_ = this;
@@ -3105,6 +3107,12 @@ $.fn.extend({
 			return $label;
 		};
 
+		var fSetContainerClass = function($container){
+			if( $.isSet(containerClass) ){
+				$container.addClass(containerClass);
+			}
+		};
+
 		var fSetLabelText = function($label){
 			if( $.isSet(labelText) ){
 				var $textNodes = $label.findTextNodes();
@@ -3123,6 +3131,7 @@ $.fn.extend({
 		$(this).each(function(){
 			if( $(this).is(':checkbox, :radio') ){
 				$label = fGetClosestLabel($(this));
+				fSetContainerClass($label);
 				fSetLabelText($label);
 
 				$(this)
@@ -3169,6 +3178,7 @@ $.fn.extend({
 					.addClass('selectproxy')
 					.css('position', 'relative')
 				;
+				fSetContainerClass($selectProxy);
 
 				if( $.isSet($(this).attr('id')) ){
 					$selectProxy.attr('id', 'selectproxy-for-'+$(this).attr('id'));
@@ -3199,6 +3209,7 @@ $.fn.extend({
 					.append($(this))
 					.removeAttr('for')
 				;
+				fSetContainerClass($label);
 				fSetLabelText($label);
 
 				$label.css('position', 'relative');
