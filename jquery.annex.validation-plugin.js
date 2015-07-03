@@ -1092,7 +1092,7 @@ $.fn.extend({
 			});
 			validationData.status.asyncCount = asyncRulesCount;
 
-			$.jqueryAnnexData.validation.config.registeredTargets['all'].push($(this));
+			$.jqueryAnnexData.validation.config.registeredTargets.all.push($(this));
 			if( targetGroup != 'all' ){
 				if( !$.isSet($.jqueryAnnexData.validation.config.registeredTargets[targetGroup]) ){
 					$.jqueryAnnexData.validation.config.registeredTargets[targetGroup] = [];
@@ -1133,7 +1133,7 @@ $.fn.extend({
 				var groupsToSearch = {};
 
 				if( $.isSet(targetGroup) ){
-					groupsToSearch['all'] = $.jqueryAnnexData.validation.config.registeredTargets['all'];
+					groupsToSearch.all = $.jqueryAnnexData.validation.config.registeredTargets.all;
 					groupsToSearch[targetGroup] = $.jqueryAnnexData.validation.config.registeredTargets[targetGroup];
 				} else {
 					groupsToSearch = $.jqueryAnnexData.validation.config.registeredTargets;
