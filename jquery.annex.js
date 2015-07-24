@@ -15,6 +15,12 @@
 
 
 
+/**
+ * This version needs real world testing! Consider the current state being alpha.
+ **/
+
+
+
 //--|JQUERY-$-GENERAL-FUNCTIONS----------
 
 $.extend({
@@ -320,8 +326,7 @@ $.extend({
 	 **/
 	exists : function(target, context){
 		var _this_ = this,
-			res = true
-		;
+			res = true;
 
 		if( this.isA(target, 'object') && this.isSet(target.jquery) ){
 			return target.length > 0;
@@ -440,6 +445,7 @@ $.extend({
 		search = [].concat(search);
 		replace = [].concat(replace);
 		subject = ''+subject;
+
 		var tmp = '';
 
 		$.each(search, function(index, searchTerm){
@@ -527,8 +533,7 @@ $.extend({
 			args = (arguments.length > 1) ? $.makeArray(arguments).slice(1) : [],
 			idx = 0,
 			explicit = false,
-			implicit = false
-		;
+			implicit = false;
 
 		var fResolve = function(object, key) {
 			var value = object[key];
@@ -590,8 +595,7 @@ $.extend({
 			var ref = null,
 				value = '',
 				formatter = null,
-				formatterArg = null
-			;
+				formatterArg = null;
 
 			if( literal ){
 				return literal;
@@ -657,6 +661,7 @@ $.extend({
 		target = target.slice(0);
 		var rest = target.slice((to || from) + 1 || target.length);
 		target.length = (from < 0) ? (target.length + from) : from;
+
 		return $.merge(target, rest);
 	},
 
@@ -692,13 +697,13 @@ $.extend({
 		if( !this.isSet(floor) ){
 			floor = 0;
 		} else {
-			parseInt(floor, 10);
+			floor = parseInt(floor, 10);
 		}
 
 		if( !this.isSet(ceiling) ){
 			ceiling = 10;
 		} else {
-			parseInt(ceiling, 10);
+			ceiling = parseInt(ceiling, 10);
 		}
 
 		if( ceiling < floor){
@@ -718,18 +723,16 @@ $.extend({
 	 * @returns {String} a "UUID"
 	 **/
 	randomUUID : function(withoutDashes){
-		if( !this.isSet(withoutDashes) ){
-			withoutDashes = false;
-		}
+		withoutDashes = this.isSet(withoutDashes) ? !!withoutDashes : false;
 
 		var uuidLength = 36;
 		if( withoutDashes ){
 			uuidLength = 32;
 		}
 
-		var s = [];
-		var itoh = '0123456789ABCDEF';
-		var i = 0;
+		var s = [],
+			itoh = '0123456789ABCDEF',
+			i = 0;
 
 		for (i = 0; i < uuidLength; i++) s[i] = Math.floor(Math.random() * 0x10);
 
@@ -817,8 +820,9 @@ $.extend({
 		}
 
 		if( $.isFunction(callback) ){
-			var waitStart = new Date().getTime();
-			var waitMilliSecs = ms;
+			var waitStart = new Date().getTime(),
+				waitMilliSecs = ms;
+
 			var fAdjustWait = function(){
 				if( waitMilliSecs > 0 ){
 					var timeDiff = new Date().getTime() - waitStart;
@@ -911,8 +915,9 @@ $.extend({
 		}
 
 		if( $.isFunction(callback) ){
-			var waitStart = new Date().getTime();
-			var waitMilliSecs = ms;
+			var waitStart = new Date().getTime(),
+				waitMilliSecs = ms;
+
 			var fAdjustWait = function(){
 				if( waitMilliSecs > 0 ){
 					var timeDiff = new Date().getTime() - waitStart;
@@ -1116,8 +1121,7 @@ $.extend({
 
 		var _this_ = this,
 			nextExecutionWaiting = false,
-			throttleTimer = null
-		;
+			throttleTimer = null;
 
 		return function(){
 			if( !nextExecutionWaiting && !_this_.isSet(throttleTimer) ){
@@ -1152,8 +1156,7 @@ $.extend({
 	 **/
 	holdExecution : function(ms, func){
 		var _this_ = this,
-			holdTimer = this.schedule(1, $.noop)
-		;
+			holdTimer = this.schedule(1, $.noop);
 
 		return function(){
 			holdTimer = _this_.reschedule(holdTimer, ms, function(){ func(); });
@@ -1193,9 +1196,9 @@ $.extend({
 	 * @param {?String} [target] - name of the window to perform the redirect to/in
 	 **/
 	redirect : function(url, params, anchor, postParams, target){
-		var _this_ = this;
+		var _this_ = this,
+			reload = !this.isSet(url);
 
-		var reload = !this.isSet(url);
 		if( !this.isSet(url) ){
 			url = window.location.href;
 		}
@@ -1447,8 +1450,8 @@ $.extend({
 		parentWindow = this.orDefault(parentWindow, window);
 		tryAsPopup = this.orDefault(tryAsPopup, false, 'bool');
 
-		var windowName = '';
-		var optionArray = [];
+		var windowName = '',
+			optionArray = [];
 
 		if( this.isSet(options) ){
 			if( this.isSet(options.name) ){
@@ -1478,8 +1481,8 @@ $.extend({
 	 * @returns {jqXHR} the promise object from the internally used $.get
 	 **/
 	getCSS : function(url, options, callback){
-		var _this_ = this;
-		var $res = null;
+		var _this_ = this,
+			$res = null;
 
 		var defaultOptions = {
 			styletag : false,
@@ -1585,9 +1588,10 @@ $.extend({
 				expires = '; expires='+date.toUTCString(); // use expires attribute, max-age is not supported by IE
 			}
 
-			var path = options.path ? '; path='+(options.path) : '';
-			var domain = options.domain ? '; domain='+(options.domain) : '';
-			var secure = options.secure ? '; secure' : '';
+			var path = options.path ? '; path='+(options.path) : '',
+				domain = options.domain ? '; domain='+(options.domain) : '',
+				secure = options.secure ? '; secure' : '';
+
 			document.cookie = [name, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
 		} else {
 			var cookieValue = null;
@@ -1631,8 +1635,8 @@ $.extend({
 	 * @returns {String} src value or empty string if cssUrl is no CSS-URL-value
 	 **/
 	cssUrlToSrc : function(cssUrl, relativePathPart){
-		var urlRex = new RegExp('^url\\((?:\'|\")?([^\'\"]+)(?:\'|\")?\\)$', 'i');
-		var matches = urlRex.exec(cssUrl);
+		var urlRex = new RegExp('^url\\((?:\'|\")?([^\'\"]+)(?:\'|\")?\\)$', 'i'),
+			matches = urlRex.exec(cssUrl);
 
 		if( this.isSet(matches) ){
 			if( !this.isSet(relativePathPart) ){
@@ -1685,8 +1689,7 @@ $.extend({
 
 		var _this_ = this,
 			res = null,
-			deferred = $.Deferred()
-		;
+			deferred = $.Deferred();
 
 		if( !$.isPlainObject(images) && !$.isArray(images) ){
 			image = ''+images;
@@ -1730,8 +1733,8 @@ $.extend({
 		});
 		$.merge(imageList, this.jqueryAnnexData.preloadedImages.unnamed);
 
-		var targetCount = imageList.length;
-		var blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+		var targetCount = imageList.length,
+			blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 
 		// xxx remove if imgLoad solution proves robust
 		/*$.each(imageList, function(index, value){
@@ -1786,8 +1789,7 @@ $.extend({
 
 		var _this_ = this,
 			deferred = $.Deferred(),
-			loadedFonts = 0
-		;
+			loadedFonts = 0;
 
 		for(var i = 0; i < fonts.length; i++){
 				var $node = this.elem('span')
@@ -1927,8 +1929,7 @@ $.extend({
 		var res = '';
 		var $holder = (this.isA(nodeInfested, 'object') && this.isSet(nodeInfested.jquery))
 			? nodeInfested
-			: this.elem('p').html(''+nodeInfested)
-		;
+			: this.elem('p').html(''+nodeInfested);
 
 		if( onlyFirstLevel ){
 			res = $holder
@@ -1936,7 +1937,8 @@ $.extend({
 				.filter(function(){
 					return this.nodeType == 3;
 				})
-				.text()
+					.text()
+				.end()
 			;
 		} else {
 			res = $holder.text();
@@ -2029,8 +2031,7 @@ $.extend({
 		var _this_ = this,
 			touchEventsPresent = 'createTouch' in document,
 			res = onlyConsiderUserAgent ? true : touchEventsPresent,
-			ua = navigator.userAgent
-		;
+			ua = navigator.userAgent;
 
 		if( this.isSet(inspectUserAgent) && inspectUserAgent ){
 			res =
@@ -2144,8 +2145,9 @@ $.fn.extend({
 	 **/
 	deselect : function(){
 		if( $(this).is(':text, textarea') ){
-			var tmpVal = $(this).val();
-			var stopperFunc = function(e){ return false; };
+			var tmpVal = $(this).val(),
+				stopperFunc = function(e){ return false; };
+
 			$(this)
 				.on('change', stopperFunc)
 				.val('')
@@ -2245,8 +2247,8 @@ $.fn.extend({
 	 * @returns {Object} this
 	 **/
 	setElementIdentity : function(id, classes, style, $inheritFrom){
-		var _this_ = this;
-		var copyAttrs = ['id', 'class', 'style'];
+		var _this_ = this,
+			copyAttrs = ['id', 'class', 'style'];
 
 		if( $.isSet($inheritFrom) && $.isA($inheritFrom, 'object') ){
 			$.each($inheritFrom[0].attributes, function(index, attribute){
@@ -2357,8 +2359,7 @@ $.fn.extend({
 		attrName = $.orDefault(attrName, null, 'string');
 
 		var res = null,
-			attrValueString = ''
-		;
+			attrValueString = '';
 
 		if( $.isFunction(attrValue) ){
 			attrValue = attrValue();
@@ -2431,10 +2432,10 @@ $.fn.extend({
 	urlParameter : function(paramName){
 		paramName = ''+paramName;
 
-		var paramExists = false;
-		var res = [];
-		var qString = null;
-		var url = '';
+		var paramExists = false,
+			res = [],
+			qString = null,
+			url = '';
 
 		if( $(this).prop('nodeName') == '#document' ){
 			if( window.location.search.search(paramName) > -1 ){
@@ -2489,8 +2490,8 @@ $.fn.extend({
 	 * @returns {(String|null)} current anchor value or null if no anchor in url
 	 **/
 	urlAnchor : function(withoutCaret){
-		var anchor = null;
-		var anchorParts = [];
+		var anchor = null,
+			anchorParts = [];
 
 		if( $(this).prop('nodeName') == '#document' ){
 			anchor = window.location.hash;
@@ -2530,9 +2531,9 @@ $.fn.extend({
 	 * @returns {Object} form-data-object {name:val, name:[val, val]}
 	 **/
 	formDataToObject : function(){
-		var fields = $(this).serializeArray();
-		var targetObj = {};
-		var currentFieldIsArray = false;
+		var fields = $(this).serializeArray(),
+			targetObj = {},
+			currentFieldIsArray = false;
 
 		for( var i = 0; i < fields.length; i++ ){
 			currentFieldIsArray = false;
@@ -2639,8 +2640,7 @@ $.fn.extend({
 
 		var callbackFired = false,
 			vpHeight = window.innerHeight || $(window).height(),
-			isInViewport = $(this).isInViewport(true)
-		;
+			isInViewport = $(this).isInViewport(true);
 
 		try {
 			$(this).first().oo().getBoundingClientRect();
@@ -2734,9 +2734,9 @@ $.fn.extend({
 	 * @returns {Object} this
 	 **/
 	imgLoad : function(callback, needsJqueryDims){
-		var targets = $(this).filter('img');
-		var targetCount = targets.length;
-		var blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+		var targets = $(this).filter('img'),
+			targetCount = targets.length,
+			blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 
 		targets.on('load.imgload', function(e){
 			if( (!needsJqueryDims || (needsJqueryDims && $(this).width() > 0)) && (this.src != blank) ){
@@ -2836,8 +2836,7 @@ $.fn.extend({
 
 		$.each($(this), function(){
 			var _this_ = this,
-				$set = $(this)
-			;
+				$set = $(this);
 
 			if( !onlyFirstLevel ){
 				$set = $set.add($set.find('*'));
@@ -2902,13 +2901,11 @@ $.fn.extend({
 						startNode = $textNodes.first().oo(),
 						startNodeIndex = 0,
 						endNode = $textNodes.last().oo(),
-						endNodeIndex = $textNodes.length - 1
-					;
+						endNodeIndex = $textNodes.length - 1;
 
 					if( $.isSet(startOffset) ){
 						var remainingStartOffset = startOffset,
-							startOffsetNodeFound = (remainingStartOffset <= startNode.length)
-						;
+							startOffsetNodeFound = (remainingStartOffset <= startNode.length);
 
 						while( !startOffsetNodeFound ){
 							startNodeIndex++;
@@ -2923,8 +2920,7 @@ $.fn.extend({
 
 					if( $.isSet(endOffset) ){
 						var remainingEndOffset = endOffset,
-							endOffsetNodeFound = (remainingEndOffset <= endNode.length)
-						;
+							endOffsetNodeFound = (remainingEndOffset <= endNode.length);
 
 						while( !endOffsetNodeFound ){
 							endNodeIndex--;
@@ -3088,8 +3084,7 @@ $.fn.extend({
 
 		var fGetClosestLabel = function($target){
 			var hasId = $.isSet($target.attr('id')),
-				$label = []
-			;
+				$label = [];
 
 			if( hasId ){
 				$label = $('label[for='+$target.attr('id')+']');
@@ -3195,7 +3190,10 @@ $.fn.extend({
 						e.stopPropagation();
 					})
 					.on('change', function(){
-						$label.text($(this).children('option:selected').first().text());
+						var $selectedOption = $(this).children('option:selected').first();
+						if( $selectedOption.length > 0 ){
+							$label.text($selectedOption.text());
+						}
 					})
 					.triggerHandler('change')
 				;
@@ -3242,8 +3240,8 @@ $.fn.extend({
 			var isTarget = (e.target == this);
 
 			if( isTarget || !$.isSet(ignoreChildren) || !ignoreChildren ){
-				var alreadyTested = (!isTarget && e.target.__ajqmeclk);
-				var orgEvent = e.originalEvent;
+				var alreadyTested = (!isTarget && e.target.__ajqmeclk),
+					orgEvent = e.originalEvent;
 
 				if(
 					(alreadyTested !== true)
@@ -3252,8 +3250,9 @@ $.fn.extend({
 					&& (orgEvent.touches.length <= 1)
 					&& ($.inArray(orgEvent.type.toLowerCase(), $.jqueryAnnexData.touch.types) < 0)
 				){
-					var objectEvents = ( !isTarget && !$.isA(alreadyTested, 'boolean') ) ? $(e.target).data('events') : false;
-					var eventNeedsReplacement = false;
+					var objectEvents = ( !isTarget && !$.isA(alreadyTested, 'boolean') ) ? $(e.target).data('events') : false,
+						eventNeedsReplacement = false;
+
 					if( !isTarget ){
 						e.target.__ajqmeclk = objectEvents;
 						eventNeedsReplacement =
@@ -3265,8 +3264,9 @@ $.fn.extend({
 					}
 
 					if( !eventNeedsReplacement && ($.inArray(e.target.tagName.toLowerCase(), $.jqueryAnnexData.touch.inputs) < 0) ){
-						var touch = orgEvent.changedTouches[0];
-						var mouseEvent = document.createEvent("MouseEvent");
+						var touch = orgEvent.changedTouches[0],
+							mouseEvent = document.createEvent("MouseEvent");
+
 						mouseEvent.initMouseEvent(
 							$.jqueryAnnexData.touch.types[e.type.toLowerCase()],
 							true,
@@ -3347,8 +3347,7 @@ $.fn.extend({
 					cssImgUrls = '',
 					cssImgSizes = '',
 					highDpi = $.contextHasHighDpi(),
-					vpWidth = window.innerWidth || $(window).width()
-				;
+					vpWidth = window.innerWidth || $(window).width();
 
 				for( var imageIndex = 0; imageIndex < images.length; imageIndex++ ){
 					var image = images[imageIndex];
@@ -3385,8 +3384,9 @@ $.fn.extend({
 					}
 				}
 
-				var preloadImage = null;
-				var preloadedCount = 0;
+				var preloadImage = null,
+					preloadedCount = 0;
+
 				for( var imageToPreloadIndex = 0; imageToPreloadIndex < imagesToPreload.length; imageToPreloadIndex++ ){
 					preloadImage = new Image();
 					$(preloadImage).imgLoad(function(){

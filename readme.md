@@ -37,6 +37,12 @@ If you need some pointers about the possibilities, have a look at the [examples]
 
 
 
+And if I want to load this as a module?
+---------------------------------------
+Same as for jQuery itself. Shim it, define the export as $ and set jQuery as a dependency.
+
+
+
 Is this any good, why should I use this?
 ----------------------------------------
 Everytime I have to do a one pager or smaller project without this helper lib I'm frustrated about the fact, that I, again, have to deal with all those already solved problems and bloat by code with those typical, ugly javascript weirdnesses.
