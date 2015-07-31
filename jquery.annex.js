@@ -2594,19 +2594,22 @@ $.fn.extend({
 			mustBeFullyInside = false;
 		}
 
-		var viewportBounds = null;
+		var viewportBounds = null,
+			windowWidth = window.innerWidth || $(window).width(),
+			windowHeight = window.innerHeight || $(window).height();
+
 		if( mustBeFullyInside ){
 			viewportBounds = {
 				top: 0,
-				right : $(window).width(),
-				bottom : $(window).height(),
+				right : windowWidth,
+				bottom : windowHeight,
 				left : 0
 			};
 		} else {
 			viewportBounds = {
 				top : -( bb.bottom - bb.top ) + 1,
-				right : ( $(window).width() + ( bb.right - bb.left ) ) + 1,
-				bottom : ( $(window).height() + ( bb.bottom - bb.top ) ) + 1,
+				right : ( windowWidth + ( bb.right - bb.left ) ) + 1,
+				bottom : ( windowHeight + ( bb.bottom - bb.top ) ) + 1,
 				left : -( bb.right - bb.left ) + 1
 			};
 		}
