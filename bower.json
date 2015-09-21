@@ -1,0 +1,30 @@
+{
+  "name": "jqueryannex",
+  "version": "0.21.0",
+  "homepage": "https://github.com/OktarinTentakel/jqueryannex",
+  "description": "Lots and lots of nice to have jQuery-additions and everyday helpers. And validation as well!",
+  "main": "jquery.annex.js",
+  "keywords": [
+    "jquery",
+    "additions",
+    "polling",
+    "lazy-loading",
+    "inheritance",
+    "preloading",
+    "string-manipulation"
+  ],
+  "authors": [
+    "Sebastian Schlapkohl"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^1.11.3"
+  }
+}
