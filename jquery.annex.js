@@ -2235,6 +2235,26 @@ $.fn.extend({
 
 
 	/**
+	 * Returns an element's outerHTML instead of innerHTML, which .html() provides. Avoids clone() for this purpose.
+	 *
+	 * Does not work on HTML itself if outerHTML is not supported natively by the browser!
+	 *
+	 * @return {String} the element's outer HTML markup starting with its own tag
+	 **/
+	outerHtml : function(){
+		if ($(this).oo().outerHTML !== undefined) {
+			return $(this).oo().outerHTML;
+		} else {
+			var content = $(this).wrap('<div/>').parent().html();
+			$(this).unwrap();
+
+			return content;
+		}
+	},
+
+
+
+	/**
 	 * Creates the basic attributes for a DOM-element that define its DOM- and CSS-identity.
 	 * Namely id, class and style. An element may be used a source to inherit values from.
 	 * If identity is inherited from another element html5-data-attributes are also transferred additionally.
