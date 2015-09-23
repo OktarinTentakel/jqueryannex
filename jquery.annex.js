@@ -2236,19 +2236,64 @@ $.fn.extend({
 
 	/**
 	 * Returns an element's outerHTML instead of innerHTML, which .html() provides. Avoids clone() for this purpose.
+	 * If htmlContent parameter is given the this parameter will be set as the new outerHTML.
+	 * Should act analogous to .html().
 	 *
-	 * Does not work on HTML itself if outerHTML is not supported natively by the browser!
+	 * This method tries to keep valid references on the results, so setting outerHTML on elements should result
+	 * in the set of newly created elements in the dom.
 	 *
-	 * @return {String} the element's outer HTML markup starting with its own tag
+	 * Retrieving and setting does not work on HTML itself if outerHTML is not supported natively by the browser!
+	 *
+	 * @param {?String} [htmlContent] - html content to set as new outerHTML for selected elements
+	 * @returns {String} the element's outer HTML markup starting with its own tag
 	 **/
-	outerHtml : function(){
-		if ($(this).oo().outerHTML !== undefined) {
-			return $(this).oo().outerHTML;
-		} else {
-			var content = $(this).wrap('<div/>').parent().html();
-			$(this).unwrap();
+	outerHtml : function(htmlContent){
+		var outerHTMLAvailable = !$(this).oo().outerHTML;
 
-			return content;
+		if( !$.isSet(htmlContent) ){
+			if( outerHTMLAvailable ){
+				return $(this).oo().outerHTML;
+			} else {
+				var outerHtml = $(this).first().wrap('<div/>').parent().html();
+				$(this).first().unwrap();
+
+				return outerHtml;
+			}
+		} else {
+			var $elements = $([]);
+
+			$(this).each(function(){
+				if( !outerHTMLAvailable ){
+					var $tmpParent = $(this).wrap('<div/>').parent();
+					$tmpParent.html(htmlContent);
+
+					var $newElement = $tmpParent.children().first();
+					$newElement.unwrap();
+
+					$elements = $elements.add($newElement);
+				} else {
+					var $element = null,
+						$parent = null,
+						elementIndex = -1;
+
+					if( $(this).parent().parent().length === 0 ){
+						$element = $('html');
+					} else {
+						$parent = $(this).parent();
+						elementIndex = $(this).index();
+					}
+
+					$(this).oo().outerHTML = ''+htmlContent;
+
+					if( !$.isSet($element) ){
+						$element = $parent.children().eq(elementIndex);
+					}
+
+					$elements = $elements.add($element);
+				}
+			});
+
+			return $elements;
 		}
 	},
 
