@@ -1120,27 +1120,35 @@ $.extend({
 		leadingExecution = this.orDefault(leadingExecution, true, 'bool');
 
 		var _this_ = this,
-			nextExecutionWaiting = false,
+			throttleTimer = null,
+			lastEventTime = null,
+			lastTriggerTime = null;
+
+		var fTrigger = function(){
+			lastEventTime = null;
+			lastTriggerTime = new Date().getTime();
 			throttleTimer = null;
+			func();
+		};
 
 		return function(){
-			if( !nextExecutionWaiting && !_this_.isSet(throttleTimer) ){
-				throttleTimer = _this_.loop(ms, function(){
-					if( nextExecutionWaiting ){
-						func();
-					} else {
-						_this_.countermand(throttleTimer);
-						throttleTimer = null;
-					}
+			if( $.isSet(lastEventTime) && !$.isSet(throttleTimer) ){
+				var currentEventTime = new Date().getTime(),
+					eventDelta = currentEventTime - (($.isSet(lastTriggerTime) && (lastTriggerTime > lastEventTime)) ? lastTriggerTime : lastEventTime),
+					waitMs = (ms - eventDelta < 0) ? 0 : (ms - eventDelta);
 
-					nextExecutionWaiting = false;
-				});
+				_this_.countermand(throttleTimer);
+				throttleTimer = _this_.schedule(waitMs, fTrigger);
+
+				lastEventTime = currentEventTime;
+			} else {
+				lastTriggerTime = null;
+				lastEventTime = new Date().getTime();
 
 				if( leadingExecution ){
 					func();
+					lastTriggerTime = lastEventTime;
 				}
-			} else {
-				nextExecutionWaiting = true;
 			}
 		};
 	},
