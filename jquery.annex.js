@@ -686,6 +686,67 @@ $.extend({
 
 
 	/**
+	 * Copies all enumerable properties from one object to the target object.
+	 * The target object will be emptied beforehand, therefore behaving differently from
+	 * $.extend.
+	 *
+	 * This method is especially interesting if the target object, to which the content is
+	 * copied has to keep its reference for programmatic reasons.
+	 *
+	 * Modifies the target!
+	 *
+	 * @param {Object} target - the object to copy all properties of contentObject to
+	 * @param {Object} contentObject - the object to copy all properties of to target
+	 * @param {?Object} [cloneSubObjects=false] - defines if sub-objects of contentObject should be cloned or copied by reference
+	 * @returns {Object} emptied target with all properties of contentObject
+	 **/
+	copyObjectContent : function(target, contentObject, cloneSubObjects){
+		cloneSubObjects = this.orDefault(cloneSubObjects, false, 'boolean');
+
+		var propName, copyValue;
+
+		for( propName in target ){
+			delete target[propName];
+		}
+
+		for( propName in contentObject ){
+			if( cloneSubObjects ){
+				copyValue = contentObject[propName];
+
+				if( !$.isArray(copyValue) && !$.isPlainObject(copyValue) ){
+					target[propName] = copyValue;
+				} else if( $.isArray(copyValue) ) {
+					target[propName] = $.extend(true, [], copyValue);
+				} else if( $.isPlainObject(copyValue) ){
+					target[propName] = $.extend(true, {}, copyValue);
+				}
+			} else {
+				target[propName] = contentObject[propName];
+			}
+		}
+
+		return target;
+	},
+
+
+
+	/**
+	 * Removes all enumerable properties of an object, thereby emptying it.
+	 *
+	 * This method is especially interesting if the target object has to keep its reference for programmatic reasons.
+	 *
+	 * Modifies the target!
+	 *
+	 * @param {Object} target - the object to copy all properties of contentObject to
+	 * @returns {Object} emptied target
+	 **/
+	emptyObject : function(target){
+		return this.copyObjectContent(target, {});
+	},
+
+
+
+	/**
 	 * Special form of Math.random, returning an int value between two ints,
 	 * where floor and ceiling are included in the range.
 	 *
