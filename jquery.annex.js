@@ -1860,26 +1860,27 @@ $.extend({
 			deferred = $.Deferred(),
 			loadedFonts = 0;
 
-		for(var i = 0; i < fonts.length; i++){
+		$.each(fonts, function(index, font){
 				var $node = this.elem('span')
-					.html('giItT1WQy@!-/#')
+					.html('giItT1WQy@!-/#')
 					.css({
 						'position' : 'absolute',
 						'visibility' : 'hidden',
-						'left' : '-10000x',
+						'left' : '-10000px',
 						'top' : '-10000px',
 						'font-size' : '300px',
 						'font-family' : fallbackFontName,
 						'font-variant' : 'normal',
 						'font-style' : 'normal',
 						'font-weight' : 'normal',
-						'letter-spacing' : '0'
+						'letter-spacing' : '0',
+						'white-space' : 'pre'
 					})
 				;
 				$('body').append($node);
 
 				var systemFontWidth = $node.width();
-				$node.css('font-family', fonts[i]+', '+fallbackFontName);
+				$node.css('font-family', font+', '+fallbackFontName);
 
 				var tCheckFontLoaded = null;
 				var fCheckFont = function(){
@@ -1894,7 +1895,10 @@ $.extend({
 							_this_.countermand(tCheckFontLoaded);
 						}
 
-						if( loadedFonts == fonts.length ){
+						if(
+							(loadedFonts == fonts.length)
+							&& (deferred.state() != 'resolved')
+						){
 							if( $.isFunction(callback) ){
 								callback();
 							}
@@ -1909,7 +1913,7 @@ $.extend({
 				if( !fCheckFont() ){
 					tCheckFontLoaded = this.loop(50, fCheckFont);
 				}
-		}
+		});
 
 		return deferred.promise();
 	},
