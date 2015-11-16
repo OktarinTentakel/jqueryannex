@@ -1206,7 +1206,7 @@ $.extend({
 				lastTriggerTime = null;
 				lastEventTime = new Date().getTime();
 
-				if( leadingExecution ){
+				if( leadingExecution && !$.isSet(throttleTimer) ){
 					func();
 					lastTriggerTime = lastEventTime;
 				}
