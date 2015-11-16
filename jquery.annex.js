@@ -1206,9 +1206,13 @@ $.extend({
 				lastTriggerTime = null;
 				lastEventTime = new Date().getTime();
 
-				if( leadingExecution && !$.isSet(throttleTimer) ){
-					func();
-					lastTriggerTime = lastEventTime;
+				if( !$.isSet(throttleTimer) ){
+					if( leadingExecution ){
+						func();
+						lastTriggerTime = lastEventTime;
+					} else {
+						throttleTimer = _this_.schedule(ms, fTrigger);
+					}
 				}
 			}
 		};
