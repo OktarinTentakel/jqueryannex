@@ -1866,7 +1866,7 @@ $.extend({
 
 		$.each(fonts, function(index, font){
 				var $node = this.elem('span')
-					.html('giItT1WQy@!-/#')
+					.html('giItT1WQy@!-/#')
 					.css({
 						'position' : 'absolute',
 						'visibility' : 'hidden',
