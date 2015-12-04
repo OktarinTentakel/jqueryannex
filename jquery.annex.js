@@ -767,7 +767,7 @@ $.extend({
 			ceiling = parseInt(ceiling, 10);
 		}
 
-		if( ceiling < floor){
+		if( ceiling < floor ){
 			this.log('randomInt | ceiling may not be smaller than floor');
 			return null;
 		}
@@ -1175,31 +1175,41 @@ $.extend({
 	 * @param {Number.Integer} ms - the waiting time between executions in milliseconds
 	 * @param {Function} func - the function to throttle
 	 * @param {?Boolean} [leadingExecution=true] - defines if the function is executed initially without waiting first
-	 * @returns {Function} the throtteling function
+	 * @param {?Boolean} [trailingExecution=false] - defines if the function is executed at the end of the event chain a final time
+	 * @returns {Function} the throtteling function (parameters will be handed as is to the throtteled function)
 	 **/
-	throttleExecution : function(ms, func, leadingExecution){
+	throttleExecution : function(ms, func, leadingExecution, trailingExecution){
 		leadingExecution = this.orDefault(leadingExecution, true, 'bool');
+		trailingExecution = this.orDefault(trailingExecution, false, 'bool');
 
 		var _this_ = this,
 			throttleTimer = null,
+			trailTimer = null,
 			lastEventTime = null,
 			lastTriggerTime = null;
 
-		var fTrigger = function(){
+		var fTrigger = function(context, args){
 			lastEventTime = null;
 			lastTriggerTime = new Date().getTime();
 			throttleTimer = null;
-			func();
+			func.apply(context, args);
+		};
+
+		var fTrailTrigger = function(context, args){
+			func.apply(context, args);
 		};
 
 		return function(){
+			var context = this,
+				args = $.makeArray(arguments);
+
 			if( $.isSet(lastEventTime) && !$.isSet(throttleTimer) ){
 				var currentEventTime = new Date().getTime(),
 					eventDelta = currentEventTime - (($.isSet(lastTriggerTime) && (lastTriggerTime > lastEventTime)) ? lastTriggerTime : lastEventTime),
 					waitMs = (ms - eventDelta < 0) ? 0 : (ms - eventDelta);
 
 				_this_.countermand(throttleTimer);
-				throttleTimer = _this_.schedule(waitMs, fTrigger);
+				throttleTimer = _this_.schedule(waitMs, function(){ fTrigger(context, args); });
 
 				lastEventTime = currentEventTime;
 			} else {
@@ -1208,12 +1218,19 @@ $.extend({
 
 				if( !$.isSet(throttleTimer) ){
 					if( leadingExecution ){
-						func();
+						func.apply(context, args);
 						lastTriggerTime = lastEventTime;
 					} else {
-						throttleTimer = _this_.schedule(ms, fTrigger);
+						throttleTimer = _this_.schedule(ms, function(){ fTrigger(context, args); });
 					}
 				}
+			}
+
+			if( trailingExecution ){
+				if( $.isSet(trailTimer) ){;
+					_this_.countermand(trailTimer);
+				}
+				trailTimer = _this_.schedule(ms, function(){ fTrigger(context, args); });
 			}
 		};
 	},
@@ -1225,14 +1242,17 @@ $.extend({
 	 *
 	 * @param {Number.Integer} ms - timeframe in milliseconds without call before execution
 	 * @param {Function} func - the function to hold the execution of
-	 * @returns {Function} the holding function
+	 * @returns {Function} the holding function (parameters will be handed as is to the held function)
 	 **/
 	holdExecution : function(ms, func){
 		var _this_ = this,
 			holdTimer = this.schedule(1, $.noop);
 
 		return function(){
-			holdTimer = _this_.reschedule(holdTimer, ms, function(){ func(); });
+			var context = this,
+				args = $.makeArray(arguments);
+
+			holdTimer = _this_.reschedule(holdTimer, ms, function(){ func.apply(context, args); });
 		};
 	},
 
