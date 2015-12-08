@@ -793,10 +793,7 @@ $.extend({
 			ceiling = parseInt(ceiling, 10);
 		}
 
-		if( ceiling < floor ){
-			this.log('randomInt | ceiling may not be smaller than floor');
-			return null;
-		}
+		this.assert((ceiling >= floor), 'randomInt | ceiling may not be smaller than floor');
 
 		return Math.round(Math.random() * (ceiling - floor) + floor);
 	},
@@ -1289,7 +1286,7 @@ $.extend({
 	 * This works identical to setTimeout(function(){}, 1);
 	 *
 	 * @param {Function} func - the function to defer
-	 * @param {Number.Integer} [delay=1] - the delay to apply to the timeout
+	 * @param {?Number.Integer} [delay=1] - the delay to apply to the timeout
 	 * @returns {Function} the deferring function
 	 **/
 	deferExecution : function(func, delay){
@@ -1299,6 +1296,71 @@ $.extend({
 
 		return function(){
 			_this_.schedule(delay, func);
+		};
+	},
+
+
+
+	/**
+	 * Applies the possiblity to set function parameters by name Python-style like kwargs to a function.
+	 * Returns a new function that accepts mixed args, if arg is a plain object it gets treated as a kwargs
+	 * dict. If the objects contains a falsy "kwargs" attribute it is applied as a parameter as is.
+	 * You can also define parameter defaults from outside by setting the defaults as a dict in this function.
+	 *
+	 * Examples:
+	 * With * var fTest = function(tick, trick, track){ console.log(tick, trick, track); };
+	 *
+	 * $.kwargs(fTest, {track : 'defTrack'})({tick : 'tiick', trick : 'trick'});
+	 * will output "tiick, trick, defTrack"
+	 *
+	 * $.kwargs(fTest, {track : 'defTrack'})('argTick', {trick : 'triick', track : 'trACK'});
+	 * will output "argTick, triick, trACK"
+	 *
+	 * $.kwargs(fTest, {track : 'defTrack'})('argTick', {trick : 'triick', track : 'track'}, 'trackkkk');
+	 * will output "argTick, triick, trackkkk"
+	 *
+	 * @param {Function} func - the function to provide kwargs to
+	 * @param {?Object} [defaults={}] - the default kwargs to apply to func
+	 * @returns {Function} new function accepting mixed args with kwarg dicts
+	 **/
+	kwargs : function(func, defaults){
+		defaults = $.isPlainObject(defaults) ? defaults : {};
+
+		var _this_ = this,
+			argNames = func.toString().match(/\(([^\)]+)/)[1];
+
+		argNames = argNames ? $.map(argNames.split(','), function(item){ return $.trim(item); }) : [];
+
+		return function(){
+			var args = $.makeArray(arguments),
+				applicableArgs = [];
+
+			$.each(args, function(argIndex, arg){
+				if(
+					$.isPlainObject(arg)
+					// if object contains falsy property "kwargs" leave it as is
+					&& (!_this_.isSet(arg.kwargs) || !!arg.kwargs)
+				){
+					$.each(argNames, function(argNameIndex, argName){
+						if( _this_.isSet(arg[argName]) ){
+							applicableArgs[argNameIndex] = arg[argName];
+						}
+					});
+				} else {
+					applicableArgs[argIndex] = arg;
+				}
+			});
+
+			$.each(argNames, function(argNameIndex, argName){
+				if(
+					!_this_.isSet(applicableArgs[argNameIndex])
+					&& _this_.isSet(defaults[argName])
+				){
+					applicableArgs[argNameIndex] = defaults[argName];
+				}
+			});
+
+			func.apply(this, applicableArgs);
 		};
 	},
 
