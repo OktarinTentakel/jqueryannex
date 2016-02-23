@@ -2265,6 +2265,85 @@ $.extend({
 		} else {
 			return false;
 		}
+	},
+
+
+
+	/**
+	 * Defines the default logic for an innerpage hashnav, where the currently visible section should automatically
+	 * be highlighted while scrolling. This solution is based on elements containing a headline stating the nav title,
+	 * being in a container constituting a nav section. The section has to bear the id, referenced in the nav items
+	 * href. The href may be with or without leading path, but may only include _one_ #.
+	 *
+	 * @param {Object} $navElements - the jQuery-collection of nav elements to highlight, each bearing the href and getting the activeClass
+	 * @param {Object} [$sectionElements] - the jQuery-collection of section elements, containing some kind of headline and bearing the id
+	 * @param {?String} [headlineSelector='h2:first'] - the jQuery selector to find the headline element by in a section
+	 * @param {?('first-visible-headline'|'headline-at-top')} [algorithm='first-visible-headline'] - defines the algorithm by which $navElements are set active
+	 * @param {?Number.Integer} [throttleMs=250] - the minimum interval in which the scroll handler is fired, 0 disables throttling
+	 * @param {?String} [activeClass='active'] - the class to set upon the active nav element
+	 **/
+	setupHashNavHighlighting : function($navElements, $sectionElements, headlineSelector, algorithm, throttleMs, activeClass){
+		headlineSelector = this.orDefault(headlineSelector, 'h2:first', 'string');
+		algorithm = this.orDefault(algorithm, 'first-visible-headline');
+		throttleMs = this.orDefault(throttleMs, 250, 'int');
+		activeClass = this.orDefault(activeClass, 'active', 'string');
+
+		var fHandler = function(){
+			var found = false;
+
+			switch( algorithm ){
+				case 'first-visible-headline':
+					$navElements.removeClass(activeClass);
+					$sectionElements.each(function(){
+						var $headline = $(this).find(headlineSelector).first();
+
+						if( ($headline.length > 0) &&  $headline.isInViewport(true) ){
+							$navElements.filter('[href*=#'+$(this).attr('id')+']').first().addClass(activeClass);
+							found = true;
+							return false;
+						}
+					});
+
+					if( !found ){
+						$sectionElements.each(function(){
+							if( $(this).isInViewport() ){
+								$navElements.filter('[href*=#'+$(this).attr('id')+']').first().addClass(activeClass);
+								found = true;
+								return false;
+							}
+						});
+					}
+				break;
+
+				case 'headline-at-top':
+					var viewportHeight = window.innerHeight || $(window).height(),
+			            userHasScrolledToPageBottom = ($(window).scrollTop() + viewportHeight) > ($('body').height() - Math.round(viewportHeight / 10));
+
+					$navElements.removeClass(activeClass);
+					if( !userHasScrolledToPageBottom ){
+			            $sectionElements.each(function(){
+			                var $headline = $(this).find(headlineSelector),
+								headlineTop = $.isFunction($headline.oo().getBoundingClientRect) ? $headline.oo().getBoundingClientRect().top : $headline.offset().top;
+
+			                if( headlineTop < Math.round(viewportHeight / 10) ){
+								$navElements.removeClass(activeClass);
+								$navElements.filter('[href*=#'+$(this).attr('id')+']').first().addClass(activeClass);
+			                }
+			            });
+			        } else {
+						$navElements.filter('[href*=#'+$sectionElements.last().attr('id')+']').first().addClass(activeClass);
+			        }
+				break;
+			}
+		};
+
+		$(window).off('scroll.dynamichashnav resize.dynamichashnav');
+		if( throttleMs > 0 ){
+			$(window).on('scroll.dynamichashnav resize.dynamichashnav', this.throttleExecution(throttleMs, fHandler, true, true));
+		} else {
+			$(window).on('scroll.dynamichashnav resize.dynamichashnav', fHandler);
+		}
+		$(window).triggerHandler('scroll.dynamichashnav');
 	}
 
 });
@@ -2415,6 +2494,120 @@ $.fn.extend({
 		}
 
 		return this;
+	},
+
+
+
+	/**
+	 * Handles the movement of jQuery event data from one dict to another.
+	 * This is mainly a helper function for pauseHandlers and resumeHandlers, in which the target dicts are just
+	 * switched, but may also be used manually if you need anther dict to move event data to, or if the core
+	 * implementation of $._data and $.data for event access changes again.
+	 *
+	 * @param {String} eventId - jquery event id(s) like in .on() and .off()
+	 * @param {?Function} [getter=$._data] - function to retrieve element event data, takes element as first param and access key of dict in second
+	 * @param {?String} [getterKey='events'] - the dict access key to use in getter calls on $(this)
+	 * @param {?Function} [setter=$.data] - function to set element event data, takes element as first param and access key of dict in second
+	 * @param {?String} [setterKey='jqueryAnnexData_pausedEvents'] - the dict access key to use in setter calls on $(this)
+	 * @returns {Object} this
+	 **/
+	moveEventData : function(eventId, getter, getterKey, setter, setterKey){
+		eventId = $.orDefault(eventId, '', 'string');
+
+		var _this_ = this,
+			eventIds = eventId.split(' ');
+
+		$.each(eventIds, function(eventIdIndex, eventId){
+			eventId = $.trim(eventId);
+			getter = $.isFunction(getter) ? getter : $._data;
+			getterKey = $.orDefault(getterKey, 'events', 'string');
+			setter = $.isFunction(setter) ? setter : $.data;
+			setterKey = $.orDefault(setterKey, 'jqueryAnnexData_pausedEvents', 'string');
+
+			var elem = $(_this_).oo(),
+				events = getter(elem, getterKey);
+
+			if( $.isSet(events) ){
+				var targetEventGuids = [],
+					eventIdParts = eventId.split('.'),
+					eventName = eventIdParts[0],
+					eventNamespace = (eventIdParts.length > 1) ? eventIdParts[1] : '',
+					eventNameArray = (eventName === '')
+						? Object.keys(events)
+						: ($.isSet(events[eventName]) ? [eventName] : [])
+				;
+
+				$.each(eventNameArray, function(eventNameIndex, eventName){
+					$.each(events[eventName], function(eventIndex, event){
+						if(
+							(event.type == eventName)
+							&& (
+								(eventNamespace === '')
+								|| (
+									(eventNamespace !== '')
+									&& (event.namespace == eventNamespace)
+								)
+							)
+						){
+							if( !$.isSet(setter(elem, setterKey)) ){
+								setter(elem, setterKey, {});
+							}
+
+							var targetDict = setter(elem, setterKey);
+
+							if( !$.isSet(targetDict[eventName]) ){
+								targetDict[eventName] = [];
+								targetDict[eventName].delegateCount = events[eventName].delegateCount;
+							}
+
+							targetDict[eventName].push(event);
+							targetEventGuids.push(event.guid);
+						}
+					});
+				});
+
+				var newEvents = {};
+				$.each(getter(elem, getterKey), function(eventKey, eventArray){
+					$.each(eventArray, function(eventIndex, event){
+						if( $.inArray(event.guid, targetEventGuids) < 0 ){
+							if( !$.isSet(newEvents[event.type]) ){
+								newEvents[event.type] = [];
+								newEvents[event.type].delegateCount = eventArray.delegateCount;
+							}
+
+							newEvents[event.type].push(event);
+						}
+					});
+				});
+				getter(elem, getterKey, newEvents);
+			}
+		});
+
+		return this;
+	},
+
+
+
+	/**
+	 * Pauses event handlers of an element, by moving them to a different dict temporarily
+	 *
+	 * @param {String} eventId - jquery event id(s) like in .on() and .off()
+	 * @returns {Object} this
+	 **/
+	pauseHandlers : function(eventId){
+		return $.proxy($.fn.moveEventData, this, eventId, $._data, 'events', $.data, 'jqueryAnnexData_pausedEvents')();
+	},
+
+
+
+	/**
+	 * Resumes paused event handlers of an element, by moving them back to the element's event handler dict.
+	 *
+	 * @param {String} eventId - jquery event id(s) like in .on() and .off()
+	 * @returns {Object} this
+	 **/
+	resumeHandlers : function(eventId){
+		return $.proxy($.fn.moveEventData, this, eventId, $.data, 'jqueryAnnexData_pausedEvents', $._data, 'events')();
 	},
 
 
