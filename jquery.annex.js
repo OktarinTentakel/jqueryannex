@@ -1744,7 +1744,7 @@ $.extend({
 	 * @param {String} name - name of the cookie
 	 * @param {String} [value] - value-string of the cookie, null removes a value, so to retrieve leave undefined
 	 * @param {?Object} [options] - config-object for the cookie setting expiries etc., use together with a value
-	 * @returns {(void|String)} either nothing, when setting a cookie, or the value of a requested cookie
+	 * @returns {(void|String|null)} either nothing, when setting a cookie, or the value of a requested cookie
 	 **/
 	cookie : function(name, value, options) {
 		if( value !== undefined ){
@@ -3568,8 +3568,9 @@ $.fn.extend({
 			}
 		};
 
-		var $label, $siblingLabel, $selectProxy;
 		$(this).each(function(){
+			var $label, $siblingLabel, $selectProxy;
+
 			if( $(this).is(':checkbox, :radio') ){
 				$label = fGetClosestLabel($(this));
 				fSetContainerClass($label);
