@@ -1372,7 +1372,7 @@ $.extend({
 	 *
 	 * @param {?String} [url=window.location.href] - the location to load, if null current location is reloaded
 	 * @param {?Object.<String, String>} [params={}] - GET-parameters to add to the url as key-value-pairs
-	 * @param {?String} [anchor] - site anchor to set for called url, must be set via parameter, won't work reliably in URL only
+	 * @param {?String} [anchor] - site anchor to set for called url, has precedence over URL hash
 	 * @param {?Object} [postParams] - a dictionary of postParameters to send with the redirect, solved with a hidden form
 	 * @param {?String} [target] - name of the window to perform the redirect to/in
 	 **/
@@ -1382,10 +1382,18 @@ $.extend({
 
 		if( !this.isSet(url) ){
 			url = window.location.href;
-		}
 
-		if( this.isSet($(document).urlAnchor()) ){
-			url = url.replace(/\#.+$/, '');
+			if( this.isSet($(document).urlAnchor()) ){
+				anchor = this.orDefault(anchor, $(document).urlAnchor(true), 'string');
+				url = url.replace(/\#.+$/, '');
+			}
+		} else {
+			var anchorFromUrlParts = url.split('#');
+
+			if( anchorFromUrlParts.length > 1 ){
+				anchor = this.orDefault(anchor, anchorFromUrlParts[1], 'string');
+				url = url.replace(/\#.+$/, '');
+			}
 		}
 
 		var urlParts = url.split('?', 2);
@@ -1429,15 +1437,17 @@ $.extend({
 			}
 		}
 
-		if( !this.isSet(anchor) ){
-			anchor = reload ? $(document).urlAnchor(true) : null;
+		if( reload && !this.isSet(anchor) ){
+			anchor = $(document).urlAnchor(true);
 		}
 
 		var finalUrl = url+((paramString.length > 0) ? paramString : '')+(this.isSet(anchor) ? '#'+anchor : '');
 		if( !this.isSet(postParams) && !this.isSet(target) ){
-			window.location.href = finalUrl;
+			$.log(finalUrl);
+			//window.location.href = finalUrl;
 		} else if( !this.isSet(postParams) && this.isSet(target) ){
-			window.open(finalUrl, ''+target);
+			$.log(finalUrl);
+			//window.open(finalUrl, ''+target);
 		} else {
 			if( !this.isSet(postParams) ){
 				postParams = {};
@@ -3084,33 +3094,36 @@ $.fn.extend({
 		offset = $.orDefault(offset, 0, 'int');
 		scrollEvenIfFullyInViewport = $.orDefault(scrollEvenIfFullyInViewport, false, 'bool');
 
-		var callbackFired = false,
-			vpHeight = window.innerHeight || $(window).height(),
-			isInViewport = $(this).isInViewport(true);
+		var $target = $(this).first();
+		if( $.isSet($target) && $target.length > 0 ){
+			var	callbackFired = false,
+				vpHeight = window.innerHeight || $(window).height(),
+				isInViewport = $target.isInViewport(true);
 
-		try {
-			$(this).first().oo().getBoundingClientRect();
-		} catch(err){
-			isInViewport = false;
-		}
+			try {
+				$target.oo().getBoundingClientRect();
+			} catch(err){
+				isInViewport = false;
+			}
 
-		if( scrollEvenIfFullyInViewport || !isInViewport ){
-			$('html, body')
-				.stop(true)
-				.animate(
-					{scrollTop: $(this).offset().top - Math.round(vpHeight / 2) + offset},
-					durationMs,
-					function(){
-						if( !callbackFired ){
-							callback();
-							callbackFired = true;
+			if( scrollEvenIfFullyInViewport || !isInViewport ){
+				$('html, body')
+					.stop(true)
+					.animate(
+						{scrollTop: $target.offset().top - Math.round(vpHeight / 2) + offset},
+						durationMs,
+						function(){
+							if( !callbackFired ){
+								callback();
+								callbackFired = true;
+							}
 						}
-					}
-				);
-		} else {
-			if( !callbackFired ){
-				callback();
-				callbackFired = true;
+					);
+			} else {
+				if( !callbackFired ){
+					callback();
+					callbackFired = true;
+				}
 			}
 		}
 
@@ -3841,7 +3854,7 @@ $.fn.extend({
 						if( preloadedCount >= imagesToPreload.length ){
 							$(_this_)
 								.css('background-image', cssImgUrls)
-								.cssCrossBrowser('background-size', cssImgSizes)
+								.cssCrossBrowser({'background-size' : cssImgSizes})
 							;
 						}
 					});
