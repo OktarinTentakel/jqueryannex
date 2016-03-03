@@ -1443,11 +1443,9 @@ $.extend({
 
 		var finalUrl = url+((paramString.length > 0) ? paramString : '')+(this.isSet(anchor) ? '#'+anchor : '');
 		if( !this.isSet(postParams) && !this.isSet(target) ){
-			$.log(finalUrl);
-			//window.location.href = finalUrl;
+			window.location.href = finalUrl;
 		} else if( !this.isSet(postParams) && this.isSet(target) ){
-			$.log(finalUrl);
-			//window.open(finalUrl, ''+target);
+			window.open(finalUrl, ''+target);
 		} else {
 			if( !this.isSet(postParams) ){
 				postParams = {};
