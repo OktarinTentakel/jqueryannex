@@ -10,13 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 21 developed and tested with jQuery 1.11.3
- **/
-
-
-
-/**
- * This version needs real world testing! Consider the current state being alpha.
+ * @version Revision 22 developed and tested with jQuery 1.11.3
  **/
 
 
@@ -159,7 +153,7 @@ $.extend({
 	x : function(){
 		var context = 'anonymous';
 
-		if( this.exists('callee.caller', arguments)  ){
+		if( this.exists('callee.caller', arguments) && $.isSet(arguments.callee.caller) ){
 			if( this.isSet(arguments.callee.caller.name) && ($.trim(arguments.callee.caller.name) !== '') ){
 				context = arguments.callee.caller.name;
 			} else {
