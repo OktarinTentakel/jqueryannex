@@ -24,7 +24,6 @@
 //--|JQUERY-$-GENERAL-FUNCTIONS----------
 
 $.extend({
-
 	/**
 	 * general dictionary to hold internal data and offer data space for plugins
 	 *
@@ -77,6 +76,14 @@ $.extend({
 
 
 	/**
+	 * @namespace Logging:$
+	 */
+
+	/**
+	 * @namespace Logging:$.log
+	 */
+
+	/**
 	 * Logs a message to the console. Prevents errors in browsers, that don't support this feature.
 	 *
 	 * If the first parameter is not __enable__ or __disable__ it is treated as a value to log, in any other
@@ -84,6 +91,14 @@ $.extend({
 	 *
 	 * @param {String} [enabled] - enable/disable logging globally, including console.log, use tokens __enable__ and __disable__
 	 * @param {...*} [...] - add any number of arguments you wish to log
+	 *
+	 * @memberof Logging:$.log
+	 * @example
+	 * $.log(randomVar, 'string');
+	 * $.log(false);
+	 * $.log(true);
+	 * $.log('__disable__');
+	 * $.log('__enable__', 'test', {test : 'test'});
 	 **/
 	log : function(enabled){
 		if( this.isSet(enabled) && ($.inArray(enabled, ['__enable__', '__disable__']) >= 0) ){
@@ -117,6 +132,10 @@ $.extend({
 
 
 	/**
+	 * @namespace Logging:$.x
+	 */
+
+	/**
 	 * X marks the spot. A very simple method for urgent cases of printf-debugging.
 	 * Simply logs the context of the call to the console, also providing a counter,
 	 * counting the executions from that context.
@@ -130,6 +149,12 @@ $.extend({
 	 * as "anonymous".
 	 *
 	 * This method will not properly work in strict mode.
+	 *
+	 * @memberof Logging:$.x
+	 * @example
+	 * for( var i = 0; i < 10; i++ ){
+     *   $.x();
+	 * }
 	 **/
 	x : function(){
 		var context = 'anonymous';
@@ -158,12 +183,26 @@ $.extend({
 
 
 	/**
+	 * @namespace Elements:$
+	 */
+
+	/**
+	 * @namespace Elements:$.elem
+	 */
+
+	/**
 	 * Creates jQuery-enabled DOM-elements on the fly.
 	 *
 	 * @param {String} tag - name of the tag/element to create
 	 * @param {?Object.<String, String>} [attributes] - tag attributes as key/value-pairs
 	 * @param {?String} [content] - content to embed into the element, such as text
 	 * @returns {Object} jQuery-enabled DOM-element
+	 *
+	 * @memberof Elements:$.elem
+	 * @example
+	 * $('body').append(
+     *   $.elem('div', {id : 'content', style : 'display:none;'}, 'loading...');
+	 * );
 	 **/
 	elem : function(tag, attributes, content){
 		var attrString = '';
@@ -184,6 +223,57 @@ $.extend({
 
 
 	/**
+	 * @namespace Elements:$.textContent
+	 */
+
+	/**
+	 * Return the de-nodified text content of a node-ridden string or a jQuery object.
+	 * Returns the raw text content, with all markup cleanly removed.
+	 * Can also be used to return only the concatenated child text nodes.
+	 *
+	 * @param {(String|Object)} nodeInfested - the node-ridden string or jquery object to "clean"
+	 * @param {?Boolean} [onlyFirstLevel=false] - true if only the text of direct child text nodes is to be returned
+	 * @returns {String} the escaped string
+	 *
+	 * @memberof Elements:$.textContent
+	 * @example
+	 * $('p').html($.textContent('<p onlick="destroyWorld();">red button</p>'));
+	 **/
+	textContent : function(nodeInfested, onlyFirstLevel){
+		onlyFirstLevel = this.orDefault(onlyFirstLevel, false, 'bool');
+
+		var res = '';
+		var $holder = (this.isA(nodeInfested, 'object') && this.isSet(nodeInfested.jquery))
+			? nodeInfested
+			: this.elem('p').html(''+nodeInfested);
+
+		if( onlyFirstLevel ){
+			res = $holder
+				.contents()
+				.filter(function(){
+					return this.nodeType == 3;
+				})
+					.text()
+				.end()
+			;
+		} else {
+			res = $holder.text();
+		}
+
+		return $.trim(res);
+	},
+
+
+
+	/**
+	 * @namespace Inheritance:$
+	 */
+
+	/**
+	 * @namespace Inheritance:$#Class
+	 */
+
+	/**
 	 * Simple Base function for inheritance-capable JS-objects.
 	 * Adapted from: Simple JavaScript Inheritance By John Resig http://ejohn.org/ MIT Licensed. Inspired by base2 and Prototype.
 	 *
@@ -202,6 +292,16 @@ $.extend({
 	 * Inherit from SuperPoweredFoobar by using SuperPoweredFoobar.extend() the same way.
 	 *
 	 * Use _super to reference the parent class or call the parent constructor via this._super();
+	 *
+	 * @memberof Inheritance:$#Class
+	 * @example
+	 * var SuperPoweredFoobar = $.Class.extend({
+	 *     init : function(){}
+	 * });
+	 *
+	 * var UltraPoweredFoobar = SuperPoweredFoobar.extend({
+	 *   init : function(){ this._super(); }
+	 * });
 	 **/
 	Class : function(){
 		// see INITIALIZATIONS below for extend() source
@@ -210,12 +310,27 @@ $.extend({
 
 
 	/**
+	 * @namespace Basic:$
+	 */
+
+	/**
+	 * @namespace Basic:$.assert
+	 */
+
+	/**
 	 * Classical assert method. If not condition, throw assert exception.
 	 *
 	 * @param {Boolean} condition - defines if an assertion is successful
 	 * @param {String} [message] - to display if assertion fails
 	 * @throws assert exception
-	 * @returns {Boolean} result of the assertion
+	 *
+	 * @memberof Basic:$.assert
+	 * @example
+	 * function set(name, value){
+     *   $.assert(name.length > 0);
+     *   $.assert($.isPlainObject(value), 'error: value must be plain object');
+     *   ...
+	 * }
 	 **/
 	assert : function(condition, message){
 		if( !condition ){
@@ -227,10 +342,22 @@ $.extend({
 
 
 	/**
+	 * @namespace Basic:$.isSet
+	 */
+
+	/**
 	 * Check if variable(s) is set at, by being neither undefined nor null.
 	 *
 	 * @param {...*} [...] - add any number of variables you wish to check
 	 * @returns {Boolean} variable(s) is/are set
+	 *
+	 * @memberof Basic:$.isSet
+	 * @example
+	 * function set(name, value){
+     *   if( $.isSet(name, value) ){
+	 *     ...
+     *   }
+	 * }
 	 **/
 	isSet : function(){
 		var res = true;
@@ -248,11 +375,23 @@ $.extend({
 
 
 	/**
+	 * @namespace Basic:$.hasMembers
+	 */
+
+	/**
 	 * "Validates" an object in a very basic way by checking if all given members are present and are not null.
 	 *
 	 * @param {Object} obj - the object to check
 	 * @param {String[]} memberNames - the names of the members to check
 	 * @returns {Boolean} all memberNames present and not null
+	 *
+	 * @memberof Basic:$.hasMembers
+	 * @example
+	 * function pat(kitten){
+     *   if( $.hasMembers(kitten, ['fluff', 'meow', 'scratch']) ){
+     *     ...
+     *   }
+	 * }
 	 **/
 	hasMembers : function(obj, memberNames){
 		for( var i = 0; i < memberNames.length; i++ ){
@@ -268,6 +407,10 @@ $.extend({
 
 
 	/**
+	 * @namespace Basic:$.orDefault
+	 */
+
+	/**
 	 * If an expression returns an "empty" value,
 	 * use the default value instead.
 	 *
@@ -276,6 +419,13 @@ $.extend({
 	 * @param {?(String|Function)} caster - either a default caster by name ('string', 'String', 'int', 'integer', 'Integer', 'bool', 'boolean', 'Boolean', 'float', 'Float', 'array', 'Array') or a function getting the value and returning the transformed value
 	 * @param {?Array} [additionalEmptyValues] - if set, provides a list of additional values to be considered empty, apart from undefined and null
 	 * @returns {*} expression of defaultValue
+	 *
+	 * @memberof Basic:$.orDefault
+	 * @example
+	 * function set(name, value){
+     *   name = $.orDefault(name, 'kittens!', 'string', ['', 'none']);
+     *   value = $.orDefault(value, 42, 'int');
+	 * }
 	 **/
 	orDefault : function(expression, defaultValue, caster, additionalEmptyValues){
 		additionalEmptyValues = $.isArray(additionalEmptyValues) ? additionalEmptyValues : [additionalEmptyValues];
@@ -319,6 +469,10 @@ $.extend({
 
 
 	/**
+	 * @namespace Basic:$.exists
+	 */
+
+	/**
 	 * Check if a variable is defined in a certain context (normally globally in window).
 	 * Or check if a jquery set contains anything based on its selector,
 	 * answering if the query-string exists in its context.
@@ -326,6 +480,12 @@ $.extend({
 	 * @param {(String|Object)} target - name of the variable to look for (not the variable itself) or a jquery Object
 	 * @param {?*} [context=window] - the context in which to look for the variable, holds no meaning for jquery objects
 	 * @returns {Boolean} variable exists in context or jQuery-set has length > 0
+	 *
+	 * @memberof Basic:$.exists
+	 * @example
+	 * $.exists('MISC_CONFIG');
+	 * $.exists('randomProp', this);
+	 * $.exists('foo.bar.boo.far', fancyJsonObj);
 	 **/
 	exists : function(target, context){
 		var _this_ = this,
@@ -361,12 +521,20 @@ $.extend({
 
 
 	/**
+	 * @namespace Basic:$.isA
+	 */
+
+	/**
 	 * Short form of the standard "type"-method with a more compact syntax.
 	 * Can identify "boolean", "number", "string", "function", "array", "date", "regexp" and "object".
 	 *
 	 * @param {*} target - variable to check the type of
 	 * @param {String} typeName - the name of the type to check for, has to be a standard JS-type
 	 * @returns {Boolean} target has type
+	 *
+	 * @memberof Basic:$.isA
+	 * @example
+	 * var stringBool = ($.isA(test, 'boolean') && test) ? 'true' : 'false';
 	 **/
 	isA : function(target, typeName){
 		if( $.inArray(typeName, ['boolean', 'number', 'string', 'function', 'array', 'date', 'regexp', 'object']) >= 0 ){
@@ -380,18 +548,32 @@ $.extend({
 
 
 	/**
+	 * @namespace Basic:$.isInt
+	 */
+
+	/**
 	 * Returns if a value is truly a real integer value and not just an int-parsable value for example.
 	 * Since JS only knows the data type "number" all numbers are usable as floats by default, but not the
 	 * other way round.
 	 *
 	 * @param {*} intVal - the value the check
 	 * @returns {Boolean} true if intVal is a true integer value
+	 *
+	 * @memberof Basic:$.isInt
+	 * @example
+	 * if( !$.isInt(val) ){
+     *   val = parseInt(val, 10);
+	 * }
 	 **/
 	isInt : function(intVal){
 		return parseInt(intVal, 10) === intVal;
 	},
 
 
+
+	/**
+	 * @namespace Basic:$.isFloat
+	 */
 
 	/**
 	 * Returns if a value is a numeric value, usable as a float number in any calculation.
@@ -401,12 +583,22 @@ $.extend({
 	 *
 	 * @param {*} floatVal - the value to check
 	 * @returns {Boolean} true if floatVal is usable in a float context
+	 *
+	 * @memberof Basic:$.isFloat
+	 * @example
+	 * if( !$.isFloat(val) ){
+     *   alert('val can not be calculated with!');
+	 * }
 	 **/
 	isFloat : function(floatVal){
 		return parseFloat(floatVal) === floatVal;
 	},
 
 
+
+	/**
+	 * @namespace Basic:$.isNaN
+	 */
 
 	/**
 	 * Returns if an expression is NaN or not.
@@ -419,6 +611,12 @@ $.extend({
 	 * @param {*} expression - the expression to check
 	 * @param {Boolean} [checkForIdentity=true] - set to false if you want to use default JS-functionality
 	 * @returns {Boolean} true if expression is NaN
+	 *
+	 * @memberof Basic:$.isNaN
+	 * @example
+	 * if( !$.isNaN(suspiciousCalculatedValue) ){
+     *   return suspiciousCalculatedValue * 3;
+	 * }
 	 **/
 	isNaN : function(expression, checkForIdentity){
 		checkForIdentity = this.orDefault(checkForIdentity, true, 'bool');
@@ -433,6 +631,44 @@ $.extend({
 
 
 	/**
+	 * @namespace Basic:$.minMax
+	 */
+
+	/**
+	 * Checks if a value is within bounds of a minimum and maximum and returns
+	 * the value or the upper or lower bound respectively.
+	 *
+	 * @param {Comparable} min - the lower bound
+	 * @param {Comparable} value - the value to check
+	 * @param {Comparable} max - the upper bound
+	 * @returns {Comparable} value, min or max
+	 *
+	 * @memberof Basic:$.minMax
+	 * @example
+	 * var croppedVal = $.minMax(-100, value, 100);
+	 **/
+	minMax : function(min, value, max){
+		return (value < min)
+			? min
+			:(
+				(value > max)
+				? max
+				: value
+			)
+		;
+	},
+
+
+
+	/**
+	 * @namespace Strings:$
+	 */
+
+	/**
+	 * @namespace Strings:$.strReplace
+	 */
+
+	/**
 	 * Offers similar functionality to phps str_replace and avoids RegExps for this task.
 	 * Replace occurrences of search in subject with replace. search and replace may be arrays.
 	 * If search is an array and replace is a string, all phrases in the array will be replaced with one string.
@@ -443,6 +679,10 @@ $.extend({
 	 * @param {String|String[]} replace - the string(s) to replace the search string(s)
 	 * @param {String} subject - the string to replace in
 	 * @returns {String} the modified string
+	 *
+	 * @memberof Strings:$.strReplace
+	 * @example
+	 * var sanitizedString = $.strReplace([':', '#', '-'], '_', exampleString);
 	 **/
 	strReplace : function(search, replace, subject){
 		search = [].concat(search);
@@ -462,12 +702,20 @@ $.extend({
 
 
 	/**
+	 * @namespace Strings:$.strTruncate
+	 */
+
+	/**
 	 * Truncates a given string after a certain number of characters to enforce length restrictions.
 	 *
 	 * @param {String} subject - the string to check and truncate
 	 * @param {?Number.Integer} [maxLength=30] - the maximum allowed character length for the string
 	 * @param {?String} [suffix=...] - the trailing string to end a truncated string with
 	 * @returns {String} the (truncated) subject
+	 *
+	 * @memberof Strings:$.strTruncate
+	 * @example
+	 * var truncatedString = $.strTruncate(string, '10', '...');
 	 **/
 	strTruncate : function(subject, maxLength, suffix){
 		subject = ''+subject;
@@ -490,10 +738,18 @@ $.extend({
 
 
 	/**
+	 * @namespace Strings:$.strConcat
+	 */
+
+	/**
 	 * Simply concatenates strings with a glue part using array.join in a handy notation.
 	 *
 	 * @param {?String} [glue=''] - the separator to use between single strings
 	 * @returns {String} the concatenated string
+	 *
+	 * @memberof Strings:$.strConcat
+	 * @example
+	 * var finalCountdown = $.strConcat(' ... ', 10, 9, 8, 7, 6, '5', '4', '3', '2', '1', 'ZERO!');
 	 **/
 	strConcat : function(glue){
 		glue = this.orDefault(glue, '', 'string');
@@ -506,6 +762,10 @@ $.extend({
 
 
 	/**
+	 * @namespace Strings:$.strFormat
+	 */
+
+	/**
 	 * This is a pythonesque string format implementation.
 	 * Apply formatted values to a string template, in which replacements are marked with curly braces.
 	 *
@@ -516,7 +776,13 @@ $.extend({
 	 * This solution is adapted from:
 	 * https://github.com/davidchambers/string-format
 	 *
-	 * Examples:
+	 * @param {String} template [description]
+	 * @param {(...*|String[]|Object.<String,String>)} arguments to insert into template, either as a dictionary, an array of a parameter sequence
+	 * @throws general exception on syntax errors
+	 * @returns {String} the formatted string
+	 *
+	 * @memberof Strings:$.strFormat
+	 * @example
 	 * $.strFormat('An elephant is {times:float(0.00)} times smarter than a {animal}', {times : 5.5555, animal : 'lion'})
 	 * => 'An elephant is 5.56 times smarter than a lion'
 	 * $.strFormat('{0}{0}{0} ... {{BATMAN!}}', 'Nana')
@@ -525,11 +791,6 @@ $.extend({
 	 * => 'A B C starts the alphabet.'
 	 * $.strFormat('{0:int}, {1:int}, {2:int}: details are for pussies', '1a', 2.222, 3)
 	 * => '1, 2, 3: details are for pussies'
-	 *
-	 * @param {String} template [description]
-	 * @param {(...*|String[]|Object.<String,String>)} arguments to insert into template, either as a dictionary, an array of a parameter sequence
-	 * @throws general exception on syntax errors
-	 * @returns {String} the formatted string
 	 **/
 	strFormat : function(template){
 		var _this_ = this,
@@ -652,11 +913,20 @@ $.extend({
 
 
 	/**
+	 * @namespace Strings:$.slugify
+	 */
+
+	/**
 	 * Slugifies a text for use in an URL or id/class/attribute.
 	 * Transforms accented characters to non accented ones.
 	 *
 	 * @param {String} text - the text to slugify
 	 * @returns {String} the slugified string
+	 *
+	 * @memberof Strings:$.slugify
+	 * @example
+	 * $.slugify('This is a cömplicated ßtring for URLs!')
+	 * => 'this-is-a-complicated-string-for-urls'
 	 **/
 	slugify : function(text){
 		text = this.isSet(text) ? ''+text : '';
@@ -675,6 +945,56 @@ $.extend({
 
 
 	/**
+	 * @namespace Strings:$.maskForSelector
+	 */
+
+	/**
+	 * Masks all selector-special-characters.
+	 *
+	 * @param {String} string - the string to mask for use in a selector
+	 * @returns {String} the masked string
+	 *
+	 * @memberof Strings:$.maskForSelector
+	 * @example
+	 * $('#element_'+$.maskForSelector(elementName)).remove();
+	 **/
+	maskForSelector : function(string){
+		return string.replace(/([\#\;\&\,\.\+\*\~\'\:\"\!\^\$\[\]\(\)\=\>\ß\|\/\@])/, '\\$1');
+	},
+
+
+
+	/**
+	 * @namespace Strings:$.maskForRegEx
+	 */
+
+	/**
+	 * Masks all regex special characters.
+	 *
+	 * @param {String} string - the string to mask for use in a regexp
+	 * @returns {String} the masked string
+	 *
+	 * @memberof Strings:$.maskForRegEx
+	 * @example
+	 * if( (new RegExp('^'+$.maskForRegEx(arbitraryString)+'+$')).test('abc') ){
+     *   $('body').remove();
+	 * }
+	 **/
+	maskForRegEx : function(string){
+		return string.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+	},
+
+
+
+	/**
+	 * @namespace Arrays:$
+	 */
+
+	/**
+	 * @namespace Arrays:$.removeFromArray
+	 */
+
+	/**
 	 * Removes Elements from an Array.
 	 * Does not modify the original.
 	 *
@@ -682,6 +1002,11 @@ $.extend({
 	 * @param {Number.Integer} from - index to start removing from (can also be negative to start counting from back)
 	 * @param {Number.Integer} [to=target.length] - index to end removing (can also be negative to end counting from back)
 	 * @returns {Array} the modified array
+	 *
+	 * @memberof Arrays:$.removeFromArray
+	 * @example
+	 * array = $.removeFromArray(array, 0, 2);
+	 * array = $.removeFromArray(array, -1, -3);
 	 **/
 	removeFromArray : function(target, from, to){
 		target = target.slice(0);
@@ -694,10 +1019,22 @@ $.extend({
 
 
 	/**
+	 * @namespace Objects:$
+	 */
+
+	/**
+	 * @namespace Objects:$.objectLength
+	 */
+
+	/**
 	 * Counts enumerable properties of (plain) objects.
 	 *
 	 * @param {Object} object - the object to count properties in
 	 * @returns {Number.Integer} number of enumerable properties
+	 *
+	 * @memberof Objects:$.objectLength
+	 * @example
+	 * var attrCount = $.objectLength({a : 0, b : 2, c : 3});
 	 **/
 	objectLength : function(object){
 		var count = 0;
@@ -710,6 +1047,10 @@ $.extend({
 	},
 
 
+
+	/**
+	 * @namespace Objects:$.copyObjectContent
+	 */
 
 	/**
 	 * Copies all enumerable properties from one object to the target object.
@@ -725,6 +1066,10 @@ $.extend({
 	 * @param {Object} contentObject - the object to copy all properties of to target
 	 * @param {?Object} [cloneSubObjects=false] - defines if sub-objects of contentObject should be cloned or copied by reference
 	 * @returns {Object} emptied target with all properties of contentObject
+	 *
+	 * @memberof Objects:$.copyObjectContent
+	 * @example
+	 * $.copyObjectContent({ thisWillBe : 'lost'}, {thisWillBe : 'inserted', {thisWillBe : 'cloned not referenced'}}, true)
 	 **/
 	copyObjectContent : function(target, contentObject, cloneSubObjects){
 		cloneSubObjects = this.orDefault(cloneSubObjects, false, 'boolean');
@@ -757,6 +1102,10 @@ $.extend({
 
 
 	/**
+	 * @namespace Objects:$.emptyObject
+	 */
+
+	/**
 	 * Removes all enumerable properties of an object, thereby emptying it.
 	 *
 	 * This method is especially interesting if the target object has to keep its reference for programmatic reasons.
@@ -765,6 +1114,10 @@ $.extend({
 	 *
 	 * @param {Object} target - the object to copy all properties of contentObject to
 	 * @returns {Object} emptied target
+	 *
+	 * @memberof Objects:$.emptyObject
+	 * @example
+	 * $.emptyObject({removeMe : 'please'})
 	 **/
 	emptyObject : function(target){
 		return this.copyObjectContent(target, {});
@@ -773,12 +1126,24 @@ $.extend({
 
 
 	/**
+	 * @namespace Random:$
+	 */
+
+	/**
+	 * @namespace Random:$.randomInt
+	 */
+
+	/**
 	 * Special form of Math.random, returning an int value between two ints,
 	 * where floor and ceiling are included in the range.
 	 *
 	 * @param {?Number.Integer} [floor=0] - the lower end of random range
 	 * @param {?Number.Integer} [ceiling=10] - the upper end of random range
 	 * @returns {Number.Integer} random int between floor and ceiling
+	 *
+	 * @memberof Random:$.randomInt
+	 * @example
+	 * var rInt = $.randomInt(23, 42);
 	 **/
 	randomInt : function(floor, ceiling){
 		if( !this.isSet(floor) ){
@@ -801,10 +1166,18 @@ $.extend({
 
 
 	/**
+	 * @namespace Random:$.randomUUID
+	 */
+
+	/**
 	 * Returns a "UUID", as close as possible with JavaScript (so not really, but looks like one :).
 	 *
 	 * @param {?Boolean} [withoutDashes=false] - defines if UUID shall include dashes or not
 	 * @returns {String} a "UUID"
+	 *
+	 * @memberof Random:$.randomUUID
+	 * @example
+	 * var uuid = $.randomUUID(true);
 	 **/
 	randomUUID : function(withoutDashes){
 		withoutDashes = this.isSet(withoutDashes) ? !!withoutDashes : false;
@@ -836,26 +1209,12 @@ $.extend({
 
 
 	/**
-	 * Checks if a value is within bounds of a minimum and maximum and returns
-	 * the value or the upper or lower bound respectively.
-	 *
-	 * @param {Comparable} min - the lower bound
-	 * @param {Comparable} value - the value to check
-	 * @param {Comparable} max - the upper bound
-	 * @returns {Comparable} value, min or max
-	 **/
-	minMax : function(min, value, max){
-		return (value < min)
-			? min
-			:(
-				(value > max)
-				? max
-				: value
-			)
-		;
-	},
+	 * @namespace Timers:$
+	 */
 
-
+	/**
+	 * @namespace Timers:$.schedule
+	 */
 
 	/**
 	 * Setup a timer for one-time execution of a callback, kills old timer if wished
@@ -865,6 +1224,13 @@ $.extend({
 	 * @param {Function} callback - callback function to execute after ms
 	 * @param {?(Object|Number.Integer)} [oldTimer] - if set, kills the timer before setting up new one
 	 * @returns {(Object|null)} new timer or null in case of a param-error
+	 *
+	 * @memberof Timers:$.schedule
+	 * @see pschedule
+	 * @see countermand
+	 * @example
+	 * var timer = $.schedule(1000, function(){ alert('time for tea'); });
+ 	 * var timer = $.schedule(2000, function(){ alert('traffic jam, tea has to wait'); }, timer);
 	 **/
 	schedule : function(ms, callback, oldTimer){
 		if( this.isSet(oldTimer) ){
@@ -881,6 +1247,10 @@ $.extend({
 
 
 	/**
+	 * @namespace Timers:$.pschedule
+	 */
+
+	/**
 	 * Setup a timer for one-time execution of a callback, kills old timer if wished
 	 * to prevent overlapping timers.
 	 * This implementation uses Date.getTime() to improve on timer precision for long
@@ -890,6 +1260,13 @@ $.extend({
 	 * @param {Function} callback - callback function to execute after ms
 	 * @param {?(Object|Number.Integer)} [oldTimer] - if set, kills the timer before setting up new one
 	 * @returns {(Object|null)} new timer or null in case of a param-error (does not create new timer object if oldTimer given)
+	 *
+	 * @memberof Timers:$.pschedule
+	 * @see schedule
+	 * @see countermand
+	 * @example
+	 * var timer = $.pschedule(1000, function(){ alert('time for tea'); });
+	 * var timer = $.pschedule(2000, function(){ alert('traffic jam, tea has to wait'); }, timer);
 	 **/
 	pschedule : function(ms, callback, oldTimer){
 		if(
@@ -928,12 +1305,21 @@ $.extend({
 
 
 	/**
+	 * @namespace Timers:$.reschedule
+	 */
+
+	/**
 	 * Alias for schedule() with more natural param-order for rescheduling.
 	 *
 	 * @param {(Object|Number.Integer)} timer - the timer to refresh/reset
 	 * @param {Number.Integer} ms - time in milliseconds until execution
 	 * @param {Function} callback - callback function to execute after ms
 	 * @returns {(Object|null)} new timer or null in case of a param-error
+	 *
+	 * @memberof Timers:$.reschedule
+	 * @see schedule
+	 * @example
+	 * var timer = $.reschedule(timer, 3000, function(){ alert('taking even more time'); });
 	 **/
 	reschedule : function(timer, ms, callback){
 		if(
@@ -951,6 +1337,10 @@ $.extend({
 
 
 	/**
+	 * @namespace Timers:$.loop
+	 */
+
+	/**
 	 * Setup a loop for repeated execution of a callback, kills old loop if wished
 	 * to prevent overlapping loops.
 	 *
@@ -958,6 +1348,13 @@ $.extend({
 	 * @param {Function} callback - callback function to execute after ms
 	 * @param {?(Object|Number.Integer)} [oldLoop] - if set, kills the loop before setting up new one
 	 * @returns {(Object|null)} new loop or null in case of a param-error
+	 *
+	 * @memberof Timers:$.loop
+	 * @see ploop
+	 * @see countermand
+	 * @example
+	 * var loop = $.loop(250, function(){ $('body').toggleClass('brightred'); });
+	 * var loop = $.loop(100, function(){ $('body').toggleClass('brightgreen'); }, loop);
 	 **/
 	loop : function(ms, callback, oldLoop){
 		if( this.isSet(oldLoop) ){
@@ -974,6 +1371,10 @@ $.extend({
 
 
 	/**
+	 * @namespace Timers:$.ploop
+	 */
+
+	/**
 	 * Setup a loop for repeated execution of a callback, kills old loop if wished
 	 * to prevent overlapping loops.
 	 * This implementation uses Date.getTime() to improve on timer precision for long running loops.
@@ -985,6 +1386,13 @@ $.extend({
 	 * @param {Function} callback - callback function to execute after ms
 	 * @param {?(Object|Number.Integer)} [oldLoop] - if set, kills the loop before setting up new one
 	 * @returns {(Object|null)} new loop or null in case of a param-error
+	 *
+	 * @memberof Timers:$.ploop
+	 * @see loop
+	 * @see countermand
+	 * @example
+	 * var loop = $.ploop(250, function(){ $('body').toggleClass('brightred'); });
+	 * var loop = $.ploop(100, function(){ $('body').toggleClass('brightgreen'); }, loop);
 	 **/
 	ploop : function(ms, callback, oldLoop){
 		if(
@@ -1026,10 +1434,23 @@ $.extend({
 
 
 	/**
+	 * @namespace Timers:$.countermand
+	 */
+
+	/**
 	 * Cancel a timer or loop immediately.
 	 *
 	 * @param {(Object|Number.Integer)} timer - the timer or loop to end
 	 * @param {?Boolean} [isInterval] - defines if a timer or a loop is to be stopped, set in case timer is a GUID
+	 *
+	 * @memberof Timers:$.countermand
+	 * @see schedule
+	 * @see pschedule
+	 * @see loop
+	 * @see ploop
+	 * @example
+	 * $.countermand(timer);
+	 * $.countermand(loop);
 	 **/
 	countermand : function(timer, isInterval){
 		if( this.isSet(timer) ){
@@ -1052,6 +1473,14 @@ $.extend({
 
 
 	/**
+	 * @namespace Polling:$
+	 */
+
+	/**
+	 * @namespace Polling:$.poll
+	 */
+
+	/**
 	 * Waits for a certain program- or DOM-state before executing a certain action. Waiting is implemented via
 	 * a global timer (and optionally locals as well). If you need to react to a certain case, that's not
 	 * defined by standard events and reaction does not have to be razor sharp, this is your method.
@@ -1067,6 +1496,11 @@ $.extend({
 	 * @param {?Number.Integer} [newLoopMs=250] - new loop wait time in ms, resets global timer if useOwnTimer is not set, otherwise sets local timer for poll
 	 * @param {?Boolean} [useOwnTimer=false] - has to be set and true to tell the poll to use an independent local timer instead of the global one.
 	 * @returns {(Object|null)} new poll or null in case of param error
+	 *
+	 * @memberof Polling:$.poll
+	 * @see unpoll
+	 * @example
+	 * var poll = $.poll('testpoll', function(){ return $('body').height() > 1000; }, function(){ alert('too high!'); }, 5000);
 	 **/
 	poll : function(name, fCondition, fAction, fElseAction, newLoopMs, useOwnTimer){
 		name = $.trim(''+name);
@@ -1159,10 +1593,19 @@ $.extend({
 
 
 	/**
+	 * @namespace Polling:$.unpoll
+	 */
+
+	/**
 	 * Removes an active poll from the poll stack via given name.
 	 *
 	 * @param {String} name - name of the state or event you are waiting/polling for that shall be removed
 	 * @returns {Boolean} true if poll has been removed, false if nothing has changed
+	 *
+	 * @memberof Polling:$.unpoll
+	 * @see poll
+	 * @example
+	 * $.unpoll('testpoll');
 	 **/
 	unpoll : function(name){
 		name = $.trim(''+name);
@@ -1193,6 +1636,14 @@ $.extend({
 
 
 	/**
+	 * @namespace Functions:$
+	 */
+
+	/**
+	 * @namespace Functions:$.throttleExecution
+	 */
+
+	/**
 	 * Throttle the execution of a function to only execute every n ms.
 	 *
 	 * @param {Number.Integer} ms - the waiting time between executions in milliseconds
@@ -1200,6 +1651,10 @@ $.extend({
 	 * @param {?Boolean} [leadingExecution=true] - defines if the function is executed initially without waiting first
 	 * @param {?Boolean} [trailingExecution=false] - defines if the function is executed at the end of the event chain a final time
 	 * @returns {Function} the throtteling function (parameters will be handed as is to the throtteled function)
+	 *
+	 * @memberof Functions:$.throttleExecution
+	 * @example
+	 * $(window).on('scroll', $.throttleExecution(400, function(){ $('body').toggleClass('foobar'); }, true, true))
 	 **/
 	throttleExecution : function(ms, func, leadingExecution, trailingExecution){
 		leadingExecution = this.orDefault(leadingExecution, true, 'bool');
@@ -1261,11 +1716,19 @@ $.extend({
 
 
 	/**
+	 * @namespace Functions:$.holdExecution
+	 */
+
+	/**
 	 * Hold the execution of a function until it has not been called for n ms.
 	 *
 	 * @param {Number.Integer} ms - timeframe in milliseconds without call before execution
 	 * @param {Function} func - the function to hold the execution of
 	 * @returns {Function} the holding function (parameters will be handed as is to the held function)
+	 *
+	 * @memberof Functions:$.holdExecution
+	 * @example
+	 * $('input[name=search]').on('change', $.holdExecution(1000, function(){ refreshSearch(); }))
 	 **/
 	holdExecution : function(ms, func){
 		var _this_ = this,
@@ -1282,12 +1745,20 @@ $.extend({
 
 
 	/**
+	 * @namespace Functions:$.deferExecution
+	 */
+
+	/**
 	 * Defer the execution of a function until the callstack is empty.
 	 * This works identical to setTimeout(function(){}, 1);
 	 *
 	 * @param {Function} func - the function to defer
 	 * @param {?Number.Integer} [delay=1] - the delay to apply to the timeout
 	 * @returns {Function} the deferring function
+	 *
+	 * @memberof Functions:$.deferExecution
+	 * @example
+	 * $.deferExecution(function(){ doAfterRedraw(); })()
 	 **/
 	deferExecution : function(func, delay){
 		delay = this.orDefault(delay, 1, 'int');
@@ -1302,26 +1773,31 @@ $.extend({
 
 
 	/**
+	 * @namespace Functions:$.kwargs
+	 */
+
+	/**
 	 * Applies the possiblity to set function parameters by name Python-style like kwargs to a function.
 	 * Returns a new function that accepts mixed args, if arg is a plain object it gets treated as a kwargs
 	 * dict. If the objects contains a falsy "kwargs" attribute it is applied as a parameter as is.
 	 * You can also define parameter defaults from outside by setting the defaults as a dict in this function.
 	 *
-	 * Examples:
-	 * With * var fTest = function(tick, trick, track){ console.log(tick, trick, track); };
-	 *
-	 * $.kwargs(fTest, {track : 'defTrack'})({tick : 'tiick', trick : 'trick'});
-	 * will output "tiick, trick, defTrack"
-	 *
-	 * $.kwargs(fTest, {track : 'defTrack'})('argTick', {trick : 'triick', track : 'trACK'});
-	 * will output "argTick, triick, trACK"
-	 *
-	 * $.kwargs(fTest, {track : 'defTrack'})('argTick', {trick : 'triick', track : 'track'}, 'trackkkk');
-	 * will output "argTick, triick, trackkkk"
-	 *
 	 * @param {Function} func - the function to provide kwargs to
 	 * @param {?Object} [defaults={}] - the default kwargs to apply to func
 	 * @returns {Function} new function accepting mixed args with kwarg dicts
+	 *
+	 * @memberof Functions:$.kwargs
+	 * @example
+	 * var fTest = function(tick, trick, track){ console.log(tick, trick, track); };
+	 *
+	 * $.kwargs(fTest, {track : 'defTrack'})({tick : 'tiick', trick : 'trick'});
+	 * => "tiick, trick, defTrack"
+	 *
+	 * $.kwargs(fTest, {track : 'defTrack'})('argTick', {trick : 'triick', track : 'trACK'});
+	 * => "argTick, triick, trACK"
+	 *
+	 * $.kwargs(fTest, {track : 'defTrack'})('argTick', {trick : 'triick', track : 'track'}, 'trackkkk');
+	 * => "argTick, triick, trackkkk"
 	 **/
 	kwargs : function(func, defaults){
 		defaults = $.isPlainObject(defaults) ? defaults : {};
@@ -1367,6 +1843,14 @@ $.extend({
 
 
 	/**
+	 * @namespace Navigation:$
+	 */
+
+	/**
+	 * @namespace Navigation:$.redirect
+	 */
+
+	/**
 	 * Changes the current window-location.
 	 * Also offers to only change the hash/anchor or send additional post params via hidden form transport.
 	 *
@@ -1375,6 +1859,11 @@ $.extend({
 	 * @param {?String} [anchor] - site anchor to set for called url, has precedence over URL hash
 	 * @param {?Object} [postParams] - a dictionary of postParameters to send with the redirect, solved with a hidden form
 	 * @param {?String} [target] - name of the window to perform the redirect to/in
+	 *
+	 * @memberof Navigation:$.redirect
+	 * @example
+	 * $.redirect('http://www.test.com', {search : 'kittens', order : 'asc'}, 'fluffykittens');
+	 * $.redirect(null, {order : 'desc'});
 	 **/
 	redirect : function(url, params, anchor, postParams, target){
 		var _this_ = this,
@@ -1476,58 +1965,8 @@ $.extend({
 
 
 	/**
-	 * Detects if the browser supports history manipulation, by checking the most common
-	 * methods for presence in the history-object.
-	 *
-	 * @returns {Boolean} true if browser seems to support history manipulation
-	 **/
-	browserSupportsHistoryManipulation : function(){
-		return window.history && window.history.pushState && window.history.replaceState;
-	},
-
-
-
-	/**
-	 * Detects if the browser supports local storage, by testing if something can be stored in it and removed
-	 * afterwards. This test was more or less stolen from modernizr.
-	 *
-	 * @param {?String} [testKey=!!!foo!!!] - a key to use as a testkey when setting and removing data, use in case of collision
-	 * @returns {Boolean} true if browser seems to support local storage
-	 **/
-	browserSupportsLocalStorage : function(testKey){
-		testKey = this.orDefault(testKey, '!!!foo!!!', 'string');
-
-	    try {
-	        window.localStorage.setItem(testKey, 'bar');
-	        window.localStorage.removeItem(testKey);
-	        return true;
-	    } catch(e) {
-	        return false;
-	    }
-	},
-
-
-
-	/**
-	 * Detects if the browser supports session storage, by testing if something can be stored in it and removed
-	 * afterwards. This test was more or less stolen from modernizr.
-	 *
-	 * @param {?String} [testKey=!!!foo!!!] - a key to use as a testkey when setting and removing data, use in case of collision
-	 * @returns {Boolean} true if browser seems to support session storage
-	 **/
-	browserSupportsSessionStorage : function(testKey){
-		testKey = this.orDefault(testKey, '!!!foo!!!', 'string');
-
-	    try {
-	        window.sessionStorage.setItem(testKey, 'bar');
-	        window.sessionStorage.removeItem(testKey);
-	        return true;
-	    } catch(e) {
-	        return false;
-	    }
-	},
-
-
+	 * @namespace Navigation:$.changeUrlSilently
+	 */
 
 	/**
 	 * Changes the current URL silently by manipulating the browser history.
@@ -1539,6 +1978,11 @@ $.extend({
 	 * @param {?Object} [state] - a serializable object to supply to the popState-event
 	 * @param {?String} [title] - a name/title for the new state, not used in browsers atm
 	 * @param {?Boolean} [usePushState] - push new state instead of replacing current
+	 *
+	 * @memberof Navigation:$.changeUrlSilently
+	 * @see onHistoryChange
+	 * @example
+	 * $.changeUrlSilently('/article/important-stuff');
 	 **/
 	changeUrlSilently : function(url, state, title, usePushState){
 		state = this.orDefault(state, '');
@@ -1571,6 +2015,10 @@ $.extend({
 
 
 	/**
+	 * @namespace Navigation:$.onHistoryChange
+	 */
+
+	/**
 	 * Registers an onpopstate event if history api is available.
 	 * Does nothing if api is not present.
 	 * Takes a callback, which is provided with two states as plain
@@ -1580,6 +2028,13 @@ $.extend({
 	 * @param {Function} callback - method to execute on popstate
 	 * @param {?String} [name] - namespace for popstate event, to be able to remove only specific handlers
 	 * @param {?Boolean} [clearOld] - defines if old handlers should be removed before setting new one
+	 *
+	 * @memberof Navigation:$.onHistoryChange
+	 * @see changeUrlSilently
+	 * @example
+	 * $.onHistoryChange(function(){
+     *   alert('Hey, don\'t do this!');
+	 * }, 'routingstuff', true);
 	 **/
 	onHistoryChange : function(callback, name, clearOld){
 		var _this_ = this;
@@ -1616,15 +2071,28 @@ $.extend({
 
 
 	/**
+	 * @namespace Navigation:$.reload
+	 */
+
+	/**
 	 * Reloads the current window-location. Differentiates between cached and cache-refreshing reload.
 	 *
 	 * @param {?Boolean} [quickLoad=false] - if true, load as fast as possible using everything in cache
+	 *
+	 * @memberof Navigation:$.reload
+	 * @example
+	 * $.reload();
+	 * $.reload(true);
 	 **/
 	reload : function(quickLoad){
 		window.location.reload(this.isSet(quickLoad) && quickLoad);
 	},
 
 
+
+	/**
+	 * @namespace Navigation:$.openWindow
+	 */
 
 	/**
 	 * Opens a subwindow for the current window or another defined parent window.
@@ -1634,6 +2102,11 @@ $.extend({
 	 * @param {?Window} [parentWindow=window] - parent window for the new window
 	 * @param {?Boolean} [tryAsPopup=false] - defines if it should be tried to force a new window instead of a tab
 	 * @returns {Window} the newly opened window/tab
+	 *
+	 * @memberof Navigation:$.openWindow
+	 * @example
+	 * $.openWindow('/img/gallery.html');
+	 * $.openWindow('http://www.kittens.com', {name : 'kitten_popup'}, parent);
 	 **/
 	openWindow : function(url, options, parentWindow, tryAsPopup){
 		parentWindow = this.orDefault(parentWindow, window);
@@ -1660,6 +2133,277 @@ $.extend({
 
 
 	/**
+	 * @namespace Navigation:$.setupHashNavHighlighting
+	 */
+
+	/**
+	 * Defines the default logic for an innerpage hashnav, where the currently visible section should automatically
+	 * be highlighted while scrolling. This solution is based on elements containing a headline stating the nav title,
+	 * being in a container constituting a nav section. The section has to bear the id, referenced in the nav items
+	 * href. The href may be with or without leading path, but may only include _one_ #.
+	 *
+	 * @param {Object} $navElements - the jQuery-collection of nav elements to highlight, each bearing the href and getting the activeClass
+	 * @param {Object} [$sectionElements] - the jQuery-collection of section elements, containing some kind of headline and bearing the id
+	 * @param {?String} [headlineSelector='h2:first'] - the jQuery selector to find the headline element by in a section
+	 * @param {?('first-visible-headline'|'headline-at-top')} [algorithm='first-visible-headline'] - defines the algorithm by which $navElements are set active
+	 * @param {?Number.Integer} [throttleMs=250] - the minimum interval in which the scroll handler is fired, 0 disables throttling
+	 * @param {?String} [activeClass='active'] - the class to set upon the active nav element
+	 *
+	 * @memberof Navigation:$.setupHashNavHighlighting
+	 * @example
+	 * $.setupHashNavHighlighting($('#subnav a[href^="#"]'), $('main section'), 'h2', 'headline-at-top', 400, 'highlight')
+	 **/
+	setupHashNavHighlighting : function($navElements, $sectionElements, headlineSelector, algorithm, throttleMs, activeClass){
+		headlineSelector = this.orDefault(headlineSelector, 'h2:first', 'string');
+		algorithm = this.orDefault(algorithm, 'first-visible-headline');
+		throttleMs = this.orDefault(throttleMs, 250, 'int');
+		activeClass = this.orDefault(activeClass, 'active', 'string');
+
+		var fHandler = function(){
+			var found = false;
+
+			switch( algorithm ){
+				case 'first-visible-headline':
+					$navElements.removeClass(activeClass);
+					$sectionElements.each(function(){
+						var $headline = $(this).find(headlineSelector).first();
+
+						if( ($headline.length > 0) &&  $headline.isInViewport(true) ){
+							$navElements.filter('[href*=#'+$(this).attr('id')+']').first().addClass(activeClass);
+							found = true;
+							return false;
+						}
+					});
+
+					if( !found ){
+						$sectionElements.each(function(){
+							if( $(this).isInViewport() ){
+								$navElements.filter('[href*=#'+$(this).attr('id')+']').first().addClass(activeClass);
+								found = true;
+								return false;
+							}
+						});
+					}
+				break;
+
+				case 'headline-at-top':
+					var viewportHeight = window.innerHeight || $(window).height(),
+			            userHasScrolledToPageBottom = ($(window).scrollTop() + viewportHeight) > ($('body').height() - Math.round(viewportHeight / 10));
+
+					$navElements.removeClass(activeClass);
+					if( !userHasScrolledToPageBottom ){
+			            $sectionElements.each(function(){
+			                var $headline = $(this).find(headlineSelector),
+								headlineTop = $.isFunction($headline.oo().getBoundingClientRect) ? $headline.oo().getBoundingClientRect().top : $headline.offset().top;
+
+			                if( headlineTop < Math.round(viewportHeight / 10) ){
+								$navElements.removeClass(activeClass);
+								$navElements.filter('[href*=#'+$(this).attr('id')+']').first().addClass(activeClass);
+			                }
+			            });
+			        } else {
+						$navElements.filter('[href*=#'+$sectionElements.last().attr('id')+']').first().addClass(activeClass);
+			        }
+				break;
+			}
+		};
+
+		$(window).off('scroll.dynamichashnav resize.dynamichashnav');
+		if( throttleMs > 0 ){
+			$(window).on('scroll.dynamichashnav resize.dynamichashnav', this.throttleExecution(throttleMs, fHandler, true, true));
+		} else {
+			$(window).on('scroll.dynamichashnav resize.dynamichashnav', fHandler);
+		}
+		$(window).triggerHandler('scroll.dynamichashnav');
+	},
+
+
+
+	/**
+	 * @namespace Capabilities:$
+	 */
+
+	/**
+	 * @namespace Capabilities:$.browserSupportsHistoryManipulation
+	 */
+
+	/**
+	 * Detects if the browser supports history manipulation, by checking the most common
+	 * methods for presence in the history-object.
+	 *
+	 * @returns {Boolean} true if browser seems to support history manipulation
+	 *
+	 * @memberof Capabilities:$.browserSupportsHistoryManipulation
+	 * @example
+	 * if( $.browserSupportsHistoryManipulation() ){
+     *   $.changeUrlSilently('/article/important-stuff');
+	 * }
+	 **/
+	browserSupportsHistoryManipulation : function(){
+		return window.history && window.history.pushState && window.history.replaceState;
+	},
+
+
+
+	/**
+	 * @namespace Capabilities:$.browserSupportsLocalStorage
+	 */
+
+	/**
+	 * Detects if the browser supports local storage, by testing if something can be stored in it and removed
+	 * afterwards. This test was more or less stolen from modernizr.
+	 *
+	 * @param {?String} [testKey=!!!foo!!!] - a key to use as a testkey when setting and removing data, use in case of collision
+	 * @returns {Boolean} true if browser seems to support local storage
+	 *
+	 * @memberof Capabilities:$.browserSupportsLocalStorage
+	 * @example
+	 * if( $.browserSupportsLocalStorage() ){
+     *   localStorage.setItem('foo', 'bar');
+     *   localStorage.removeItem('foo');
+	 * }
+	 **/
+	browserSupportsLocalStorage : function(testKey){
+		testKey = this.orDefault(testKey, '!!!foo!!!', 'string');
+
+	    try {
+	        window.localStorage.setItem(testKey, 'bar');
+	        window.localStorage.removeItem(testKey);
+	        return true;
+	    } catch(e) {
+	        return false;
+	    }
+	},
+
+
+
+	/**
+	 * @namespace Capabilities:$.browserSupportsSessionStorage
+	 */
+
+	/**
+	 * Detects if the browser supports session storage, by testing if something can be stored in it and removed
+	 * afterwards. This test was more or less stolen from modernizr.
+	 *
+	 * @param {?String} [testKey=!!!foo!!!] - a key to use as a testkey when setting and removing data, use in case of collision
+	 * @returns {Boolean} true if browser seems to support session storage
+	 *
+	 * @memberof Capabilities:$.browserSupportsSessionStorage
+	 * @example
+	 * if( $.browserSupportsSessionStorage() ){
+     *   sessionStorage.setItem('foo', 'bar');
+     *   sessionStorage.removeItem('foo');
+	 * }
+	 **/
+	browserSupportsSessionStorage : function(testKey){
+		testKey = this.orDefault(testKey, '!!!foo!!!', 'string');
+
+	    try {
+	        window.sessionStorage.setItem(testKey, 'bar');
+	        window.sessionStorage.removeItem(testKey);
+	        return true;
+	    } catch(e) {
+	        return false;
+	    }
+	},
+
+
+
+	/**
+	 * @namespace Capabilities:$.contextIsTouchDevice
+	 */
+
+	/**
+	 * Detects if the current JavaScript-context runs on a (dedicated) touch device.
+	 * Checks these UserAgents by default: iOS-devices, Blackberry, Android, IE mobile, Opera Mobilem Firefox Mobile and Kindle.
+	 *
+	 * @param {?Boolean} [inspectUserAgent=false] - defines if the user agent should be inspected additionally to identifying touch events
+	 * @param {?String[]} [additionalUserAgentIds] - list of string-ids to search for in the user agent additionally to the basic ones
+	 * @param {?Boolean} [onlyConsiderUserAgent=false] - tells the algorithm to ignore feature checks and just go by the user-agent-ids
+	 * @returns {Boolean} true if device knows touch events and or sends fitting useragent
+	 *
+	 * @memberof Capabilities:$.contextIsTouchDevice
+	 * @example
+	 * if( $.contextIsTouchDevice(true, ['mySpecialUseragent'], true) ){
+     *   ...
+	 * }
+	 **/
+	contextIsTouchDevice : function(inspectUserAgent, additionalUserAgentIds, onlyConsiderUserAgent){
+		var _this_ = this,
+			touchEventsPresent = 'createTouch' in document,
+			res = onlyConsiderUserAgent ? true : touchEventsPresent,
+			ua = navigator.userAgent;
+
+		if( this.isSet(inspectUserAgent) && inspectUserAgent ){
+			res =
+				touchEventsPresent
+				&& (
+					this.isSet(ua.match(/(iPhone|iPod|iPad)/i))
+					|| this.isSet(ua.match(/(BlackBerry|PlayBook)/i))
+					|| this.isSet(ua.match(/Android/i))
+					|| this.isSet(ua.match(/IE\sMobile\s[0-9]{0,2}/i))
+					|| this.isSet(ua.match(/Opera Mobi/i))
+					|| this.isSet(ua.match(/mobile.+firefox/i))
+					|| this.isSet(ua.match(/Kindle/i))
+				)
+			;
+
+			if( !res && this.isSet(additionalUserAgentIds) && $.isArray(additionalUserAgentIds) ){
+				$.each(additionalUserAgentIds, function(index, value){
+					var rex = new RegExp(value, 'i');
+					var matches = rex.exec(ua);
+					res = (touchEventsPresent && res) || (touchEventsPresent && _this_.isSet(matches));
+				});
+			}
+		}
+
+		return res;
+	},
+
+
+
+	/**
+	 * @namespace Capabilities:$.contextHasHighDpi
+	 */
+
+	/**
+	 * Checks if the context would benefit from high DPI graphics.
+	 *
+	 * @returns {Boolean} true if device has high DPI, false if not or browser does not support media queries
+	 *
+	 * @memberof Capabilities:$.contextHasHighDpi
+	 * @example
+	 * if( $.contextHasHighDpi ){
+     *   $('img').each(function(){ $(this).attr('src', $.strReplace('.jpg', '@2x.jpg', $(this).attr('src'))); });
+	 * }
+	 **/
+	contextHasHighDpi : function(){
+		if( window.matchMedia ){
+			var query = '@media only screen and (-webkit-min-device-pixel-ratio: 1.5),'
+				+'only screen and (-o-min-device-pixel-ratio: 3/2),'
+				+'only screen and (min--moz-device-pixel-ratio: 1.5),'
+				+'only screen and (min-device-pixel-ratio: 1.5),'
+				+'only screen and (min-resolution: 144dpi),'
+				+'only screen and (min-resolution: 1.5dppx)'
+			;
+
+			return window.matchMedia(query).matches;
+		} else {
+			return false;
+		}
+	},
+
+
+
+	/**
+	 * @namespace Dynamicloading:$
+	 */
+
+	/**
+	 * @namespace Dynamicloading:$.getCSS
+	 */
+
+	/**
 	 * AJAX-Loads an external CSS-file and includes the contents into the DOM, very similar to getScript.
 	 * The method offers the possiblity to include the CSS as a link or a style tag. Includes are marked with a
 	 * html5-conform "data-id"-attribute, so additional loads can be removed again unproblematically.
@@ -1668,6 +2412,10 @@ $.extend({
 	 * @param {?Object.<String, *>} [options] - config for the call (styletag : true/false, media : screen/print/all/etc., charset : utf-8/etc., id : {String})
 	 * @param {?Function} [callback] - function to call after css is loaded and included into DOM, gets included DOM-element as parameter
 	 * @returns {jqXHR} the promise object from the internally used $.get
+	 *
+	 * @memberof Dynamicloading:$.getCSS
+	 * @example
+	 * $.getCSS('/css/addon.css', {styletag : true, id : 'addon'}, function(){ $('script[data-id=addon]').remove(); });
 	 **/
 	getCSS : function(url, options, callback){
 		var _this_ = this,
@@ -1747,12 +2495,25 @@ $.extend({
 
 
 	/**
+	 * @namespace Cookies:$
+	 */
+
+	/**
+	 * @namespace Cookies:$.cookie
+	 */
+
+	/**
 	 * Sets cookies and retrieves them again.
 	 *
 	 * @param {String} name - name of the cookie
 	 * @param {String} [value] - value-string of the cookie, null removes a value, so to retrieve leave undefined
 	 * @param {?Object} [options] - config-object for the cookie setting expiries etc., use together with a value
 	 * @returns {(void|String|null)} either nothing, when setting a cookie, or the value of a requested cookie
+	 *
+	 * @memberof Cookies:$.cookie
+	 * @example
+	 * $.cookie('kittencookie', 'fluffy', {expires : 7});
+	 * var kittenCookieValue = $.cookie('kittencookie');
 	 **/
 	cookie : function(name, value, options) {
 		if( value !== undefined ){
@@ -1803,10 +2564,22 @@ $.extend({
 
 
 	/**
+	 * @namespace Css:$
+	 */
+
+	/**
+	 * @namespace Css:$.cssToInt
+	 */
+
+	/**
 	 * Converts a CSS-value to an integer without unit.
 	 *
 	 * @param {String} cssVal - the css-value to convert
 	 * @returns {Number.Integer} true integer representation of the given value
+	 *
+	 * @memberof Css:$.cssToInt
+	 * @example
+	 * $('#content').css('height', ($.cssToInt(('body').css('height')) * 100)+'px');
 	 **/
 	cssToInt : function(cssVal){
 		cssVal = ''+cssVal;
@@ -1817,11 +2590,19 @@ $.extend({
 
 
 	/**
+	 * @namespace Css:$.cssUrlToSrc
+	 */
+
+	/**
 	 * Converts a CSS-URL to a img-src-usable value.
 	 *
 	 * @param {String} cssUrl - the URL from the css
 	 * @param {?String} [relativePathPart] - the relative path part of the URL from the css to cut for src-use
 	 * @returns {String} src value or empty string if cssUrl is no CSS-URL-value
+	 *
+	 * @memberof Css:$.cssUrlToSrc
+	 * @example
+	 * $('body').append($.elem('img', {src : $.cssUrlToSrc($('#avatar').css('background-image'), '../')}));
 	 **/
 	cssUrlToSrc : function(cssUrl, relativePathPart){
 		var urlRex = new RegExp('^url\\((?:\'|\")?([^\'\"]+)(?:\'|\")?\\)$', 'i'),
@@ -1841,6 +2622,10 @@ $.extend({
 
 
 	/**
+	 * @namespace Css:$.remByPx
+	 */
+
+	/**
 	 * Calculates a rem value based on a given px value.
 	 * As a default this method takes the font-size (supposedly being in px) of the html-container.
 	 * You can overwrite this behaviour by setting initial to an int to use as a base px value or
@@ -1853,6 +2638,10 @@ $.extend({
 	 * @param  {Number.Integer} px - the pixel value to convert to rem
 	 * @param  {?(Number.Integer|String)} [initial='html'] - either a pixel value to use as a conversion base or a selector to an element to get the initial font-size from
 	 * @returns {String} the rem value string to use in a css definition
+	 *
+	 * @memberof Css:$.remByPx
+	 * @example
+	 * $('#foobar').css('font-size', $.remByPx(20, REM_BASE));
 	 **/
 	remByPx : function(px, initial){
 		px = parseInt(px, 10);
@@ -1864,6 +2653,14 @@ $.extend({
 
 
 	/**
+	 * @namespace Images:$
+	 */
+
+	/**
+	 * @namespace Images:$.preloadImages
+	 */
+
+	/**
 	 * Preloads images by URL.
 	 * Images can be preloaded by name and are thereby retrievable afterwards or anonymously.
 	 * So you can either just use the url again, or, to be super-sure, call the method again, with just the image name to get the URL.
@@ -1872,6 +2669,10 @@ $.extend({
 	 * @param {?Function} [callback] - callback to call when all images have loaded, this also fires on already loaded images if inserted again
 	 * @param {?Boolean} [returnCollection=false] - defines if the function should return the collection in which the images where inserted instead of the promise object
 	 * @returns {(Promise|Object.<String, String>|Image)} either returns a promise object (does not fail atm), the currently added named/unnamed images as saved (if defined by returnCollection) or a requested cached image
+	 *
+	 * @memberof Images:$.preloadImages
+	 * @example
+	 * $.preloadImages([url1, url2, url3], function(){ alert('all loaded'); });
 	 **/
 	preloadImages : function(images, callback, returnCollection){
 		returnCollection = this.orDefault(returnCollection, false, 'bool');
@@ -1964,6 +2765,14 @@ $.extend({
 
 
 	/**
+	 * @namespace Fonts:$
+	 */
+
+	/**
+	 * @namespace Fonts:$.waitForWebfonts
+	 */
+
+	/**
 	 * Waits for a list of webfonts to load before executing a callback.
 	 * Works for fonts already loaded as well.
 	 *
@@ -1971,6 +2780,12 @@ $.extend({
 	 * @param {?Function} callback - the callback to execute once all given webfonts are loaded
 	 * @param {?String} [fallbackFontName=sans-serif] - the system font onto which the page falls back if the webfont is not loaded
 	 * @returns {Promise} a promise object (not failing atm)
+	 *
+	 * @memberof Fonts:$.waitForWebfonts
+	 * @example
+	 * $.waitForWebfonts(['purr-regular', 'scratch-light'], function(){
+     *   $('.useswebfont').fadeIn();
+	 * }, 'helvetica, sans-serif');
 	 **/
 	waitForWebfonts : function(fonts, callback, fallbackFontName) {
 		fonts = $.isArray(fonts) ? fonts : [''+fonts];
@@ -2041,10 +2856,22 @@ $.extend({
 
 
 	/**
+	 * @namespace Databases:$
+	 */
+
+	/**
+	 * @namespace Databases:$.isolateId
+	 */
+
+	/**
 	 * Tries to isolate a supposed (DB-)Id from a given String
 	 *
 	 * @param {String} baseString - the string to isolate an id from
 	 * @returns {(String|null)} either the isolated id or null
+	 *
+	 * @memberof Databases:$.isolateId
+	 * @example
+	 * var id = $.isolateId($('#element').attr('id'));
 	 **/
 	isolateId : function(baseString){
 		var occurrences = String(baseString).match(/[0-9]+/);
@@ -2059,6 +2886,10 @@ $.extend({
 
 
 	/**
+	 * @namespace Databases:$.isPossibleId
+	 */
+
+	/**
 	 * Determines if a given value could be a valid id, being digits with or without given pre- and postfix.
 	 *
 	 * @param {(String|Number.Integer)} testVal - the value to test
@@ -2066,6 +2897,12 @@ $.extend({
 	 * @param {?String} [postfix] - a postfix for the id
 	 * @param {?Boolean} [dontMaskFixes=false] - if you want to use regexs as fixes, set this true
 	 * @returns {Boolean} true if value may be id
+	 *
+	 * @memberof Databases:$.isPossibleId
+	 * @example
+	 * if( $.isPossibleId(id, 'test_(', ')') ){
+     *   $.getJSON('/backend/'+id, function(){ alert('done'); });
+	 * }
 	 **/
 	isPossibleId : function(testVal, prefix, postfix, dontMaskFixes){
 		prefix = this.orDefault(prefix, '', 'string');
@@ -2084,63 +2921,12 @@ $.extend({
 
 
 	/**
-	 * Masks all selector-special-characters.
-	 *
-	 * @param {String} string - the string to mask for use in a selector
-	 * @returns {String} the masked string
-	 **/
-	maskForSelector : function(string){
-		return string.replace(/([\#\;\&\,\.\+\*\~\'\:\"\!\^\$\[\]\(\)\=\>\ß\|\/\@])/, '\\$1');
-	},
-
-
+	 * @namespace Events:$
+	 */
 
 	/**
-	 * Masks all regex special characters.
-	 *
-	 * @param {String} string - the string to mask for use in a regexp
-	 * @returns {String} the masked string
-	 **/
-	maskForRegEx : function(string){
-		return string.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-	},
-
-
-
-	/**
-	 * Return the de-nodified text content of a node-ridden string or a jQuery object.
-	 * Returns the raw text content, with all markup cleanly removed.
-	 * Can also be used to return only the concatenated child text nodes.
-	 *
-	 * @param {(String|Object)} nodeInfested - the node-ridden string or jquery object to "clean"
-	 * @param {?Boolean} [onlyFirstLevel=false] - true if only the text of direct child text nodes is to be returned
-	 * @returns {String} the escaped string
-	 **/
-	textContent : function(nodeInfested, onlyFirstLevel){
-		onlyFirstLevel = this.orDefault(onlyFirstLevel, false, 'bool');
-
-		var res = '';
-		var $holder = (this.isA(nodeInfested, 'object') && this.isSet(nodeInfested.jquery))
-			? nodeInfested
-			: this.elem('p').html(''+nodeInfested);
-
-		if( onlyFirstLevel ){
-			res = $holder
-				.contents()
-				.filter(function(){
-					return this.nodeType == 3;
-				})
-					.text()
-				.end()
-			;
-		} else {
-			res = $holder.text();
-		}
-
-		return $.trim(res);
-	},
-
-
+	 * @namespace Events:$.bindCursorKey
+	 */
 
 	/**
 	 * Binds a callback to a cursor key, internally identified by keycode.
@@ -2148,6 +2934,11 @@ $.extend({
 	 * @param {String} keyName - the key to bind => up/down/left/right
 	 * @param {Function} callback - callback to call of cursor key use, takes event e
 	 * @param {?String} [eventType=keydown] - the event type to use when binding => keypress/keydown/keyup
+	 *
+	 * @memberof Events:$.bindCursorKey
+	 * @see unbindCursorKey
+	 * @example
+	 * $.bindCursorKey('down', function(){ $('body').css('margin-top', '+=10'); }, 'keyup');
 	 **/
 	bindCursorKey : function(keyName, callback, eventType){
 		var keys = {
@@ -2169,10 +2960,19 @@ $.extend({
 
 
 	/**
+	 * @namespace Events:$.unbindCursorKey
+	 */
+
+	/**
 	 * Unbinds a callback to a cursor key, internally identified by keycode.
 	 *
 	 * @param {String} keyName - the key to unbind => up/down/left/right
 	 * @param {?String} [eventType=keydown] - the event type to use when binding => keypress/keydown/keyup
+	 *
+	 * @memberof Events:$.unbindCursorKey
+	 * @see bindCursorKey
+	 * @example
+	 * $.unbindCursorKey('down', 'keyup');
 	 **/
 	unbindCursorKey : function(keyName, eventType){
 		var keys = {
@@ -2194,7 +2994,20 @@ $.extend({
 
 
 	/**
+	 * @namespace Interaction:$
+	 */
+
+	/**
+	 * @namespace Interaction:$.removeSelection
+	 */
+
+	/**
 	 * Removes all textselections from the current frame if possible.
+	 *
+	 * @memberof Interaction:$.removeSelection
+	 * @see createSelection
+	 * @example
+	 * $.removeSelection();
 	 **/
 	removeSelection : function(){
 		if( this.exists('getSelection') ){
@@ -2207,151 +3020,6 @@ $.extend({
 		if( this.exists('selection', document) ){
 			document.selection.empty();
 		}
-	},
-
-
-
-	/**
-	 * Detects if the current JavaScript-context runs on a (dedicated) touch device.
-	 * Checks these UserAgents by default: iOS-devices, Blackberry, Android, IE mobile, Opera Mobilem Firefox Mobile and Kindle.
-	 *
-	 * @param {?Boolean} [inspectUserAgent=false] - defines if the user agent should be inspected additionally to identifying touch events
-	 * @param {?String[]} [additionalUserAgentIds] - list of string-ids to search for in the user agent additionally to the basic ones
-	 * @param {?Boolean} [onlyConsiderUserAgent=false] - tells the algorithm to ignore feature checks and just go by the user-agent-ids
-	 * @returns {Boolean} true if device knows touch events and or sends fitting useragent
-	 **/
-	contextIsTouchDevice : function(inspectUserAgent, additionalUserAgentIds, onlyConsiderUserAgent){
-		var _this_ = this,
-			touchEventsPresent = 'createTouch' in document,
-			res = onlyConsiderUserAgent ? true : touchEventsPresent,
-			ua = navigator.userAgent;
-
-		if( this.isSet(inspectUserAgent) && inspectUserAgent ){
-			res =
-				touchEventsPresent
-				&& (
-					this.isSet(ua.match(/(iPhone|iPod|iPad)/i))
-					|| this.isSet(ua.match(/(BlackBerry|PlayBook)/i))
-					|| this.isSet(ua.match(/Android/i))
-					|| this.isSet(ua.match(/IE\sMobile\s[0-9]{0,2}/i))
-					|| this.isSet(ua.match(/Opera Mobi/i))
-					|| this.isSet(ua.match(/mobile.+firefox/i))
-					|| this.isSet(ua.match(/Kindle/i))
-				)
-			;
-
-			if( !res && this.isSet(additionalUserAgentIds) && $.isArray(additionalUserAgentIds) ){
-				$.each(additionalUserAgentIds, function(index, value){
-					var rex = new RegExp(value, 'i');
-					var matches = rex.exec(ua);
-					res = (touchEventsPresent && res) || (touchEventsPresent && _this_.isSet(matches));
-				});
-			}
-		}
-
-		return res;
-	},
-
-
-
-	/**
-	 * Checks if the context would benefit from high DPI graphics.
-	 *
-	 * @returns {Boolean} true if device has high DPI, false if not or browser does not support media queries
-	 **/
-	contextHasHighDpi : function(){
-		if( window.matchMedia ){
-			var query = '@media only screen and (-webkit-min-device-pixel-ratio: 1.5),'
-				+'only screen and (-o-min-device-pixel-ratio: 3/2),'
-				+'only screen and (min--moz-device-pixel-ratio: 1.5),'
-				+'only screen and (min-device-pixel-ratio: 1.5),'
-				+'only screen and (min-resolution: 144dpi),'
-				+'only screen and (min-resolution: 1.5dppx)'
-			;
-
-			return window.matchMedia(query).matches;
-		} else {
-			return false;
-		}
-	},
-
-
-
-	/**
-	 * Defines the default logic for an innerpage hashnav, where the currently visible section should automatically
-	 * be highlighted while scrolling. This solution is based on elements containing a headline stating the nav title,
-	 * being in a container constituting a nav section. The section has to bear the id, referenced in the nav items
-	 * href. The href may be with or without leading path, but may only include _one_ #.
-	 *
-	 * @param {Object} $navElements - the jQuery-collection of nav elements to highlight, each bearing the href and getting the activeClass
-	 * @param {Object} [$sectionElements] - the jQuery-collection of section elements, containing some kind of headline and bearing the id
-	 * @param {?String} [headlineSelector='h2:first'] - the jQuery selector to find the headline element by in a section
-	 * @param {?('first-visible-headline'|'headline-at-top')} [algorithm='first-visible-headline'] - defines the algorithm by which $navElements are set active
-	 * @param {?Number.Integer} [throttleMs=250] - the minimum interval in which the scroll handler is fired, 0 disables throttling
-	 * @param {?String} [activeClass='active'] - the class to set upon the active nav element
-	 **/
-	setupHashNavHighlighting : function($navElements, $sectionElements, headlineSelector, algorithm, throttleMs, activeClass){
-		headlineSelector = this.orDefault(headlineSelector, 'h2:first', 'string');
-		algorithm = this.orDefault(algorithm, 'first-visible-headline');
-		throttleMs = this.orDefault(throttleMs, 250, 'int');
-		activeClass = this.orDefault(activeClass, 'active', 'string');
-
-		var fHandler = function(){
-			var found = false;
-
-			switch( algorithm ){
-				case 'first-visible-headline':
-					$navElements.removeClass(activeClass);
-					$sectionElements.each(function(){
-						var $headline = $(this).find(headlineSelector).first();
-
-						if( ($headline.length > 0) &&  $headline.isInViewport(true) ){
-							$navElements.filter('[href*=#'+$(this).attr('id')+']').first().addClass(activeClass);
-							found = true;
-							return false;
-						}
-					});
-
-					if( !found ){
-						$sectionElements.each(function(){
-							if( $(this).isInViewport() ){
-								$navElements.filter('[href*=#'+$(this).attr('id')+']').first().addClass(activeClass);
-								found = true;
-								return false;
-							}
-						});
-					}
-				break;
-
-				case 'headline-at-top':
-					var viewportHeight = window.innerHeight || $(window).height(),
-			            userHasScrolledToPageBottom = ($(window).scrollTop() + viewportHeight) > ($('body').height() - Math.round(viewportHeight / 10));
-
-					$navElements.removeClass(activeClass);
-					if( !userHasScrolledToPageBottom ){
-			            $sectionElements.each(function(){
-			                var $headline = $(this).find(headlineSelector),
-								headlineTop = $.isFunction($headline.oo().getBoundingClientRect) ? $headline.oo().getBoundingClientRect().top : $headline.offset().top;
-
-			                if( headlineTop < Math.round(viewportHeight / 10) ){
-								$navElements.removeClass(activeClass);
-								$navElements.filter('[href*=#'+$(this).attr('id')+']').first().addClass(activeClass);
-			                }
-			            });
-			        } else {
-						$navElements.filter('[href*=#'+$sectionElements.last().attr('id')+']').first().addClass(activeClass);
-			        }
-				break;
-			}
-		};
-
-		$(window).off('scroll.dynamichashnav resize.dynamichashnav');
-		if( throttleMs > 0 ){
-			$(window).on('scroll.dynamichashnav resize.dynamichashnav', this.throttleExecution(throttleMs, fHandler, true, true));
-		} else {
-			$(window).on('scroll.dynamichashnav resize.dynamichashnav', fHandler);
-		}
-		$(window).triggerHandler('scroll.dynamichashnav');
 	}
 
 });
@@ -2363,9 +3031,21 @@ $.extend({
 $.fn.extend({
 
 	/**
+	 * @namespace Basic:$fn
+	 */
+
+	/**
+	 * @namespace Basic:$fn.oo
+	 */
+
+	/**
 	 * Returns the original object of a jQuery-enabled object.
 	 *
 	 * @returns {(Object|Object[]|null)} the original dom object(s) or null in case of empty collection
+	 *
+	 * @memberof Basic:$fn.oo
+	 * @example
+	 * $('body').oo().onClick('superMethod');
 	 **/
 	oo : function(){
 		if( $(this).length == 1 ){
@@ -2386,239 +3066,8 @@ $.fn.extend({
 
 
 	/**
-	 * Sets an option selected or selects the text in a text-field/textarea.
-	 *
-	 * @returns {Object} this
-	 **/
-	doselect : function(){
-		if( $(this).is('option, :text, textarea') ){
-			if( $(this).is(':text, textarea') ){
-				$(this).each(function(){
-					this.focus();
-					this.select();
-				});
-			} else {
-				$(this)
-					.attr('selected', 'selected')
-					.prop('selected', true)
-				;
-			}
-		}
-
-		return this;
-	},
-
-
-
-	/**
-	 * Removes a selection from an option or deselects the text in a text-field/textarea.
-	 *
-	 * @returns {Object} this
-	 **/
-	deselect : function(){
-		if( $(this).is(':text, textarea') ){
-			var tmpVal = $(this).val(),
-				stopperFunc = function(e){ return false; };
-
-			$(this)
-				.on('change', stopperFunc)
-				.val('')
-				.val(tmpVal)
-				.off('change', stopperFunc)
-			;
-		} else {
-			$(this)
-				.removeAttr('selected')
-				.prop('selected', false)
-			;
-		}
-
-		return this;
-	},
-
-
-
-	/**
-	 * Checks a checkbox or radiobutton.
-	 *
-	 * @returns {Object} this
-	 **/
-	check : function(){
-		if( $(this).is(':checkbox, :radio') ){
-			$(this)
-				.attr('checked', 'checked')
-				.prop('checked', true)
-			;
-		}
-
-		return this;
-	},
-
-
-
-	/**
-	 * Removes a check from a checkbox or radiobutton.
-	 *
-	 * @returns {Object} this
-	 **/
-	uncheck : function(){
-		$(this)
-			.removeAttr('checked')
-			.prop('checked', false)
-		;
-
-		return this;
-	},
-
-
-
-	/**
-	 * Enables a form-element.
-	 *
-	 * @returns {Object} this
-	 **/
-	enable : function(){
-		$(this)
-			.removeAttr('disabled')
-			.prop('disabled', false)
-		;
-
-		return this;
-	},
-
-
-
-	/**
-	 * Disables a form-element.
-	 *
-	 * @returns {Object} this
-	 **/
-	disable : function(){
-		if( $(this).is(':input') ){
-			$(this)
-				.attr('disabled', 'disabled')
-				.prop('disabled', true)
-			;
-		}
-
-		return this;
-	},
-
-
-
-	/**
-	 * Handles the movement of jQuery event data from one dict to another.
-	 * This is mainly a helper function for pauseHandlers and resumeHandlers, in which the target dicts are just
-	 * switched, but may also be used manually if you need anther dict to move event data to, or if the core
-	 * implementation of $._data and $.data for event access changes again.
-	 *
-	 * @param {String} eventId - jquery event id(s) like in .on() and .off()
-	 * @param {?Function} [getter=$._data] - function to retrieve element event data, takes element as first param and access key of dict in second
-	 * @param {?String} [getterKey='events'] - the dict access key to use in getter calls on $(this)
-	 * @param {?Function} [setter=$.data] - function to set element event data, takes element as first param and access key of dict in second
-	 * @param {?String} [setterKey='jqueryAnnexData_pausedEvents'] - the dict access key to use in setter calls on $(this)
-	 * @returns {Object} this
-	 **/
-	moveEventData : function(eventId, getter, getterKey, setter, setterKey){
-		eventId = $.orDefault(eventId, '', 'string');
-
-		var _this_ = this,
-			eventIds = eventId.split(' ');
-
-		$.each(eventIds, function(eventIdIndex, eventId){
-			eventId = $.trim(eventId);
-			getter = $.isFunction(getter) ? getter : $._data;
-			getterKey = $.orDefault(getterKey, 'events', 'string');
-			setter = $.isFunction(setter) ? setter : $.data;
-			setterKey = $.orDefault(setterKey, 'jqueryAnnexData_pausedEvents', 'string');
-
-			var elem = $(_this_).oo(),
-				events = getter(elem, getterKey);
-
-			if( $.isSet(events) ){
-				var targetEventGuids = [],
-					eventIdParts = eventId.split('.'),
-					eventName = eventIdParts[0],
-					eventNamespace = (eventIdParts.length > 1) ? eventIdParts[1] : '',
-					eventNameArray = (eventName === '')
-						? Object.keys(events)
-						: ($.isSet(events[eventName]) ? [eventName] : [])
-				;
-
-				$.each(eventNameArray, function(eventNameIndex, eventName){
-					$.each(events[eventName], function(eventIndex, event){
-						if(
-							(event.type == eventName)
-							&& (
-								(eventNamespace === '')
-								|| (
-									(eventNamespace !== '')
-									&& (event.namespace == eventNamespace)
-								)
-							)
-						){
-							if( !$.isSet(setter(elem, setterKey)) ){
-								setter(elem, setterKey, {});
-							}
-
-							var targetDict = setter(elem, setterKey);
-
-							if( !$.isSet(targetDict[eventName]) ){
-								targetDict[eventName] = [];
-								targetDict[eventName].delegateCount = events[eventName].delegateCount;
-							}
-
-							targetDict[eventName].push(event);
-							targetEventGuids.push(event.guid);
-						}
-					});
-				});
-
-				var newEvents = {};
-				$.each(getter(elem, getterKey), function(eventKey, eventArray){
-					$.each(eventArray, function(eventIndex, event){
-						if( $.inArray(event.guid, targetEventGuids) < 0 ){
-							if( !$.isSet(newEvents[event.type]) ){
-								newEvents[event.type] = [];
-								newEvents[event.type].delegateCount = eventArray.delegateCount;
-							}
-
-							newEvents[event.type].push(event);
-						}
-					});
-				});
-				getter(elem, getterKey, newEvents);
-			}
-		});
-
-		return this;
-	},
-
-
-
-	/**
-	 * Pauses event handlers of an element, by moving them to a different dict temporarily
-	 *
-	 * @param {String} eventId - jquery event id(s) like in .on() and .off()
-	 * @returns {Object} this
-	 **/
-	pauseHandlers : function(eventId){
-		return $.proxy($.fn.moveEventData, this, eventId, $._data, 'events', $.data, 'jqueryAnnexData_pausedEvents')();
-	},
-
-
-
-	/**
-	 * Resumes paused event handlers of an element, by moving them back to the element's event handler dict.
-	 *
-	 * @param {String} eventId - jquery event id(s) like in .on() and .off()
-	 * @returns {Object} this
-	 **/
-	resumeHandlers : function(eventId){
-		return $.proxy($.fn.moveEventData, this, eventId, $.data, 'jqueryAnnexData_pausedEvents', $._data, 'events')();
-	},
-
-
+	 * @namespace Basic:$fn.outerHtml
+	 */
 
 	/**
 	 * Returns an element's outerHTML instead of innerHTML, which .html() provides. Avoids clone() for this purpose.
@@ -2632,6 +3081,11 @@ $.fn.extend({
 	 *
 	 * @param {?String} [htmlContent] - html content to set as new outerHTML for selected elements
 	 * @returns {String} the element's outer HTML markup starting with its own tag
+	 *
+	 * @memberof Basic:$fn.outerHtml
+	 * @example
+	 * $('div').append($.elem('span')).outerHtml()
+	 * => <div><span></span></div>
 	 **/
 	outerHtml : function(htmlContent){
 		var outerHTMLAvailable = !$(this).oo().outerHTML;
@@ -2686,109 +3140,8 @@ $.fn.extend({
 
 
 	/**
-	 * Creates the basic attributes for a DOM-element that define its DOM- and CSS-identity.
-	 * Namely id, class and style. An element may be used a source to inherit values from.
-	 * If identity is inherited from another element html5-data-attributes are also transferred additionally.
-	 * Explicit on-event-handlers are also transferred and added as jquery-events with the "frommarkup"-namespace.
-	 *
-	 * @param {?String} [id] - the DOM-id the element should have
-	 * @param {?(String|String[])} [classes] - the html-classes the element should have
-	 * @param {?(String|Object.<String, String>)} [style] - the element's styles as a css-string or a jquery-style css-plain-object
-	 * @param {?Object} $inheritFrom - the element to inherit identity values from
-	 * @returns {Object} this
-	 **/
-	setElementIdentity : function(id, classes, style, $inheritFrom){
-		var _this_ = this,
-			copyAttrs = ['id', 'class', 'style'];
-
-		if( $.isSet($inheritFrom) && $.isA($inheritFrom, 'object') ){
-			$.each($inheritFrom[0].attributes, function(index, attribute){
-				if( $.inArray(attribute.name, copyAttrs) != -1 ){
-					$(_this_).attr(attribute.name, attribute.value);
-				} else if( attribute.name.indexOf('data-') === 0 ){
-					$(_this_).dataDuo(attribute.name, attribute.value);
-				} else if( attribute.name.indexOf('on') === 0 ){
-					$(_this_).on(attribute.name.substring(2)+'.frommarkup', function(){ eval(attribute.value); });
-				}
-			});
-		}
-
-		if( $.isSet(id) ){
-			$(this).attr('id', ''+id);
-		}
-
-		if( $.isSet(classes) ){
-			if( $.isArray(classes) ){
-				$.each(classes, function(index, value){
-					$(_this_).addClass(value);
-				});
-			} else {
-				$(this).attr('class', ($.isSet($(this).attr('class')) ? $(this).attr('class')+' ' : '')+classes);
-			}
-		}
-
-		if( $.isSet(style) ){
-			if( $.isPlainObject(style) ){
-				$(this).css(style);
-			} else {
-				$(this).attr('style', ($.isSet($(this).attr('style')) ? $(this).attr('style')+' ' : '')+style);
-			}
-		}
-
-		return this;
-	},
-
-
-
-	/**
-	 * Offers an execution frame for element preparation like setting handlers and transforming dom.
-	 * Takes a function including the initialization code of a (set of) element(s) and wraps it with
-	 * a check if this initialization was already executed (has data-hooked-up="true" then) as well
-	 * as a document ready handler to make sure no initializations are executed with a half ready dom.
-	 *
-	 * If the initialization returns a promise, this promise will be returned if returnPromise is set true.
-	 * If returnPromise is set true without fInitialization returning a promise the promise is always immediately resolved.
-	 *
-	 * @param {Function} fInitialization - the function containing all initialization code for the element(s), this-context is set
-	 * @param {?Boolean} [returnPromise=false] - if true, forces the function to return a promise object, if possible the result of fInitialization
-	 * @returns {(Object|Promise)} this or a promise
-	 **/
-	hookUp : function(fInitialization, returnPromise){
-		returnPromise = $.orDefault(returnPromise, false, 'bool');
-
-		var deferred = $.Deferred();
-		deferred.resolve();
-		var promise = deferred.promise();
-
-		$(this).each(function(){
-			if( $(this).dataDuo('hooked-up') !== true ){
-				var _this_ = this;
-
-				$(function(){
-					var initPromise = $.proxy(fInitialization, _this_)();
-
-					if(
-						$.isSet(initPromise)
-						&& $.isFunction(initPromise.promise)
-						&& $.isFunction(initPromise.done)
-						&& $.isFunction(initPromise.fail)
-					){
-						promise = initPromise;
-					}
-
-					$(_this_).dataDuo('hooked-up', true);
-				});
-			}
-		});
-
-		if( returnPromise ){
-			return promise;
-		} else {
-			return this;
-		}
-	},
-
-
+	 * @namespace Basic:$fn.dataDuo
+	 */
 
 	/**
 	 * Sets and retrieves the element's data attributes like jQuery's original data(), but transparently also updates
@@ -2805,6 +3158,12 @@ $.fn.extend({
 	 * @param  {String} attrName - the data attr/prop name
 	 * @param  {?*} attrValue - the value to set
 	 * @returns {*} the previously set value (on get) or this (on set)
+	 *
+	 * @memberof Basic:$fn.dataDuo
+	 * @see removeDataDuo
+	 * @example
+	 * $('#foobar').dataDuo('thingy', 'foo, bar!');
+	 * alert($('#foobar').dataDuo('thingy'));
 	 **/
 	dataDuo : function(attrName, attrValue){
 		attrName = $.orDefault(attrName, null, 'string');
@@ -2853,10 +3212,19 @@ $.fn.extend({
 
 
 	/**
+	 * @namespace Basic:$fn.removeDataDuo
+	 */
+
+	/**
 	 * Remove previously set data (with data() or dataDuo()) from the dom as well as from the markup data-*-attr.
 	 *
 	 * @param  {String} attrName - the data attr/prop name
 	 * @returns {Object} this
+	 *
+	 * @memberof Basic:$fn.removeDataDuo
+	 * @see dataDuo
+	 * @example
+	 * $('#foobar').removeDataDuo('thingy');
 	 **/
 	removeDataDuo : function(attrName){
 		attrName = $.orDefault(attrName, null, 'string');
@@ -2874,147 +3242,19 @@ $.fn.extend({
 
 
 	/**
-	 * Searches for and returns parameters embedded in URLs, either in the document(-url) or elements
-	 * having a src- or href-attributes.
-	 *
-	 * @param {String} paramName the name of the parameter to extract
-	 * @returns {(null|true|String|String[])} null in case the parameter doesn't exist, true in case it exists but has no value, a string in case the parameter has one value, or an array of strings
-	 **/
-	urlParameter : function(paramName){
-		paramName = ''+paramName;
-
-		var paramExists = false,
-			res = [],
-			qString = null,
-			url = '';
-
-		if( $(this).prop('nodeName') == '#document' ){
-			if( window.location.search.search(paramName) > -1 ){
-				qString = window.location.search.substr(1, window.location.search.length).split('&');
-			}
-		} else if( $.isSet($(this).attr('src')) ){
-			url = $(this).attr('src');
-			if( url.indexOf('?') > -1 ){
-				qString = url.substr(url.indexOf('?') + 1).split('&');
-			}
-		} else if( $.isSet($(this).attr('href')) ){
-			url = $(this).attr('href');
-			if ( url.indexOf('?') > -1 ){
-				qString = url.substr(url.indexOf('?') + 1).split('&');
-			}
-		} else {
-			return null;
-		}
-
-		if( qString === null ){
-			return null;
-		}
-
-		var paramPair = null;
-		for( var i = 0; i < qString.length; i++ ){
-			paramPair = qString[i].split('=');
-			if( paramPair[0] == paramName ){
-				paramExists = true;
-				if( paramPair.length > 1 ){
-					res.push(paramPair[1]);
-				}
-			}
-		}
-
-		if( !paramExists ){
-			return null;
-		} else if( res.length === 0 ){
-			return true;
-		} else if( res.length == 1 ){
-			return res[0];
-		} else {
-			return res;
-		}
-	},
-
-
-
-	/**
-	 * Returns the currently set URL-Anchor on the document(-url) or elements having a src- or href-attribute.
-	 *
-	 * @param {?Boolean} [withoutCaret=false] - defines if anchor value should contain leading "#"
-	 * @returns {(String|null)} current anchor value or null if no anchor in url
-	 **/
-	urlAnchor : function(withoutCaret){
-		var anchor = null,
-			anchorParts = [];
-
-		if( $(this).prop('nodeName') == '#document' ){
-			anchor = window.location.hash;
-		} else if( $.isSet($(this).attr('src')) ){
-			anchorParts = $(this).attr('src').split('#');
-			if( anchorParts.length > 1 ){
-				anchor = '#'+anchorParts[1];
-			}
-		} else if( $.isSet($(this).attr('href')) ){
-			anchorParts = $(this).attr('href').split('#');
-			if( anchorParts.length > 1 ){
-				anchor = '#'+anchorParts[1];
-			}
-		} else {
-			return null;
-		}
-
-		if( $.isSet(withoutCaret) && withoutCaret ){
-			anchor = anchor.replace('#', '');
-		}
-
-		if( $.isSet(anchor) && ($.trim(anchor) === '') ){
-			anchor = null;
-		}
-
-		return anchor;
-	},
-
-
-
-	/**
-	 * Parses form-element-values inside the target-object into a simple object.
-	 * Basically an extension of jQuery's own serializeArray() with the difference that
-	 * this function can handle form-arrays, which are returned under their name without bracket
-	 * as an actual JS-Array.
-	 *
-	 * @returns {Object} form-data-object {name:val, name:[val, val]}
-	 **/
-	formDataToObject : function(){
-		var fields = $(this).serializeArray(),
-			targetObj = {},
-			currentFieldIsArray = false;
-
-		for( var i = 0; i < fields.length; i++ ){
-			currentFieldIsArray = false;
-			if( fields[i].name.indexOf('[]') != -1 ){
-				fields[i].name = fields[i].name.slice(0, fields[i].name.indexOf('[]'));
-				currentFieldIsArray = true;
-			}
-
-			if( !$.isSet(targetObj[fields[i].name]) ){
-				if( !currentFieldIsArray ){
-					targetObj[fields[i].name] = fields[i].value;
-				} else {
-					targetObj[fields[i].name] = [fields[i].value];
-				}
-			} else if( !$.isArray(targetObj[fields[i].name]) ){
-				targetObj[fields[i].name] = [targetObj[fields[i].name], fields[i].value];
-			} else {
-				targetObj[fields[i].name].push(fields[i].value);
-			}
-		}
-
-		return targetObj;
-	},
-
-
+	 * @namespace Basic:$fn.isInDom
+	 */
 
 	/**
 	 * Returns if the current element is currently part of the dom or detached/removed.
 	 *
 	 * @returns {Boolean} true if in dom
+	 *
+	 * @memberof Basic:$fn.isInDom
+	 * @example
+	 * if( $jqueryObject.isInDom() ){
+     *   ...
+	 * }
 	 **/
 	isInDom : function(){
 		return $(this).closest(document.documentElement).length > 0;
@@ -3023,129 +3263,8 @@ $.fn.extend({
 
 
 	/**
-	 * Returns if the current element is visible in the window's viewport at the moment.
-	 * This method uses getBoundingClientRect(), which has to be supported by the browser, otherwise
-	 * the method will always return true.
-	 *
-	 * @param {?Boolean} [mustBeFullyInside=false] - defines if the element has to be fully enclosed in the viewport, default is false
-	 * @returns {Boolean} true if in viewport
-	 **/
-	isInViewport : function(mustBeFullyInside){
-		var bb = null;
-
-		try {
-			bb = $(this).first().oo().getBoundingClientRect();
-		} catch(err){
-			return true;
-		}
-
-		if( $.isSet(mustBeFullyInside) ){
-			mustBeFullyInside = !!mustBeFullyInside;
-		} else {
-			mustBeFullyInside = false;
-		}
-
-		var viewportBounds = null,
-			windowWidth = window.innerWidth || $(window).width(),
-			windowHeight = window.innerHeight || $(window).height();
-
-		if( mustBeFullyInside ){
-			viewportBounds = {
-				top: 0,
-				right : windowWidth,
-				bottom : windowHeight,
-				left : 0
-			};
-		} else {
-			viewportBounds = {
-				top : -( bb.bottom - bb.top ) + 1,
-				right : ( windowWidth + ( bb.right - bb.left ) ) + 1,
-				bottom : ( windowHeight + ( bb.bottom - bb.top ) ) + 1,
-				left : -( bb.right - bb.left ) + 1
-			};
-		}
-
-		return (
-			bb.top >= viewportBounds.top &&
-			bb.right <= viewportBounds.right &&
-			bb.left >= viewportBounds.left &&
-			bb.bottom <= viewportBounds.bottom
-		);
-	},
-
-
-
-	/**
-	 * Scrolls the viewport to the first matched element's position.
-	 * Does not do anything if target element is already fully in viewport, unless scrollEvenIfFullyInViewport is set to
-	 * true. Uses getBoundingClientRect to measure viewport check, scrolls always if missing.
-	 *
-	 * @param  {?Function} [callback=$.noop] - callback to fire when scrolling is done, also fires if scrolling was not needed
-	 * @param  {?Number.Integer} [durationMs=1000] - duration of the scrolling animation
-	 * @param  {?Number.Integer} [offset=0] - offset from the viewport center to apply to the end position
-	 * @param  {?Boolean} [scrollEvenIfFullyInViewport=false] - if true, forces method to always scroll no matter the element's position
-	 * @returns {Object} this
+	 * @namespace Basic:$fn.measureHidden
 	 */
-	scrollTo : function(callback, durationMs, offset, scrollEvenIfFullyInViewport){
-		callback = $.isFunction(callback) ? callback : $.noop;
-		durationMs = $.orDefault(durationMs, 1000, 'int');
-		offset = $.orDefault(offset, 0, 'int');
-		scrollEvenIfFullyInViewport = $.orDefault(scrollEvenIfFullyInViewport, false, 'bool');
-
-		var $target = $(this).first();
-		if( $.isSet($target) && $target.length > 0 ){
-			var	callbackFired = false,
-				vpHeight = window.innerHeight || $(window).height(),
-				isInViewport = $target.isInViewport(true);
-
-			try {
-				$target.oo().getBoundingClientRect();
-			} catch(err){
-				isInViewport = false;
-			}
-
-			if( scrollEvenIfFullyInViewport || !isInViewport ){
-				$('html, body')
-					.stop(true)
-					.animate(
-						{scrollTop: $target.offset().top - Math.round(vpHeight / 2) + offset},
-						durationMs,
-						function(){
-							if( !callbackFired ){
-								callback();
-								callbackFired = true;
-							}
-						}
-					);
-			} else {
-				if( !callbackFired ){
-					callback();
-					callbackFired = true;
-				}
-			}
-		}
-
-		return this;
-	},
-
-
-
-	/**
-	 * Replaces hidden-class with the jQuery-state hidden, which is just a weensy bit different :D
-	 *
-	 * @returns {Object} this
-	 **/
-	rehide : function(){
-		$(this).each(function(){
-			if( $(this).hasClass('hidden') ){
-				$(this).removeClass('hidden').hide();
-			}
-		});
-
-		return this;
-	},
-
-
 
 	/**
 	 * Measures hidden elements by using a sandbox div.
@@ -3154,6 +3273,11 @@ $.fn.extend({
 	 * @param {?String} [selector] - selector to apply to element to find target
 	 * @param {?Object} [context=$('body')] - context to use as container for measurement
 	 * @returns {*} result of function applied to target
+	 *
+	 * @memberof Basic:$fn.measureHidden
+	 * @example
+	 * var hiddenHeight = $('body > div.hidden:first').measureHidden('outerHeight');
+	 * var hiddenWidth = $('body').measureHidden('width', 'div.hidden:first', $('body'));
 	 **/
 	measureHidden : function(functionName, selector, $context){
 		var res = null;
@@ -3184,32 +3308,25 @@ $.fn.extend({
 
 
 	/**
-	 * Fixes cross-browser problems with image-loads and fires the event even in case the image is already loaded.
-	 *
-	 * @param {Function} callback - callback to call when all images have been loaded
-	 * @param {?Boolean} [needsJqueryDims=false] - tells the check if we expect the loaded image to have readable dimensions
-	 * @returns {Object} this
-	 **/
-	imgLoad : function(callback, needsJqueryDims){
-		var targets = $(this).filter('img'),
-			targetCount = targets.length,
-			blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+	 * @namespace Basic:$fn.rehide
+	 */
 
-		targets.on('load.imgload', function(e){
-			if( (!needsJqueryDims || (needsJqueryDims && $(this).width() > 0)) && (this.src != blank) ){
-				if( (--targetCount <= 0) && $.isFunction(callback) ){
-					targets.off('load.imgload');
-					callback.call(targets, e);
-				}
-			} else {
-				var $target = $(this);
-				$.schedule(10, function(){ $target.trigger('load.imgload'); });
-			}
-		}).each(function(){
-			if( this.complete || this.complete === undefined ){
-				var src = this.src;
-				this.src = blank;
-				this.src = src;
+	/**
+	 * Replaces hidden-class with the jQuery-state hidden, which is just a weensy bit different :D
+	 *
+	 * @param {?String} [hiddenClass='hidden'] - the class identifiying hidden elements to
+	 * @returns {Object} this
+	 *
+	 * @memberof Basic:$fn.rehide
+	 * @example
+	 * $('div.article').rehide();
+	 **/
+	rehide : function(hiddenClass){
+		hiddenClass = $.orDefault(hiddenClass, 'hidden', 'string');
+
+		$(this).each(function(){
+			if( $(this).hasClass('hidden') ){
+				$(this).removeClass('hidden').hide();
 			}
 		});
 
@@ -3219,64 +3336,8 @@ $.fn.extend({
 
 
 	/**
-	 * Loops an animation-based (needs to build an animation queue) closure indefinitely.
-	 * Kills other animations on element if nothing else is declared.
-	 * Cancel animation with .stop(true).
-	 * The animationClosure needs to take a parameter, which is filled with the jQuery-element, this method is called upon.
-	 *
-	 * @param {Function} animationClosure - closure in which all animation is included, takes the jQuery-Element as first parameter, needs to do something queue-building
-	 * @param {Function} [killAnimations=false] - defines if all current animation should be immediately finished before proceeding
-	 * @returns {Object} this
-	 **/
-	loopAnimation : function(animationClosure, killAnimations){
-		killAnimations = !$.isSet(killAnimations) || ($.isSet(killAnimations) && killAnimations);
-
-		if( $.isFunction(animationClosure) ){
-			if( killAnimations ){
-				$(this).stop(true, true);
-			}
-
-			$(this)
-				.queue(function(next){
-					animationClosure($(this));
-					$(this).queue(arguments.callee);
-					next();
-				})
-			;
-		}
-
-		return this;
-	},
-
-
-
-	/**
-	 * Sets CSS-rules blindly for all intermediate cross browser variants.
-	 * Unknown stuff does not get interpreted, and therefore should not do harm,
-	 * but relives one of writing several slightly different rules all the time.
-	 *
-	 * @param {Object.<String, String>} cssObj - plain object of CSS-rules to apply, according to standard jQuery-standard
-	 * @returns {Object} this
-	 **/
-	cssCrossBrowser : function(cssObj){
-		if( $.isPlainObject(cssObj) ){
-			var orgCssObj = $.extend({}, cssObj);
-			$.each(orgCssObj, function(cssKey, cssValue){
-				$.each(['-moz-', '-webkit-', '-o-', '-ms-', '-khtml-'], function(variantIndex, variantValue){
-					if(cssKey == 'transition'){
-						cssObj[variantValue+cssKey] = $.strReplace('transform', variantValue+'transform', cssValue);
-					} else {
-						cssObj[variantValue+cssKey] = cssValue;
-					}
-				});
-			});
-			$(this).css(cssObj);
-		}
-
-		return this;
-	},
-
-
+	 * @namespace Basic:$fn.findTextNodes
+	 */
 
 	/**
 	 * Extracts all pure text nodes from an Element, starting directly in the element itself.
@@ -3284,6 +3345,10 @@ $.fn.extend({
 	 * @param  {?Function} fFilter - a filter function to restrict the returned set, gets called with (textNode, element)
 	 * @param  {?Boolean} onlyFirstLevel - defines if the function should only return text nodes from the very first level
 	 * @return {Object} a jQuery-set of text nodes
+	 *
+	 * @memberof Basic:$fn.findTextNodes
+	 * @example
+	 * var unenclosedTextElements = $('.copytext-with-inline-elements').findTextNodes();
 	 **/
 	findTextNodes : function(fFilter, onlyFirstLevel) {
 		fFilter = $.isFunction(fFilter) ? fFilter : function(){ return true; };
@@ -3318,123 +3383,82 @@ $.fn.extend({
 
 
 
+
 	/**
-	 * Programmatically create a text selection inside a node, possibly reaching across several child nodes,
-	 * but virtually working the only the raw text content. Can also be used to create a selection in text
-	 * inputs for example.
+	 * @namespace Forms:$fn
+	 */
+
+	/**
+	 * @namespace Forms:$fn.doselect
+	 */
+
+	/**
+	 * Sets an option selected or selects the text in a text-field/textarea.
 	 *
-	 * Hint: At the moment there seems to be a problem with Firefox when trying to create any selection inside a
-	 * textarea or input:text. Still working on that...
+	 * @returns {Object} this
 	 *
-	 * @param  {?Number.Integer} [startOffset] - characters to leave out at the beginning of the text content
-	 * @param  {?Number.Integer} [endOffset] - characters to leave out at the end of the text content
-	 * @param  {?Boolean} [returnSelectedText=false] - if true, returns the selected text instead of the element
-	 * @return {(Object|String)} Either this or the selected text
+	 * @memberof Forms:$fn.doselect
+	 * @see deselect
+	 * @example
+	 * $('select > option:first').doselect();
+	 * $('option').deselect();
+	 * $('textarea:first').doselect();
+	 * $(':text').deselect();
 	 **/
-	createSelection : function(startOffset, endOffset, returnSelectedText){
-		startOffset = $.orDefault(startOffset, null, 'int');
-		endOffset = $.orDefault(endOffset, null, 'int');
-		returnSelectedText = $.orDefault(returnSelectedText, false, 'bool');
-
-		var selectionText = '';
-
-	    $.each($(this), function(){
-			var range, selection, rangeText;
-
-		    if( $.exists('selectionStart', this) && $.exists('selectionEnd', this) ){
-				$(this).doselect();
-				rangeText = $(this).val();
-				this.selectionStart = startOffset;
-				this.selectionEnd = rangeText.length - endOffset;
-				selectionText = rangeText.substring(this.selectionStart, this.selectionEnd);
-			} else if( $.exists('getSelection') ){
-		        selection = window.getSelection();
-		        range = document.createRange();
-
-				range.selectNodeContents($(this).oo());
-
-				if( $.isSet(startOffset) || $.isSet(endOffset) ){
-					var $textNodes = $(this).findTextNodes(),
-						startNode = $textNodes.first().oo(),
-						startNodeIndex = 0,
-						endNode = $textNodes.last().oo(),
-						endNodeIndex = $textNodes.length - 1;
-
-					if( $.isSet(startOffset) ){
-						var remainingStartOffset = startOffset,
-							startOffsetNodeFound = (remainingStartOffset <= startNode.length);
-
-						while( !startOffsetNodeFound ){
-							startNodeIndex++;
-							remainingStartOffset -= startNode.length;
-							startNode = $textNodes.eq(startNodeIndex).oo();
-
-							startOffsetNodeFound = (remainingStartOffset <= startNode.length);
-						}
-
-						range.setStart(startNode, remainingStartOffset);
-					}
-
-					if( $.isSet(endOffset) ){
-						var remainingEndOffset = endOffset,
-							endOffsetNodeFound = (remainingEndOffset <= endNode.length);
-
-						while( !endOffsetNodeFound ){
-							endNodeIndex--;
-							remainingEndOffset -= endNode.length;
-							endNode = $textNodes.eq(endNodeIndex).oo();
-
-							endOffsetNodeFound = (remainingEndOffset <= endNode.length);
-						}
-
-						range.setEnd(endNode, endNode.length - remainingEndOffset);
-					}
-				}
-
-		        selection.removeAllRanges();
-		        selection.addRange(range);
-
-				selectionText = range.toString();
-		    } else if( $.exists('body.createTextRange', document) ){
-		        range = document.body.createTextRange();
-		        range.moveToElementText($(this).oo());
-
-				if( $.isSet(startOffset) ){
-					range.moveStart('character', startOffset);
-				}
-
-				if( $.isSet(endOffset) ){
-					range.moveEnd('character', -endOffset);
-				}
-
-		        range.select();
-
-				selectionText = range.text;
+	doselect : function(){
+		if( $(this).is('option, :text, textarea') ){
+			if( $(this).is(':text, textarea') ){
+				$(this).each(function(){
+					this.focus();
+					this.select();
+				});
+			} else {
+				$(this)
+					.attr('selected', 'selected')
+					.prop('selected', true)
+				;
 			}
-		});
+		}
+
+		return this;
+	},
 
 
-		if( !returnSelectedText ){
-			return this;
+
+	/**
+	 * @namespace Forms:$fn.deselect
+	 */
+
+	/**
+	 * Removes a selection from an option or deselects the text in a text-field/textarea.
+	 *
+	 * @returns {Object} this
+	 *
+	 * @memberof Forms:$fn.deselect
+	 * @see doselect
+	 * @example
+	 * $('select > option:first').doselect();
+	 * $('option').deselect();
+	 * $('textarea:first').doselect();
+	 * $(':text').deselect();
+	 **/
+	deselect : function(){
+		if( $(this).is(':text, textarea') ){
+			var tmpVal = $(this).val(),
+				stopperFunc = function(e){ return false; };
+
+			$(this)
+				.on('change', stopperFunc)
+				.val('')
+				.val(tmpVal)
+				.off('change', stopperFunc)
+			;
 		} else {
-			return selectionText;
+			$(this)
+				.removeAttr('selected')
+				.prop('selected', false)
+			;
 		}
-	},
-
-
-
-	/**
-	 * Disables selectability as far as possible for elements.
-	 *
-	 * @returns {Object} this
-	 **/
-	disableSelection : function(){
-		$(this).each(function(){
-			this.onselectstart = function(){ return false; };
-			this.unselectable = 'on';
-			$(this).cssCrossBrowser({'user-select' : 'none'});
-			$(this).css('-webkit-touch-callout', 'none');
-		});
 
 		return this;
 	},
@@ -3442,66 +3466,160 @@ $.fn.extend({
 
 
 	/**
-	 * Register an event handler to open a mailto dialogue without openly writing
-	 * down the mail address. Parameters mixed to complicate parsing.
+	 * @namespace Forms:$fn.check
+	 */
+
+	/**
+	 * Checks a checkbox or radiobutton.
 	 *
-	 * @param {String} tld - the top level domain to use
-	 * @param {String} beforeAt - the address part before the @
-	 * @param {String} afterAtWithoutTld - the address part after the @ but before the tld
-	 * @param {?String} [subject] - the subject the mail should have
-	 * @param {?String} [body] - the body text the mail should have initially
-	 * @param {?Boolean} [writeToElem=false] - define if the email should be written back to the element text
-	 * @param {?String} [eventType=click] - the event type to register the call to
 	 * @returns {Object} this
+	 *
+	 * @memberof Forms:$fn.check
+	 * @see uncheck
+	 * @example
+	 * $(':check, :radio').check().uncheck();
 	 **/
-	registerMailto : function(tld, beforeAt, afterAtWithoutTld, subject, body, writeToElem, eventType){
-		eventType = $.orDefault(eventType, 'click', 'string');
-		subject = $.orDefault(subject, '', 'string');
-		body = $.orDefault(body, '', 'string');
-
-		$(this).on(eventType, function(){
-			$.redirect('mailto:'+beforeAt+'@'+afterAtWithoutTld+'.'+tld+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body));
-		});
-
-		if( $.isSet(writeToElem) && writeToElem ){
-			$(this).html((beforeAt+'@'+afterAtWithoutTld+'.'+tld).replace(/(\w{1})/g, '$1&zwnj;'));
+	check : function(){
+		if( $(this).is(':checkbox, :radio') ){
+			$(this)
+				.attr('checked', 'checked')
+				.prop('checked', true)
+			;
 		}
 
 		return this;
 	},
+
 
 
 	/**
-	 * Register an event handler to activate a tel-protocol phonecall without openly writing
-	 * down the number. Parameters mixed to complicate parsing.
+	 * @namespace Forms:$fn.uncheck
+	 */
+
+	/**
+	 * Removes a check from a checkbox or radiobutton.
 	 *
-	 * @param {(Number.Integer|String)} regionPart - the local part of the number after the country part e.g. +49(04)<-this 123 456
-	 * @param {(Number.Integer|String)} firstTelPart - first half of the main number +4904 (123)<-this 456
-	 * @param {(Number.Integer|String)} countryPart - the country identifactor with or without + this->(+49)04 123 456
-	 * @param {(Number.Integer|String)} secondTelPart - second half of the main number +4904 123 (456)<-this
-	 * @param {?Boolean} [writeToElem=false] - define if the number should be written back to the element text
-	 * @param {?String} [eventType=click] - the event type to register the call to
 	 * @returns {Object} this
+	 *
+	 * @memberof Forms:$fn.uncheck
+	 * @see check
+	 * @example
+	 * $(':check, :radio').check().uncheck();
 	 **/
-	registerTel : function(regionPart, firstTelPart, countryPart, secondTelPart, writeToElem, eventType){
-		eventType = $.orDefault(eventType, 'click', 'string');
+	uncheck : function(){
+		$(this)
+			.removeAttr('checked')
+			.prop('checked', false)
+		;
 
-		if( (''+countryPart).indexOf('+') !== 0 ){
-			countryPart = '+'+countryPart;
-		}
+		return this;
+	},
 
-		$(this).on(eventType, function(){
-			$.redirect('tel:'+countryPart+regionPart+$.strReplace(['-', ' '], '', ''+firstTelPart+secondTelPart));
-		});
 
-		if( $.isSet(writeToElem) && writeToElem ){
-			$(this).html((countryPart+regionPart+' '+firstTelPart+secondTelPart).replace(/(\w{1})/g, '$1&zwnj;'));
+
+	/**
+	 * @namespace Forms:$fn.enable
+	 */
+
+	/**
+	 * Enables a form-element.
+	 *
+	 * @returns {Object} this
+	 *
+	 * @memberof Forms:$fn.enable
+	 * @see disable
+	 * @example
+	 * $('#kittenform :input.disabled').disable();
+	 * $('#kittenform [disabled]').enable();
+	 **/
+	enable : function(){
+		$(this)
+			.removeAttr('disabled')
+			.prop('disabled', false)
+		;
+
+		return this;
+	},
+
+
+
+	/**
+	 * @namespace Forms:$fn.disable
+	 */
+
+	/**
+	 * Disables a form-element.
+	 *
+	 * @returns {Object} this
+	 *
+	 * @memberof Forms:$fn.disable
+	 * @see enable
+	 * @example
+	 * $('#kittenform :input.disabled').disable();
+	 * $('#kittenform [disabled]').enable();
+	 **/
+	disable : function(){
+		if( $(this).is(':input') ){
+			$(this)
+				.attr('disabled', 'disabled')
+				.prop('disabled', true)
+			;
 		}
 
 		return this;
 	},
 
 
+
+	/**
+	 * @namespace Forms:$fn.formDataToObject
+	 */
+
+	/**
+	 * Parses form-element-values inside the target-object into a simple object.
+	 * Basically an extension of jQuery's own serializeArray() with the difference that
+	 * this function can handle form-arrays, which are returned under their name without bracket
+	 * as an actual JS-Array.
+	 *
+	 * @returns {Object} form-data-object {name:val, name:[val, val]}
+	 *
+	 * @memberof Forms:$fn.formDataToObject
+	 * @example
+	 * var data = $('form:first').formDataToObject();
+	 **/
+	formDataToObject : function(){
+		var fields = $(this).serializeArray(),
+			targetObj = {},
+			currentFieldIsArray = false;
+
+		for( var i = 0; i < fields.length; i++ ){
+			currentFieldIsArray = false;
+			if( fields[i].name.indexOf('[]') != -1 ){
+				fields[i].name = fields[i].name.slice(0, fields[i].name.indexOf('[]'));
+				currentFieldIsArray = true;
+			}
+
+			if( !$.isSet(targetObj[fields[i].name]) ){
+				if( !currentFieldIsArray ){
+					targetObj[fields[i].name] = fields[i].value;
+				} else {
+					targetObj[fields[i].name] = [fields[i].value];
+				}
+			} else if( !$.isArray(targetObj[fields[i].name]) ){
+				targetObj[fields[i].name] = [targetObj[fields[i].name], fields[i].value];
+			} else {
+				targetObj[fields[i].name].push(fields[i].value);
+			}
+		}
+
+		return targetObj;
+	},
+
+
+
+	/**
+	 * @namespace Forms:$fn.makeStylable
+	 */
 
 	/**
 	 * Transforms :radio, :checkbox, select and :file to stylable representations of themselves.
@@ -3532,6 +3650,10 @@ $.fn.extend({
 	 * @param  {?String} [containerClass] - if set, adds this class string to the input's newly created container element
 	 * @param  {?String} [labelText] - if set, sets this text as the text content of the input labels if any, does nothing for select
 	 * @returns {Object} this
+	 *
+	 * @memberof Forms:$fn.makeStylable
+	 * @example
+	 * $(':checkbox, :radio, select').makeStylable('stylable-input');
 	 **/
 	makeStylable : function(containerClass, labelText){
 		containerClass = $.orDefault(containerClass, null, 'string');
@@ -3687,11 +3809,163 @@ $.fn.extend({
 
 
 	/**
+	 * @namespace Events:$fn
+	 */
+
+	/**
+	 * @namespace Events:$fn.moveEventData
+	 */
+
+	/**
+	 * Handles the movement of jQuery event data from one dict to another.
+	 * This is mainly a helper function for pauseHandlers and resumeHandlers, in which the target dicts are just
+	 * switched, but may also be used manually if you need anther dict to move event data to, or if the core
+	 * implementation of $._data and $.data for event access changes again.
+	 *
+	 * @param {String} eventId - jquery event id(s) like in .on() and .off()
+	 * @param {?Function} [getter=$._data] - function to retrieve element event data, takes element as first param and access key of dict in second
+	 * @param {?String} [getterKey='events'] - the dict access key to use in getter calls on $(this)
+	 * @param {?Function} [setter=$.data] - function to set element event data, takes element as first param and access key of dict in second
+	 * @param {?String} [setterKey='jqueryAnnexData_pausedEvents'] - the dict access key to use in setter calls on $(this)
+	 * @returns {Object} this
+	 *
+	 * @memberof Events:$fn.moveEventData
+	 * @example
+	 * $('a.clickbutton').moveEventData('click mousedown', $._data, 'events', $.data, 'jqueryAnnexData_pausedEvents')
+	 **/
+	moveEventData : function(eventId, getter, getterKey, setter, setterKey){
+		eventId = $.orDefault(eventId, '', 'string');
+
+		var _this_ = this,
+			eventIds = eventId.split(' ');
+
+		$.each(eventIds, function(eventIdIndex, eventId){
+			eventId = $.trim(eventId);
+			getter = $.isFunction(getter) ? getter : $._data;
+			getterKey = $.orDefault(getterKey, 'events', 'string');
+			setter = $.isFunction(setter) ? setter : $.data;
+			setterKey = $.orDefault(setterKey, 'jqueryAnnexData_pausedEvents', 'string');
+
+			var elem = $(_this_).oo(),
+				events = getter(elem, getterKey);
+
+			if( $.isSet(events) ){
+				var targetEventGuids = [],
+					eventIdParts = eventId.split('.'),
+					eventName = eventIdParts[0],
+					eventNamespace = (eventIdParts.length > 1) ? eventIdParts[1] : '',
+					eventNameArray = (eventName === '')
+						? Object.keys(events)
+						: ($.isSet(events[eventName]) ? [eventName] : [])
+				;
+
+				$.each(eventNameArray, function(eventNameIndex, eventName){
+					$.each(events[eventName], function(eventIndex, event){
+						if(
+							(event.type == eventName)
+							&& (
+								(eventNamespace === '')
+								|| (
+									(eventNamespace !== '')
+									&& (event.namespace == eventNamespace)
+								)
+							)
+						){
+							if( !$.isSet(setter(elem, setterKey)) ){
+								setter(elem, setterKey, {});
+							}
+
+							var targetDict = setter(elem, setterKey);
+
+							if( !$.isSet(targetDict[eventName]) ){
+								targetDict[eventName] = [];
+								targetDict[eventName].delegateCount = events[eventName].delegateCount;
+							}
+
+							targetDict[eventName].push(event);
+							targetEventGuids.push(event.guid);
+						}
+					});
+				});
+
+				var newEvents = {};
+				$.each(getter(elem, getterKey), function(eventKey, eventArray){
+					$.each(eventArray, function(eventIndex, event){
+						if( $.inArray(event.guid, targetEventGuids) < 0 ){
+							if( !$.isSet(newEvents[event.type]) ){
+								newEvents[event.type] = [];
+								newEvents[event.type].delegateCount = eventArray.delegateCount;
+							}
+
+							newEvents[event.type].push(event);
+						}
+					});
+				});
+				getter(elem, getterKey, newEvents);
+			}
+		});
+
+		return this;
+	},
+
+
+
+	/**
+	 * @namespace Events:$fn.pauseHandlers
+	 */
+
+	/**
+	 * Pauses event handlers of an element, by moving them to a different dict temporarily
+	 *
+	 * @param {String} eventId - jquery event id(s) like in .on() and .off()
+	 * @returns {Object} this
+	 *
+	 * @memberof Events:$fn.pauseHandlers
+	 * @see resumeHandlers
+	 * @example
+	 * $('a.clickbutton').pauseHandlers('click mousedown')
+	 **/
+	pauseHandlers : function(eventId){
+		return $.proxy($.fn.moveEventData, this, eventId, $._data, 'events', $.data, 'jqueryAnnexData_pausedEvents')();
+	},
+
+
+
+	/**
+	 * @namespace Events:$fn.resumeHandlers
+	 */
+
+	/**
+	 * Resumes paused event handlers of an element, by moving them back to the element's event handler dict.
+	 *
+	 * @param {String} eventId - jquery event id(s) like in .on() and .off()
+	 * @returns {Object} this
+	 *
+	 * @memberof Events:$fn.resumeHandlers
+	 * @see pauseHandlers
+	 * @example
+	 * $('a.clickbutton').resumeHandlers('click mousedown')
+	 **/
+	resumeHandlers : function(eventId){
+		return $.proxy($.fn.moveEventData, this, eventId, $.data, 'jqueryAnnexData_pausedEvents', $._data, 'events')();
+	},
+
+
+
+	/**
+	 * @namespace Events:$fn.simulateTouchEvents
+	 */
+
+	/**
 	 * Treats touchstart, touchmove and touchend events on the element internally
 	 * as mousedown, mousemove and mouseup events and remaps event coordinates correctly.
 	 *
 	 * @param {?Boolean} [ignoreChildren=false] - defines if only the element itself should count and whether to ignore bubbling
 	 * @returns {Object} this
+	 *
+	 * @memberof Events:$fn.simulateTouchEvents
+	 * @example
+	 * $elementReactingToTouchAndClickOnlyWithMouseHandlers.simulateTouchEvents().click(function(){ alert('I got touched!'); });
 	 **/
 	simulateTouchEvents : function(ignoreChildren){
 		$(this).on('touchstart touchmove touchend', function(e){
@@ -3760,6 +4034,435 @@ $.fn.extend({
 
 
 	/**
+	 * @namespace Preparation:$fn
+	 */
+
+	/**
+	 * @namespace Preparation:$fn.setElementIdentity
+	 */
+
+	/**
+	 * Creates the basic attributes for a DOM-element that define its DOM- and CSS-identity.
+	 * Namely id, class and style. An element may be used a source to inherit values from.
+	 * If identity is inherited from another element html5-data-attributes are also transferred additionally.
+	 * Explicit on-event-handlers are also transferred and added as jquery-events with the "frommarkup"-namespace.
+	 *
+	 * @param {?String} [id] - the DOM-id the element should have
+	 * @param {?(String|String[])} [classes] - the html-classes the element should have
+	 * @param {?(String|Object.<String, String>)} [style] - the element's styles as a css-string or a jquery-style css-plain-object
+	 * @param {?Object} $inheritFrom - the element to inherit identity values from
+	 * @returns {Object} this
+	 *
+	 * @memberof Preparation:$fn.setElementIdentity
+	 * @example
+	 * $.elem('div').setElementIdentity('kitten', 'cute fluffy', 'display:none;');
+	 * $.elem('div').setElementIdentity('kitten', 'cute fluffy', null, anotherDomElement);
+	 **/
+	setElementIdentity : function(id, classes, style, $inheritFrom){
+		var _this_ = this,
+			copyAttrs = ['id', 'class', 'style'];
+
+		if( $.isSet($inheritFrom) && $.isA($inheritFrom, 'object') ){
+			$.each($inheritFrom[0].attributes, function(index, attribute){
+				if( $.inArray(attribute.name, copyAttrs) != -1 ){
+					$(_this_).attr(attribute.name, attribute.value);
+				} else if( attribute.name.indexOf('data-') === 0 ){
+					$(_this_).dataDuo(attribute.name, attribute.value);
+				} else if( attribute.name.indexOf('on') === 0 ){
+					$(_this_).on(attribute.name.substring(2)+'.frommarkup', function(){ eval(attribute.value); });
+				}
+			});
+		}
+
+		if( $.isSet(id) ){
+			$(this).attr('id', ''+id);
+		}
+
+		if( $.isSet(classes) ){
+			if( $.isArray(classes) ){
+				$.each(classes, function(index, value){
+					$(_this_).addClass(value);
+				});
+			} else {
+				$(this).attr('class', ($.isSet($(this).attr('class')) ? $(this).attr('class')+' ' : '')+classes);
+			}
+		}
+
+		if( $.isSet(style) ){
+			if( $.isPlainObject(style) ){
+				$(this).css(style);
+			} else {
+				$(this).attr('style', ($.isSet($(this).attr('style')) ? $(this).attr('style')+' ' : '')+style);
+			}
+		}
+
+		return this;
+	},
+
+
+
+	/**
+	 * @namespace Preparation:$fn.hookUp
+	 */
+
+	/**
+	 * Offers an execution frame for element preparation like setting handlers and transforming dom.
+	 * Takes a function including the initialization code of a (set of) element(s) and wraps it with
+	 * a check if this initialization was already executed (has data-hooked-up="true" then) as well
+	 * as a document ready handler to make sure no initializations are executed with a half ready dom.
+	 *
+	 * If the initialization returns a promise, this promise will be returned if returnPromise is set true.
+	 * If returnPromise is set true without fInitialization returning a promise the promise is always immediately resolved.
+	 *
+	 * @param {Function} fInitialization - the function containing all initialization code for the element(s), this-context is set
+	 * @param {?Boolean} [returnPromise=false] - if true, forces the function to return a promise object, if possible the result of fInitialization
+	 * @returns {(Object|Promise)} this or a promise
+	 *
+	 * @memberof Preparation:$fn.hookUp
+	 * @example
+	 * $.when($('.widget').hookUp(function(){ ... }, true), $('.anotherWidget').hookUp(function(){ ... }, true)).then(function(){ ... })
+	 **/
+	hookUp : function(fInitialization, returnPromise){
+		returnPromise = $.orDefault(returnPromise, false, 'bool');
+
+		var deferred = $.Deferred();
+		deferred.resolve();
+		var promise = deferred.promise();
+
+		$(this).each(function(){
+			if( $(this).dataDuo('hooked-up') !== true ){
+				var _this_ = this;
+
+				$(function(){
+					var initPromise = $.proxy(fInitialization, _this_)();
+
+					if(
+						$.isSet(initPromise)
+						&& $.isFunction(initPromise.promise)
+						&& $.isFunction(initPromise.done)
+						&& $.isFunction(initPromise.fail)
+					){
+						promise = initPromise;
+					}
+
+					$(_this_).dataDuo('hooked-up', true);
+				});
+			}
+		});
+
+		if( returnPromise ){
+			return promise;
+		} else {
+			return this;
+		}
+	},
+
+
+
+	/**
+	 * @namespace Urls:$fn
+	 */
+
+	/**
+	 * @namespace Urls:$fn.urlParameter
+	 */
+
+	/**
+	 * Searches for and returns parameters embedded in URLs, either in the document(-url) or elements
+	 * having a src- or href-attributes.
+	 *
+	 * @param {String} paramName the name of the parameter to extract
+	 * @returns {(null|true|String|String[])} null in case the parameter doesn't exist, true in case it exists but has no value, a string in case the parameter has one value, or an array of strings
+	 *
+	 * @memberof Urls:$fn.urlParameter
+	 * @example
+	 * var hasKittens = $(document).urlParameter('has_kittens');
+	 * var hasDoggies = $('img:first').urlParameter('has_doggies');
+	 **/
+	urlParameter : function(paramName){
+		paramName = ''+paramName;
+
+		var paramExists = false,
+			res = [],
+			qString = null,
+			url = '';
+
+		if( $(this).prop('nodeName') == '#document' ){
+			if( window.location.search.search(paramName) > -1 ){
+				qString = window.location.search.substr(1, window.location.search.length).split('&');
+			}
+		} else if( $.isSet($(this).attr('src')) ){
+			url = $(this).attr('src');
+			if( url.indexOf('?') > -1 ){
+				qString = url.substr(url.indexOf('?') + 1).split('&');
+			}
+		} else if( $.isSet($(this).attr('href')) ){
+			url = $(this).attr('href');
+			if ( url.indexOf('?') > -1 ){
+				qString = url.substr(url.indexOf('?') + 1).split('&');
+			}
+		} else {
+			return null;
+		}
+
+		if( qString === null ){
+			return null;
+		}
+
+		var paramPair = null;
+		for( var i = 0; i < qString.length; i++ ){
+			paramPair = qString[i].split('=');
+			if( paramPair[0] == paramName ){
+				paramExists = true;
+				if( paramPair.length > 1 ){
+					res.push(paramPair[1]);
+				}
+			}
+		}
+
+		if( !paramExists ){
+			return null;
+		} else if( res.length === 0 ){
+			return true;
+		} else if( res.length == 1 ){
+			return res[0];
+		} else {
+			return res;
+		}
+	},
+
+
+
+	/**
+	 * @namespace Urls:$fn.urlAnchor
+	 */
+
+	/**
+	 * Returns the currently set URL-Anchor on the document(-url) or elements having a src- or href-attribute.
+	 *
+	 * @param {?Boolean} [withoutCaret=false] - defines if anchor value should contain leading "#"
+	 * @returns {(String|null)} current anchor value or null if no anchor in url
+	 *
+	 * @memberof Urls:$fn.urlAnchor
+	 * @example
+	 * var windowAnchorWithoutCaret = $(document).urlAnchor(true);
+	 * var imgAnchorWithCaret = $('img:first').urlAnchor();
+	 **/
+	urlAnchor : function(withoutCaret){
+		var anchor = null,
+			anchorParts = [];
+
+		if( $(this).prop('nodeName') == '#document' ){
+			anchor = window.location.hash;
+		} else if( $.isSet($(this).attr('src')) ){
+			anchorParts = $(this).attr('src').split('#');
+			if( anchorParts.length > 1 ){
+				anchor = '#'+anchorParts[1];
+			}
+		} else if( $.isSet($(this).attr('href')) ){
+			anchorParts = $(this).attr('href').split('#');
+			if( anchorParts.length > 1 ){
+				anchor = '#'+anchorParts[1];
+			}
+		} else {
+			return null;
+		}
+
+		if( $.isSet(withoutCaret) && withoutCaret ){
+			anchor = anchor.replace('#', '');
+		}
+
+		if( $.isSet(anchor) && ($.trim(anchor) === '') ){
+			anchor = null;
+		}
+
+		return anchor;
+	},
+
+
+
+	/**
+	 * @namespace Viewport:$fn
+	 */
+
+	/**
+	 * @namespace Viewport:$fn.isInViewport
+	 */
+
+	/**
+	 * Returns if the current element is visible in the window's viewport at the moment.
+	 * This method uses getBoundingClientRect(), which has to be supported by the browser, otherwise
+	 * the method will always return true.
+	 *
+	 * @param {?Boolean} [mustBeFullyInside=false] - defines if the element has to be fully enclosed in the viewport, default is false
+	 * @returns {Boolean} true if in viewport
+	 *
+	 * @memberof Viewport:$fn.isInViewport
+	 * @example
+	 * if( $('div.moving').isInViewport(true) ){
+     *   ...
+	 * }
+	 **/
+	isInViewport : function(mustBeFullyInside){
+		var bb = null;
+
+		try {
+			bb = $(this).first().oo().getBoundingClientRect();
+		} catch(err){
+			return true;
+		}
+
+		if( $.isSet(mustBeFullyInside) ){
+			mustBeFullyInside = !!mustBeFullyInside;
+		} else {
+			mustBeFullyInside = false;
+		}
+
+		var viewportBounds = null,
+			windowWidth = window.innerWidth || $(window).width(),
+			windowHeight = window.innerHeight || $(window).height();
+
+		if( mustBeFullyInside ){
+			viewportBounds = {
+				top: 0,
+				right : windowWidth,
+				bottom : windowHeight,
+				left : 0
+			};
+		} else {
+			viewportBounds = {
+				top : -( bb.bottom - bb.top ) + 1,
+				right : ( windowWidth + ( bb.right - bb.left ) ) + 1,
+				bottom : ( windowHeight + ( bb.bottom - bb.top ) ) + 1,
+				left : -( bb.right - bb.left ) + 1
+			};
+		}
+
+		return (
+			bb.top >= viewportBounds.top &&
+			bb.right <= viewportBounds.right &&
+			bb.left >= viewportBounds.left &&
+			bb.bottom <= viewportBounds.bottom
+		);
+	},
+
+
+
+	/**
+	 * @namespace Viewport:$fn.scrollTo
+	 */
+
+	/**
+	 * Scrolls the viewport to the first matched element's position.
+	 * Does not do anything if target element is already fully in viewport, unless scrollEvenIfFullyInViewport is set to
+	 * true. Uses getBoundingClientRect to measure viewport check, scrolls always if missing.
+	 *
+	 * @param  {?Function} [callback=$.noop] - callback to fire when scrolling is done, also fires if scrolling was not needed
+	 * @param  {?Number.Integer} [durationMs=1000] - duration of the scrolling animation
+	 * @param  {?Number.Integer} [offset=0] - offset from the viewport center to apply to the end position
+	 * @param  {?Boolean} [scrollEvenIfFullyInViewport=false] - if true, forces method to always scroll no matter the element's position
+	 * @returns {Object} this
+	 *
+	 * @memberof Viewport:$fn.scrollTo
+	 * @example
+	 * $('a.jumpitem').on('click', function(){ $jumpTarget.scrollTo(function(){ alert('scrolled!'); }, 500, -100, true); });
+	 */
+	scrollTo : function(callback, durationMs, offset, scrollEvenIfFullyInViewport){
+		callback = $.isFunction(callback) ? callback : $.noop;
+		durationMs = $.orDefault(durationMs, 1000, 'int');
+		offset = $.orDefault(offset, 0, 'int');
+		scrollEvenIfFullyInViewport = $.orDefault(scrollEvenIfFullyInViewport, false, 'bool');
+
+		var $target = $(this).first();
+		if( $.isSet($target) && $target.length > 0 ){
+			var	callbackFired = false,
+				vpHeight = window.innerHeight || $(window).height(),
+				isInViewport = $target.isInViewport(true);
+
+			try {
+				$target.oo().getBoundingClientRect();
+			} catch(err){
+				isInViewport = false;
+			}
+
+			if( scrollEvenIfFullyInViewport || !isInViewport ){
+				$('html, body')
+					.stop(true)
+					.animate(
+						{scrollTop: $target.offset().top - Math.round(vpHeight / 2) + offset},
+						durationMs,
+						function(){
+							if( !callbackFired ){
+								callback();
+								callbackFired = true;
+							}
+						}
+					);
+			} else {
+				if( !callbackFired ){
+					callback();
+					callbackFired = true;
+				}
+			}
+		}
+
+		return this;
+	},
+
+
+
+	/**
+	 * @namespace Images:$fn
+	 */
+
+	/**
+	 * @namespace Images:$fn.imgLoad
+	 */
+
+	/**
+	 * Fixes cross-browser problems with image-loads and fires the event even in case the image is already loaded.
+	 *
+	 * @param {Function} callback - callback to call when all images have been loaded
+	 * @param {?Boolean} [needsJqueryDims=false] - tells the check if we expect the loaded image to have readable dimensions
+	 * @returns {Object} this
+	 *
+	 * @memberof Images:$fn.imgLoad
+	 * @example
+	 * $.elem('img', {src : '/img/kitten.png'}).imgLoad(function(){ $(this).removeClass('hidden'); });
+	 **/
+	imgLoad : function(callback, needsJqueryDims){
+		var targets = $(this).filter('img'),
+			targetCount = targets.length,
+			blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+
+		targets.on('load.imgload', function(e){
+			if( (!needsJqueryDims || (needsJqueryDims && $(this).width() > 0)) && (this.src != blank) ){
+				if( (--targetCount <= 0) && $.isFunction(callback) ){
+					targets.off('load.imgload');
+					callback.call(targets, e);
+				}
+			} else {
+				var $target = $(this);
+				$.schedule(10, function(){ $target.trigger('load.imgload'); });
+			}
+		}).each(function(){
+			if( this.complete || this.complete === undefined ){
+				var src = this.src;
+				this.src = blank;
+				this.src = src;
+			}
+		});
+
+		return this;
+	},
+
+
+
+	/**
+	 * @namespace Images:$fn.highDpiBackgroundImage
+	 */
+
+	/**
 	 * Configures and sets the element's background image to a normal or highdpi-version depending on the display context.
 	 *
 	 * images is an array of the form [{}, {}, ...], where each object should look like this (widths and heights being optional):
@@ -3782,6 +4485,10 @@ $.fn.extend({
 	 * @param  {?Boolean} [ignoreDims=false] - if set, always tries to keep viewport vs. page max size in mind before setting image version, even if dims are set
 	 * @param  {?Number.Integer} [reactionDelayMs=500] - the delay after each window resize before the images are checked and adapted
 	 * @returns {Object} this
+	 *
+	 * @memberof Images:$fn.highDpiBackgroundImage
+	 * @example
+	 * $('.poster').highDpiBackgroundImage({standard : {url : '..', width : 150, height : 150}, highdpi : {url : '..', width : 300, height : 300}}, 1200, true, 1000);
 	 **/
 	highDpiBackgroundImage : function(images, pageMaxWidth, ignoreDims, reactionDelayMs){
 		images = $.isPlainObject(images) ? [images] : images;
@@ -3885,9 +4592,332 @@ $.fn.extend({
 
 
 	/**
+	 * @namespace Animation:$fn
+	 */
+
+	/**
+	 * @namespace Animation:$fn.loopAnimation
+	 */
+
+	/**
+	 * Loops an animation-based (needs to build an animation queue) closure indefinitely.
+	 * Kills other animations on element if nothing else is declared.
+	 * Cancel animation with .stop(true).
+	 * The animationClosure needs to take a parameter, which is filled with the jQuery-element, this method is called upon.
+	 *
+	 * @param {Function} animationClosure - closure in which all animation is included, takes the jQuery-Element as first parameter, needs to do something queue-building
+	 * @param {Function} [killAnimations=false] - defines if all current animation should be immediately finished before proceeding
+	 * @returns {Object} this
+	 *
+	 * @memberof Animation:$fn.loopAnimation
+	 * @example
+	 * $('a').loopAnimation(function($this){ $this.animate('top', '+=10'); }, true);
+	 **/
+	loopAnimation : function(animationClosure, killAnimations){
+		killAnimations = !$.isSet(killAnimations) || ($.isSet(killAnimations) && killAnimations);
+
+		if( $.isFunction(animationClosure) ){
+			if( killAnimations ){
+				$(this).stop(true, true);
+			}
+
+			$(this)
+				.queue(function(next){
+					animationClosure($(this));
+					$(this).queue(arguments.callee);
+					next();
+				})
+			;
+		}
+
+		return this;
+	},
+
+
+
+	/**
+	 * @namespace Css:$fn
+	 */
+
+	/**
+	 * @namespace Css:$fn.cssCrossBrowser
+	 */
+
+	/**
+	 * Sets CSS-rules blindly for all intermediate cross browser variants.
+	 * Unknown stuff does not get interpreted, and therefore should not do harm,
+	 * but relives one of writing several slightly different rules all the time.
+	 *
+	 * @param {Object.<String, String>} cssObj - plain object of CSS-rules to apply, according to standard jQuery-standard
+	 * @returns {Object} this
+	 *
+	 * @memberof Css:$fn.cssCrossBrowser
+	 * @example
+	 * $('body').cssCrossBrowser({'box-shadow', '1px 1px 1px 1px #000'});
+	 **/
+	cssCrossBrowser : function(cssObj){
+		if( $.isPlainObject(cssObj) ){
+			var orgCssObj = $.extend({}, cssObj);
+			$.each(orgCssObj, function(cssKey, cssValue){
+				$.each(['-moz-', '-webkit-', '-o-', '-ms-', '-khtml-'], function(variantIndex, variantValue){
+					if(cssKey == 'transition'){
+						cssObj[variantValue+cssKey] = $.strReplace('transform', variantValue+'transform', cssValue);
+					} else {
+						cssObj[variantValue+cssKey] = cssValue;
+					}
+				});
+			});
+			$(this).css(cssObj);
+		}
+
+		return this;
+	},
+
+
+
+	/**
+	 * @namespace Interaction:$fn
+	 */
+
+	/**
+	 * @namespace Interaction:$fn.createSelection
+	 */
+
+	/**
+	 * Programmatically create a text selection inside a node, possibly reaching across several child nodes,
+	 * but virtually working the only the raw text content. Can also be used to create a selection in text
+	 * inputs for example.
+	 *
+	 * Hint: At the moment there seems to be a problem with Firefox when trying to create any selection inside a
+	 * textarea or input:text. Still working on that...
+	 *
+	 * @param  {?Number.Integer} [startOffset] - characters to leave out at the beginning of the text content
+	 * @param  {?Number.Integer} [endOffset] - characters to leave out at the end of the text content
+	 * @param  {?Boolean} [returnSelectedText=false] - if true, returns the selected text instead of the element
+	 * @return {(Object|String)} Either this or the selected text
+	 *
+	 * @memberof Interaction:$fn.createSelection
+	 * @see removeSelection
+	 * @example
+	 * var selectedText = $('.copytext').createSelection(12, 6, true);
+	 **/
+	createSelection : function(startOffset, endOffset, returnSelectedText){
+		startOffset = $.orDefault(startOffset, null, 'int');
+		endOffset = $.orDefault(endOffset, null, 'int');
+		returnSelectedText = $.orDefault(returnSelectedText, false, 'bool');
+
+		var selectionText = '';
+
+	    $.each($(this), function(){
+			var range, selection, rangeText;
+
+		    if( $.exists('selectionStart', this) && $.exists('selectionEnd', this) ){
+				$(this).doselect();
+				rangeText = $(this).val();
+				this.selectionStart = startOffset;
+				this.selectionEnd = rangeText.length - endOffset;
+				selectionText = rangeText.substring(this.selectionStart, this.selectionEnd);
+			} else if( $.exists('getSelection') ){
+		        selection = window.getSelection();
+		        range = document.createRange();
+
+				range.selectNodeContents($(this).oo());
+
+				if( $.isSet(startOffset) || $.isSet(endOffset) ){
+					var $textNodes = $(this).findTextNodes(),
+						startNode = $textNodes.first().oo(),
+						startNodeIndex = 0,
+						endNode = $textNodes.last().oo(),
+						endNodeIndex = $textNodes.length - 1;
+
+					if( $.isSet(startOffset) ){
+						var remainingStartOffset = startOffset,
+							startOffsetNodeFound = (remainingStartOffset <= startNode.length);
+
+						while( !startOffsetNodeFound ){
+							startNodeIndex++;
+							remainingStartOffset -= startNode.length;
+							startNode = $textNodes.eq(startNodeIndex).oo();
+
+							startOffsetNodeFound = (remainingStartOffset <= startNode.length);
+						}
+
+						range.setStart(startNode, remainingStartOffset);
+					}
+
+					if( $.isSet(endOffset) ){
+						var remainingEndOffset = endOffset,
+							endOffsetNodeFound = (remainingEndOffset <= endNode.length);
+
+						while( !endOffsetNodeFound ){
+							endNodeIndex--;
+							remainingEndOffset -= endNode.length;
+							endNode = $textNodes.eq(endNodeIndex).oo();
+
+							endOffsetNodeFound = (remainingEndOffset <= endNode.length);
+						}
+
+						range.setEnd(endNode, endNode.length - remainingEndOffset);
+					}
+				}
+
+		        selection.removeAllRanges();
+		        selection.addRange(range);
+
+				selectionText = range.toString();
+		    } else if( $.exists('body.createTextRange', document) ){
+		        range = document.body.createTextRange();
+		        range.moveToElementText($(this).oo());
+
+				if( $.isSet(startOffset) ){
+					range.moveStart('character', startOffset);
+				}
+
+				if( $.isSet(endOffset) ){
+					range.moveEnd('character', -endOffset);
+				}
+
+		        range.select();
+
+				selectionText = range.text;
+			}
+		});
+
+
+		if( !returnSelectedText ){
+			return this;
+		} else {
+			return selectionText;
+		}
+	},
+
+
+
+	/**
+	 * @namespace Interaction:$fn.disableSelection
+	 */
+
+	/**
+	 * Disables selectability as far as possible for elements.
+	 *
+	 * @returns {Object} this
+	 *
+	 * @memberof Interaction:$fn.disableSelection
+	 * @example
+	 * $('.widget').disableSelection();
+	 **/
+	disableSelection : function(){
+		$(this).each(function(){
+			this.onselectstart = function(){ return false; };
+			this.unselectable = 'on';
+			$(this).cssCrossBrowser({'user-select' : 'none'});
+			$(this).css('-webkit-touch-callout', 'none');
+		});
+
+		return this;
+	},
+
+
+
+	/**
+	 * @namespace Protocols:$fn
+	 */
+
+	/**
+	 * @namespace Protocols:$fn.registerMailto
+	 */
+
+	/**
+	 * Register an event handler to open a mailto dialogue without openly writing
+	 * down the mail address. Parameters mixed to complicate parsing.
+	 *
+	 * @param {String} tld - the top level domain to use
+	 * @param {String} beforeAt - the address part before the @
+	 * @param {String} afterAtWithoutTld - the address part after the @ but before the tld
+	 * @param {?String} [subject] - the subject the mail should have
+	 * @param {?String} [body] - the body text the mail should have initially
+	 * @param {?Boolean} [writeToElem=false] - define if the email should be written back to the element text
+	 * @param {?String} [eventType=click] - the event type to register the call to
+	 * @returns {Object} this
+	 *
+	 * @memberof Protocols:$fn.registerMailto
+	 * @example
+	 * $('a:first').registerMailTo('de', 'recipient', 'gmail', 'Hello there!', 'How are you these days?', 'click');
+	 **/
+	registerMailto : function(tld, beforeAt, afterAtWithoutTld, subject, body, writeToElem, eventType){
+		eventType = $.orDefault(eventType, 'click', 'string');
+		subject = $.orDefault(subject, '', 'string');
+		body = $.orDefault(body, '', 'string');
+
+		$(this).on(eventType, function(){
+			$.redirect('mailto:'+beforeAt+'@'+afterAtWithoutTld+'.'+tld+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body));
+		});
+
+		if( $.isSet(writeToElem) && writeToElem ){
+			$(this).html((beforeAt+'@'+afterAtWithoutTld+'.'+tld).replace(/(\w{1})/g, '$1&zwnj;'));
+		}
+
+		return this;
+	},
+
+
+	/**
+	 * @namespace Protocols:$fn.registerTel
+	 */
+
+	/**
+	 * Register an event handler to activate a tel-protocol phonecall without openly writing
+	 * down the number. Parameters mixed to complicate parsing.
+	 *
+	 * @param {(Number.Integer|String)} regionPart - the local part of the number after the country part e.g. +49(04)<-this 123 456
+	 * @param {(Number.Integer|String)} firstTelPart - first half of the main number +4904 (123)<-this 456
+	 * @param {(Number.Integer|String)} countryPart - the country identifactor with or without + this->(+49)04 123 456
+	 * @param {(Number.Integer|String)} secondTelPart - second half of the main number +4904 123 (456)<-this
+	 * @param {?Boolean} [writeToElem=false] - define if the number should be written back to the element text
+	 * @param {?String} [eventType=click] - the event type to register the call to
+	 * @returns {Object} this
+	 *
+	 * @memberof Protocols:$fn.registerTel
+	 * @example
+	 * $('input:text:first').registerTel('40', '439', '+49', '123', true, 'change');
+	 **/
+	registerTel : function(regionPart, firstTelPart, countryPart, secondTelPart, writeToElem, eventType){
+		eventType = $.orDefault(eventType, 'click', 'string');
+
+		if( (''+countryPart).indexOf('+') !== 0 ){
+			countryPart = '+'+countryPart;
+		}
+
+		$(this).on(eventType, function(){
+			$.redirect('tel:'+countryPart+regionPart+$.strReplace(['-', ' '], '', ''+firstTelPart+secondTelPart));
+		});
+
+		if( $.isSet(writeToElem) && writeToElem ){
+			$(this).html((countryPart+regionPart+' '+firstTelPart+secondTelPart).replace(/(\w{1})/g, '$1&zwnj;'));
+		}
+
+		return this;
+	},
+
+
+
+	/**
+	 * @namespace Sandbox:$fn
+	 */
+
+	/**
+	 * @namespace Sandbox:$fn.sandbox
+	 */
+
+	/**
 	 * Creates a neutral, invisible sandbox in the given context, to mess around with.
 	 *
 	 * @returns {Object} this
+	 *
+	 * @memberof Sandbox:$fn.sandbox
+	 * @example
+	 * var $sandbox = $('body').sandbox();
+	 * $('body').removeSandbox();
 	 **/
 	sandbox : function(){
 		$(this).append($.elem('div', {'id' : 'sandbox', 'style' : 'position:absolute; visibility:hidden; display:block;'}));
@@ -3898,9 +4928,18 @@ $.fn.extend({
 
 
 	/**
+	 * @namespace Sandbox:$fn.removeSandbox
+	 */
+
+	/**
 	 * Removes the sandbox from given context.
 	 *
 	 * @returns {Object} this
+	 *
+	 * @memberof Sandbox:$fn.removeSandbox
+	 * @example
+	 * var $sandbox = $('body').sandbox();
+	 * $('body').removeSandbox();
 	 **/
 	removeSandbox : function(){
 		$(this).find('#sandbox').remove();
