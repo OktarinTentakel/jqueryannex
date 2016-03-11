@@ -1,0 +1,26 @@
+{
+    "opts": {
+        "//template": "templates/default",
+        "encoding": "utf8",
+        "destination": "./doc/",
+        "recurse": true,
+        "//tutorials": "path/to/tutorials",
+        "readme" : "readme.md"
+    },
+    "tags": {
+        "allowUnknownTags": true
+    },
+    "source": {
+        "include" : ["jquery.annex.js"],
+        "includePattern": ".+\\.js(doc|x)?$",
+        "excludePattern": "(^|\\/|\\\\)_"
+    },
+    "plugins": [],
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false,
+        "default": {
+            "outputSourceFiles": true
+        }
+    }
+}
