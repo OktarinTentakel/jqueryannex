@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: unpoll</title>
+    <title>JSDoc: Namespace: contextScrollbarWidth</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: unpoll</h1>
+    <h1 class="page-title">Namespace: contextScrollbarWidth</h1>
 
     
 
@@ -29,7 +29,7 @@
 <header>
     
         <h2>
-            <span class="ancestors"><a href="Polling_$.html">Polling:$</a>.</span>unpoll</h2>
+            <span class="ancestors"><a href="Capabilities_$.html">Capabilities:$</a>.</span>contextScrollbarWidth</h2>
         
     
 </header>
@@ -71,7 +71,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line1589">line 1589</a>
+        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line2392">line 2392</a>
     </li></ul></dd>
     
 
@@ -107,14 +107,20 @@
 
     
 
-    <h4 class="name" id=".unpoll"><span class="type-signature">(static) </span>unpoll<span class="signature">(name)</span><span class="type-signature"> &rarr; {Boolean}</span></h4>
+    <h4 class="name" id=".contextScrollbarWidth"><span class="type-signature">(static) </span>contextScrollbarWidth<span class="signature">()</span><span class="type-signature"> &rarr; {Number.Integer}</span></h4>
 
     
 
 
 
 <div class="description">
-    Removes an active poll from the poll stack via given name.
+    Returns the current context's scrollbar width. Returns 0 if scrollbar is over content.
+There are edge cases in which we might want to calculate positions in respect to the
+actual width of the scrollbar. For example when working with elements with a 100vw width.
+
+This method temporarily inserts three elements into the body while forcing the body to
+actually show scrollbars, measuring the difference between 100vw and 100% on the body and
+returns the result.
 </div>
 
 
@@ -123,55 +129,6 @@
 
 
 
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>name</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">name of the state or event you are waiting/polling for that shall be removed</td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -207,19 +164,12 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line1604">line 1604</a>
+        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line2411">line 2411</a>
     </li></ul></dd>
     
 
     
 
-    
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li>poll</li>
-        </ul>
-    </dd>
     
 
     
@@ -241,7 +191,7 @@
 
         
 <div class="param-desc">
-    true if poll has been removed, false if nothing has changed
+    the width of the body scrollbar in pixels
 </div>
 
 
@@ -252,7 +202,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Boolean</span>
+<span class="param-type">Number.Integer</span>
 
 
     </dd>
@@ -263,7 +213,7 @@
 
     <h5>Example</h5>
     
-    <pre class="prettyprint"><code>$.unpoll('testpoll');</code></pre>
+    <pre class="prettyprint"><code>$foobar.css('width', 'calc(100vw - '+$.contextScrollbarWidth()+'px)');</code></pre>
 
 
 

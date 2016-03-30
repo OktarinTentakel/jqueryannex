@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 22 developed and tested with jQuery 1.11.3
+ * @version Revision 23 developed and tested with jQuery 1.11.3
  **/
 
 
@@ -2358,7 +2358,7 @@ $.extend({
 
 	/**
 	 * @namespace Capabilities:$.contextHasHighDpi
-	 */
+	 **/
 
 	/**
 	 * Checks if the context would benefit from high DPI graphics.
@@ -2385,6 +2385,69 @@ $.extend({
 		} else {
 			return false;
 		}
+	},
+
+
+
+	/**
+	 * @namespace Capabilities:$.contextScrollbarWidth
+	 **/
+
+	/**
+	 * Returns the current context's scrollbar width. Returns 0 if scrollbar is over content.
+	 * There are edge cases in which we might want to calculate positions in respect to the
+	 * actual width of the scrollbar. For example when working with elements with a 100vw width.
+	 *
+	 * This method temporarily inserts three elements into the body while forcing the body to
+	 * actually show scrollbars, measuring the difference between 100vw and 100% on the body and
+	 * returns the result.
+	 *
+	 * @returns {Number.Integer} the width of the body scrollbar in pixels
+	 *
+	 * @memberof Capabilities:$.contextScrollbarWidth
+	 * @example
+	 * $foobar.css('width', 'calc(100vw - '+$.contextScrollbarWidth()+'px)');
+	 **/
+	contextScrollbarWidth : function(){
+		var $scrollbarEnforcer = $.elem('div').css({
+			position : 'absolute',
+			top : 0,
+			left : 0,
+			width: 1,
+			height : 10000
+		}),
+		$vwChecker = $.elem('div').css({
+			position : 'absolute',
+			top : 0,
+			left : 0,
+			width : '100vw',
+			height : 1
+		}),
+		$widthChecker = $.elem('div').css({
+			position : 'absolute',
+			top : 0,
+			left : 0,
+			width : '100%',
+			height : 1
+		});
+
+		$('html, body').css('overflow', 'scroll');
+
+		$('body')
+			.append($scrollbarEnforcer)
+			.append($vwChecker)
+			.append($widthChecker)
+		;
+
+		var scrollbarWidth = $vwChecker.outerWidth(true) - $widthChecker.outerWidth(true);
+
+		$('html, body').css('overflow', '');
+
+		$scrollbarEnforcer.remove();
+		$vwChecker.remove();
+		$widthChecker.remove();
+
+		return scrollbarWidth;
 	},
 
 
@@ -3567,7 +3630,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Forms:$fn.formDataToObject
-	 */
+	 **/
 
 	/**
 	 * Parses form-element-values inside the target-object into a simple object.
@@ -3575,9 +3638,10 @@ $.fn.extend({
 	 * this function can handle form-arrays, which are returned under their name without bracket
 	 * as an actual JS-Array.
 	 *
-	 * @returns {Object} form-data-object {name:val, name:[val, val]}
+	 * @returns {Object} form-data-plain-object {name:val, name:[val, val]} (not native FormData object!)
 	 *
 	 * @memberof Forms:$fn.formDataToObject
+	 * @see formDataToFormData
 	 * @example
 	 * var data = $('form:first').formDataToObject();
 	 **/
@@ -3612,8 +3676,78 @@ $.fn.extend({
 
 
 	/**
+	 * @namespace Forms:$fn.formDataToFormData
+	 **/
+
+	/**
+	 * Parses form-element-values inside the target-object into a FormData-object.
+	 * Uses formDataToObject for retrieving the base values from the form, then adds
+	 * additional information for file and blob objects and returns the result as a
+	 * FormData-object for use in an Ajax-POST-request for example.
+	 *
+	 * The strange name stems from the fact that we also have formDataToObject and
+	 * "formData" may also be interpreted as a neutral definition of form values.
+	 *
+	 * @returns {FormData} FormData-object containing the data of the form
+	 *
+	 * @memberof Forms:$fn.formDataToFormData
+	 * @see formDataToObject
+	 * @example
+	 * var data = $('form:first').formDataToFormData();
+	 **/
+	formDataToFormData : function(files, blobs){
+		files = $.orDefault(files, null, 'array');
+		blobs = $.orDefault(blobs, null, 'array');
+
+		var _this_ = this,
+			baseFormData = $(this).formDataToObject();
+
+		if( $.isSet(files) ){
+			$.each(files, function(fileFieldIndex, fileFieldName){
+				fileFieldName = ''+fileFieldName;
+
+				var $fileField = $(_this_).find('[name="'+fileFieldName+'"]');
+				if( ($fileField.length > 0) && $.isSet($fileField.oo().files) ){
+					var files = $fileField.oo().files;
+
+					baseFormData[fileFieldName] = [];
+					$.each(files, function(fileIndex, file){
+						baseFormData[fileFieldName].push(file);
+					});
+
+					if( baseFormData[fileFieldName].length === 1 ){
+						baseFormData[fileFieldName] = baseFormData[fileFieldName][0];
+					}
+				}
+			});
+		}
+
+		if( $.isSet(blobs) ){
+			$.each(blobs, function(blobConfigIndex, blobConfig){
+				if( $.hasMembers(blobConfig, ['name', 'content', 'mimetype']) ){
+					var content = $.isArray(blobConfig.content) ? blobConfig.content : [blobConfig.content];
+					baseFormData[''+blobConfig.name] = new Blob([content], {type: ''+blobConfig.mimetype});
+				}
+			});
+		}
+
+		var formData = new FormData();
+		$.each(baseFormData, function(fieldName, fieldValue){
+			fieldValue = $.isArray(fieldValue) ? fieldValue : [fieldValue];
+
+			$.each(fieldValue, function(valueIndex, value){
+				formData.append(''+fieldName, value);
+			});
+		});
+
+		return formData;
+	},
+
+
+
+	/**
 	 * @namespace Forms:$fn.makeStylable
-	 */
+	 **/
 
 	/**
 	 * Transforms :radio, :checkbox, select and :file to stylable representations of themselves.
