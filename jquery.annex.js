@@ -268,6 +268,18 @@ $.extend({
 	 */
 
 	/**
+	 * @memberof Inheritance:$#Class
+	 * @example
+	 * var SuperPoweredFoobar = $.Class.extend({
+	 *     init : function(){}
+	 * });
+	 *
+	 * var UltraPoweredFoobar = SuperPoweredFoobar.extend({
+	 *   init : function(){ this._super(); }
+	 * });
+	 *
+	 * @class
+	 * @classdesc
 	 * Simple Base function for inheritance-capable JS-objects.
 	 * Adapted from: Simple JavaScript Inheritance By John Resig http://ejohn.org/ MIT Licensed. Inspired by base2 and Prototype.
 	 *
@@ -286,16 +298,6 @@ $.extend({
 	 * Inherit from SuperPoweredFoobar by using SuperPoweredFoobar.extend() the same way.
 	 *
 	 * Use _super to reference the parent class or call the parent constructor via this._super();
-	 *
-	 * @memberof Inheritance:$#Class
-	 * @example
-	 * var SuperPoweredFoobar = $.Class.extend({
-	 *     init : function(){}
-	 * });
-	 *
-	 * var UltraPoweredFoobar = SuperPoweredFoobar.extend({
-	 *   init : function(){ this._super(); }
-	 * });
 	 **/
 	Class : function(){
 		// see INITIALIZATIONS below for extend() source
@@ -1467,12 +1469,83 @@ $.extend({
 
 
 	/**
+	 * @namespace Dates:$
+	 **/
+
+	/**
+	 * @namespace Dates:$#SaneDate
+	 **/
+
+	/**
+ 	 * Constructor. Instantiate with new $.SaneDate();
+ 	 *
+ 	 * @param {(Date|String|Number.Integer)} dateOrIsoStringOrYear - either a date object, an iso date(time) string to parse into a date or a year int
+ 	 * @param {?Number.Integer} [month] - month int between 1 and 12, if date is not built via iso string
+ 	 * @param {?Number.Integer} [date] - date int between 1 and 31, if date is not built via iso string
+ 	 * @param {?Number.Integer} [hours] - hours int between 0 and 23, if date is not built via iso string
+ 	 * @param {?Number.Integer} [minutes] - minutes int between 0 and 59, if date is not built via iso string
+ 	 * @param {?Number.Integer} [seconds] - seconds int between 0 and 59, if date is not built via iso string
+ 	 * @param {?Number.Integer} [milliseconds] - milliseconds int between 0 and 999, if date is not built via iso string
+ 	 * @return {SaneDate} the newly constructed SaneDate, either being valid or not
+ 	 *
+ 	 * @memberof Dates:$#SaneDate
+	 * @example
+	 * var date = $.SaneDate('1-2-3 4:5:6.7');
+	 * date = $.SaneDate('2016-4-7');
+	 * date = $.SaneDate('2016-04-07 13:37:00');
+	 * date = $.SaneDate(2016, 4, 7);
+	 * date = $.SaneDate(2016, 4, 7, 13, 37, 0, 999);
+	 * date.year = 2000;
+	 * date.forward('hours', 42);
+ 	 *
+	 * @class SaneDate
+	 * @property {Boolean} valid - defines if the date is currently usable and represents a real date, not settable
+	 * @property {Number.Integer} year - the current year of the date, settable (normally throws exception if change results in invalid date)
+	 * @property {Number.Integer} month - the current month of the date, settable (normally throws exception if change results in invalid date)
+	 * @property {Number.Integer} date - the currently day of the month of the date, settable (normally throws exception if change results in invalid date)
+	 * @property {Number.Integer} hours - the current hours of the date, settable (normally throws exception if change results in invalid date)
+	 * @property {Number.Integer} minutes - the current minutes of the date, settable (normally throws exception if change results in invalid date)
+	 * @property {Number.Integer} seconds - the current seconds of the date, settable (normally throws exception if change results in invalid date)
+	 * @property {Number.Integer} milliseconds - the current milliseconds of the date, settable (normally throws exception if change results in invalid date)
+	 *
+	 * @classdesc
+	 * SaneDate is a reimplementation of JavaScript date objects, trying to iron out all the small fails
+	 * which make you want to pull your hair while keeping the cool stuff in a streamlined manner.
+	 *
+	 * SaneDates operate between the years 0 and 9999 and, for the time being, don't deal with timezones apart
+	 * from the local one and UTC. Every SaneDate is local per se, even if created via an iso-string. To get
+	 * UTC-values just set the SaneDate to utc via .setUtc(true).
+	 *
+	 * The relevant date parts of a SaneDate, which are also available as attributes to get and set are:
+	 * year, month, date (not day!), hours, minutes, seconds and milliseconds.
+	 *
+	 * SaneDates are exception-happy and won't allow actions after instantiation that alter the date in automatic
+	 * ways, for example by setting a month to 13. You can alter this behaviour via .setIgnoreInvalidPartChanged(true).
+	 *
+	 * The constructor however should not except and will always return a sane date, whose .valid-attribute tells
+	 * you if the date has been buildable with the data you provided and is usable.
+	 *
+	 * Months and week days are not zero based in SaneDates but begin with 1. Week days are not an attribute
+	 * (and not settable), but accessible via .getWeekDay().
+	 *
+	 * This whole implementation is heavily built around iso strings, so buildind a date with one and getting one
+	 * to transfer should be forgiving, easy and robust. Something like '1-2-3 4:5:6.7' is a usable iso string
+	 * for SaneDate, but getIsoString() will return correctly formatted '0001-02-03T04:05:06.700'.
+	 **/
+
+	SaneDate : function(){
+		// see SANEDATE-IMPLEMENTATION below
+	},
+
+
+
+	/**
 	 * @namespace Polling:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Polling:$.poll
-	 */
+	 **/
 
 	/**
 	 * Waits for a certain program- or DOM-state before executing a certain action. Waiting is implemented via
@@ -3688,12 +3761,25 @@ $.fn.extend({
 	 * The strange name stems from the fact that we also have formDataToObject and
 	 * "formData" may also be interpreted as a neutral definition of form values.
 	 *
+	 * @param  {?Array.<String>|String} [files=null] - form field names that contain files, that should be included in the FormData object
+	 * @param  {?Array.<Object>|Object.<String,String>} [blobs=null] - additional blob files to include, defined as a single object or an array of {name : '', content: '', mimetype : ''}
 	 * @returns {FormData} FormData-object containing the data of the form
 	 *
 	 * @memberof Forms:$fn.formDataToFormData
 	 * @see formDataToObject
 	 * @example
-	 * var data = $('form:first').formDataToFormData();
+	 * var data = $('form:first').formDataToFormData(['superimportantmultiplefilefieldname', 'lessimportantsinglefilefield'], {name : 'htmlblobname', content : '<em>IMPORTANT!</em>', mimetype : 'text/html'});
+	 * // should even work in IE10/11! oO
+	 * $.ajax({
+	 *   url: '/foobar',
+	 *   data: data,
+	 *   processData: false,
+	 *   contentType: false,
+	 *   type: 'POST',
+	 *   success: function(data){
+     *     alert(data);
+	 *   }
+	 * });
 	 **/
 	formDataToFormData : function(files, blobs){
 		files = $.orDefault(files, null, 'array');
@@ -5137,3 +5223,791 @@ $.Class.extend = function(child){
 
 	return Class;
 };
+
+
+
+//--|SANEDATE-IMPLEMENTATION----------
+
+// see $.SaneDate above for signature
+$.SaneDate = $.Class.extend(
+	/**
+	 * @lends Dates:$#SaneDate.SaneDate.prototype
+	 **/
+	{
+
+		// ***
+		_date : null,
+		_compareDate : null,
+		_utc : false,
+		_ignoreInvalidPartChanged : false,
+		_valid : true,
+
+		// documentation in $.SaneDate signature above
+		init : function(dateOrIsoStringOrYear, month, date, hours, minutes, seconds, milliseconds){
+			if( !$.isA(dateOrIsoStringOrYear, 'date') ){
+				dateOrIsoStringOrYear = $.orDefault(dateOrIsoStringOrYear, null, 'string');
+			}
+
+			var _this_ = this,
+				valid = true,
+				year = null,
+				parts = {
+					type : 'date',
+					year : null,
+					month : $.orDefault(month, null, 'int'),
+					date : $.orDefault(date, null, 'int'),
+					hours : $.orDefault(hours, null, 'int'),
+					minutes : $.orDefault(minutes, null, 'int'),
+					seconds : $.orDefault(seconds, null, 'int'),
+					milliseconds : $.orDefault(milliseconds, null, 'int')
+				}
+			;
+
+			this._setupDatePartGettersAndSetters();
+
+			if( !$.isSet(dateOrIsoStringOrYear) ){
+				this._date = new Date();
+			} else if( $.isA(dateOrIsoStringOrYear, 'date') ){
+				if( $.isNaN(dateOrIsoStringOrYear.getDate()) ){
+					this._setInvalid();
+				} else {
+					this._date = dateOrIsoStringOrYear;
+				}
+			} else {
+				if( !$.isA(dateOrIsoStringOrYear, 'date') ){
+					if( (''+dateOrIsoStringOrYear).indexOf('-') < 0 ){
+						parts.year = parseInt(dateOrIsoStringOrYear, 10);
+
+						if( $.isSet(parts.hours) ){
+							parts.type = 'datetime';
+						}
+					} else {
+						try {
+							parts = this._parseIsoString(dateOrIsoStringOrYear);
+						} catch(ex){
+							parts = null;
+						}
+					}
+				}
+
+				if( $.isSet(parts) ){
+					try {
+						valid = this._verifyDateParts(parts);
+					} catch(ex){
+						valid = false;
+					}
+				}
+
+				if( !$.isSet(parts) || !valid ){
+					this._setInvalid();
+				} else {
+					this._date = this._partsToDate(parts);
+				}
+			}
+		},
+
+
+
+		_setupDatePartGettersAndSetters : function(){
+			var _this_ = this,
+				propertyConfig = {
+					enumerable : true
+				}
+			;
+
+			// documented as property in signature above
+			Object.defineProperty(this, 'valid', $.extend({}, propertyConfig, {
+				set : function(year){
+					throw 'SaneDate set valid | valid is not settable';
+				},
+				get : function(){
+					return this._valid;
+				}
+			}));
+
+			// documented as property in signature above
+			Object.defineProperty(this, 'year', $.extend({}, propertyConfig, {
+				set : function(year){
+					year = parseInt(year, 10);
+					$.assert(!$.isNaN(year), 'SaneDate set year | value is not usable as int');
+					$.assert((year >= 0 && year <= 9999), 'SaneDate set year | this implementation works with years between 0 and 9999');
+
+					if( _this_.utc ){
+						_this_._tryDatePartChange(year, 'setUTCFullYear', 'getUTCFullYear', !_this_._ignoreInvalidPartChanged);
+					} else {
+						_this_._tryDatePartChange(year, 'setFullYear', 'getFullYear', !_this_._ignoreInvalidPartChanged);
+					}
+				},
+				get : function(){
+					if( $.isSet(_this_._date) && _this_._valid ){
+						return _this_._utc ? _this_._date.getUTCFullYear() : _this_._date.getFullYear();
+					}
+				}
+			}));
+
+			// documented as property in signature above
+			Object.defineProperty(this, 'month', $.extend({}, propertyConfig, {
+				set : function(month){
+					month = parseInt(month, 10);
+					$.assert(!$.isNaN(month), 'SaneDate set month | value is not usable as int');
+
+					if( _this_.utc ){
+						_this_._tryDatePartChange(month - 1, 'setUTCMonth', 'getUTCMonth', !_this_._ignoreInvalidPartChanged);
+					} else {
+						_this_._tryDatePartChange(month - 1, 'setMonth', 'getMonth', !_this_._ignoreInvalidPartChanged);
+					}
+				},
+				get : function(){
+					if( $.isSet(_this_._date) && _this_._valid ){
+						return _this_._utc ? _this_._date.getUTCMonth() + 1 : _this_._date.getMonth() + 1;
+					}
+				}
+			}));
+
+			// documented as property in signature above
+			Object.defineProperty(this, 'date', $.extend({}, propertyConfig, {
+				set : function(date){
+					date = parseInt(date, 10);
+					$.assert(!$.isNaN(date), 'SaneDate set date | value is not usable as int');
+
+					if( _this_.utc ){
+						_this_._tryDatePartChange(date, 'setUTCDate', 'getUTCDate', !_this_._ignoreInvalidPartChanged);
+					} else {
+						_this_._tryDatePartChange(date, 'setDate', 'getDate', !_this_._ignoreInvalidPartChanged);
+					}
+				},
+				get : function(){
+					if( $.isSet(_this_._date) && _this_._valid ){
+						return _this_._utc ? _this_._date.getUTCDate() : _this_._date.getDate();
+					}
+				}
+			}));
+
+			// documented as property in signature above
+			Object.defineProperty(this, 'hours', $.extend({}, propertyConfig, {
+				set : function(hours){
+					hours = parseInt(hours, 10);
+					$.assert(!$.isNaN(hours), 'SaneDate set hours | value is not usable as int');
+
+					if( _this_.utc ){
+						_this_._tryDatePartChange(hours, 'setUTCHours', 'getUTCHours', !_this_._ignoreInvalidPartChanged);
+					} else {
+						_this_._tryDatePartChange(hours, 'setHours', 'getHours', !_this_._ignoreInvalidPartChanged);
+					}
+				},
+				get : function(){
+					if( $.isSet(_this_._date) && _this_._valid ){
+						return _this_._utc ? _this_._date.getUTCHours() : _this_._date.getHours();
+					}
+				}
+			}));
+
+			// documented as property in signature above
+			Object.defineProperty(this, 'minutes', $.extend({}, propertyConfig, {
+				set : function(minutes){
+					minutes = parseInt(minutes, 10);
+					$.assert(!$.isNaN(minutes), 'SaneDate set minutes | value is not usable as int');
+
+					if( _this_.utc ){
+						_this_._tryDatePartChange(minutes, 'setUTCMinutes', 'getUTCMinutes', !_this_._ignoreInvalidPartChanged);
+					} else {
+						_this_._tryDatePartChange(minutes, 'setMinutes', 'getMinutes', !_this_._ignoreInvalidPartChanged);
+					}
+				},
+				get : function(){
+					if( $.isSet(_this_._date) && _this_._valid ){
+						return _this_._utc ? _this_._date.getUTCMinutes() : _this_._date.getMinutes();
+					}
+				}
+			}));
+
+			// documented as property in signature above
+			Object.defineProperty(this, 'seconds', $.extend({}, propertyConfig, {
+				set : function(seconds){
+					seconds = parseInt(seconds, 10);
+					$.assert(!$.isNaN(seconds), 'SaneDate set seconds | value is not usable as int');
+
+					if( _this_.utc ){
+						_this_._tryDatePartChange(seconds, 'setUTCSeconds', 'getUTCSeconds', !_this_._ignoreInvalidPartChanged);
+					} else {
+						_this_._tryDatePartChange(seconds, 'setSeconds', 'getSeconds', !_this_._ignoreInvalidPartChanged);
+					}
+				},
+				get : function(){
+					if( $.isSet(_this_._date) && _this_._valid ){
+						return _this_._utc ? _this_._date.getUTCSeconds() : _this_._date.getSeconds();
+					}
+				}
+			}));
+
+			// documented as property in signature above
+			Object.defineProperty(this, 'milliseconds', $.extend({}, propertyConfig, {
+				set : function(milliseconds){
+					milliseconds = parseInt(milliseconds, 10);
+					$.assert(!$.isNaN(milliseconds), 'SaneDate set milliseconds | value is not usable as int');
+
+					if( _this_.utc ){
+						_this_._tryDatePartChange(milliseconds, 'setUTCMilliseconds', 'getUTCMilliseconds', !_this_._ignoreInvalidPartChanged);
+					} else {
+						_this_._tryDatePartChange(milliseconds, 'setMilliseconds', 'getMilliseconds', !_this_._ignoreInvalidPartChanged);
+					}
+				},
+				get : function(){
+					if( $.isSet(_this_._date) && _this_._valid ){
+						return _this_._utc ? _this_._date.getUTCMilliseconds() : _this_._date.getMilliseconds();
+					}
+				}
+			}));
+		},
+		// ***
+
+
+
+		/**
+		 * Define if the date should return UTC-info or local info.
+		 * The default are local values, set this to true to automatically retrieve UTC-values.
+		 *
+		 * @method
+		 * @param {Boolean} utc - define if date should behave as UTC date
+		 * @return {SaneDate} this
+		 * @example
+		 * var d = new $.SaneDate();
+		 * d.setUtc(true);
+		 **/
+		setUtc : function(utc){
+			this._utc = !!utc;
+
+			return this;
+		},
+
+
+
+		/**
+		 * Define if the date should ignore changes to date parts and keep the old value or throw an exception.
+		 * Normally those changes result in an exception to be immediately notified of changes that make the date invalid.
+		 *
+		 * @method
+		 * @param {Boolean} ignoreInvalidPartChanged - define if date should ignore invalid changes to the date or throw exception
+		 * @return {SaneDate} this
+		 * @example
+		 * var d = new $.SaneDate();
+		 * d.setIgnoreInvalidPartChanged(true);
+		 **/
+		setIgnoreInvalidPartChanged : function(ignoreInvalidPartChanged){
+			this._ignoreInvalidPartChanged = !!ignoreInvalidPartChanged;
+
+			return this;
+		},
+
+
+
+		/**
+		 * Returns the current day of the week as a number between 1 and 7.
+		 * This method counts days the European way, starting with monday normally, but you can change this
+		 * behaviour using the first parameter.
+		 *
+		 * @method
+		 * @param {?Boolean} [startingWithMonday=true] - set false if you want sunday to be the first day of the week
+		 * @return {Number.Integer} weekday index between 1 and 7
+		 * @example
+		 * var d = new $.SaneDate();
+		 * if( d.getWeekDay() == 5 ){
+		 *   alert('Thank god it\'s friday!');
+		 * }
+		 **/
+		getWeekDay : function(startingWithMonday){
+			startingWithMonday = $.orDefault(startingWithMonday, true, 'bool');
+
+			if( $.isSet(this._date) && this._valid ){
+				var day = this._utc ? this._date.getUTCDay() : this._date.getDay();
+
+				if( startingWithMonday && (day === 0) ){
+					day = 7;
+				}
+
+				if( !startingWithMonday ){
+					day += 1;
+				}
+
+				return day;
+			}
+		},
+
+
+
+		/**
+		 * Returns the date's current date related data as a date iso-string.
+		 *
+		 * @method
+		 * @return {String} date iso-string of the format '2016-04-07'
+		 * @example
+		 * var d = new $.SaneDate();
+		 * $thatDatePicker.setValue(d.getIsoDateString());
+		 **/
+		getIsoDateString : function(){
+			if( $.isSet(this._date) && this._valid ){
+				var year = this._utc ? this._date.getUTCFullYear() : this._date.getFullYear(),
+					month = this._utc ? this._date.getUTCMonth() + 1 : this._date.getMonth() + 1,
+					date = this._utc ? this._date.getUTCDate() : this._date.getDate();
+
+				year = ''+year;
+				month = (month < 10) ? '0'+month : ''+month;
+				date = (date < 10) ? '0'+date : ''+date;
+
+				if( year < 1000 ){
+					year = '0'+year;
+				}
+
+				return $.strFormat('{year}-{month}-{date}', {year : year, month : month, date : date});
+			} else {
+				return null;
+			}
+		},
+
+
+
+		/**
+		 * Returns the date as an iso-string.
+		 *
+		 * @method
+		 * @param {?Boolean} [withSeparator=true] - defines if date and time should be separated with a "T"
+		 * @return {String} iso-string of the format '2016-04-07T13:37:00.222'
+		 * @example
+		 * var d = new $.SaneDate();
+		 * $thatDateTimePicker.setValue(d.getIsoString());
+		 **/
+		getIsoString : function(withSeparator){
+			withSeparator = $.orDefault(withSeparator, true, 'bool');
+
+			var dateString = this.getIsoDateString();
+
+			if( $.isSet(dateString) ){
+				var hours = this._utc ? this._date.getUTCHours() : this._date.getHours(),
+					minutes = this._utc ? this._date.getUTCMinutes() : this._date.getMinutes(),
+					seconds = this._utc ? this._date.getUTCSeconds() : this._date.getSeconds(),
+					milliseconds = this._utc ? this._date.getUTCMilliseconds() : this._date.getMilliseconds();
+
+					hours = (hours < 10) ? '0'+hours : ''+hours;
+					minutes = (minutes < 10) ? '0'+minutes : ''+minutes;
+					seconds = (seconds < 10) ? '0'+seconds : ''+seconds;
+					milliseconds = ''+milliseconds;
+
+					return dateString+(withSeparator ? 'T' : ' ')+$.strFormat('{hours}:{minutes}:{seconds}.{milliseconds}', {
+						hours : hours,
+						minutes : minutes,
+						seconds : seconds,
+						milliseconds : milliseconds
+					});
+			} else {
+				return null;
+			}
+		},
+
+
+
+		/**
+		 * Return the current original JavaScript date object wrapped by the SameDate.
+		 * Use this to do special things.
+		 *
+		 * @method
+		 * @return {(null|Date)} the original JavaScript date object or null if the date is not valid
+		 * @example
+		 * var d = new $.SaneDate();
+		 * var timezoneOffset = d.getVanillaDate().getTimezoneOffset();
+		 **/
+		getVanillaDate : function(){
+			if( this._valid ){
+				return this._date;
+			} else {
+				return null;
+			}
+		},
+
+
+
+		/**
+		 * Compares the date to another SaneDate or an iso string.
+		 * Returns a classical comparator value (-1/0/1), being -1 if the date is smaller than the parameter.
+		 * Normally checks date and time. Set type to "date" to only check date.
+		 *
+		 * @method
+		 * @param {(String|Date)} isoStringOrSaneDate - either an iso string or another SaneDate to compare to
+		 * @param {?String} [type='datetime'] - either 'datetime' or 'date', telling the method if time should be considered
+		 * @param {?Boolean} [withMilliseconds=true] - tells the method if milliseconds should be considered if type is 'datetime'
+		 * @return {Number.Integer} -1 if this is smaller/earlier, 0 if identical, 1 if parameter if bigger/later
+		 * @throws on unusable base or compare date
+		 * @example
+		 * var d = new $.SaneDate();
+		 * if( d.compareTo('2016-04-07', 'date') === 0 ){
+		 *   alert('congratulations, that\'s the same date!');
+		 * }
+		 **/
+		compareTo : function(isoStringOrSaneDate, type, withMilliseconds){
+			type = $.orDefault(type, 'datetime', 'string');
+			withMilliseconds = $.orDefault(withMilliseconds, true, 'bool');
+
+			var _this_ = this;
+
+			if( $.isSet(this._date) && this._valid ){
+				var saneDate = null;
+				if( $.isA(isoStringOrSaneDate, 'object') && $.hasMembers(isoStringOrSaneDate, ['_date', '_valid']) ){
+					saneDate = isoStringOrSaneDate;
+				} else {
+					saneDate = new $.SaneDate(''+isoStringOrSaneDate);
+				}
+
+				if( saneDate._valid ){
+					var comparator = 0,
+						dateCompareGetters = ['getFullYear', 'getMonth', 'getDate'],
+						timeCompareGetters = ['getHours', 'getMinutes', 'getSeconds'],
+						millisecondsCompareGetters = ['getMilliseconds'],
+						compareGetters = [];
+
+					$.merge(compareGetters, dateCompareGetters);
+					if( type == 'datetime' ){
+						$.merge(compareGetters, timeCompareGetters);
+
+						if( withMilliseconds ){
+							$.merge(compareGetters, millisecondsCompareGetters);
+						}
+					}
+
+					var ownValue, compareValue;
+					$.each(compareGetters, function(index, compareGetter){
+						ownValue = _this_._date[compareGetter]();
+						compareValue = saneDate._date[compareGetter]();
+						comparator =
+							(compareValue > ownValue)
+							? -1
+							: (
+								(ownValue > compareValue)
+								? 1
+								: 0
+							)
+						;
+
+						if( comparator !== 0 ){
+							return false;
+						}
+					});
+
+					return comparator;
+				} else {
+					throw 'SaneDate compareTo | invalid compare date';
+				}
+			} else {
+				throw 'SaneDate compareTo | date currently not comparable';
+			}
+		},
+
+
+
+		/**
+		 * Moves the date's time a certain offset.
+		 *
+		 * @method
+		 * @param {String} part - the name of the date part to change, one of 'years', 'months', 'days', 'hours', 'minutes', 'seconds'and 'milliseconds'
+		 * @param {?Number.Integer} [amount=0] - negative or positive integer defining the offset from the current date
+		 * @return {SaneDate} this
+		 * @throws on unusable base date or invalid part name
+		 * @example
+		 * var d = new $.SaneDate();
+		 * d.move('years', 10).move('milliseconds', -1);
+		 **/
+		move : function(part, amount){
+			amount = $.orDefault(amount, 0, 'int');
+
+			var parts = ['years', 'months', 'days', 'hours', 'minutes', 'seconds', 'milliseconds'];
+
+			if( $.isSet(this._date) && this._valid ){
+				if( $.inArray(''+part, parts) >= 0 ){
+					switch( ''+part ){
+						case 'years':
+							this._date.setFullYear(this._date.getFullYear() + amount);
+						break;
+
+						case 'months':
+							this._date.setMonth(this._date.getMonth() + amount);
+						break;
+
+						case 'days':
+							this._date.setDate(this._date.getDate() + amount);
+						break;
+
+						case 'hours':
+							this._date.setHours(this._date.getHours() + amount);
+						break;
+
+						case 'minutes':
+							this._date.setMinutes(this._date.getMinutes() + amount);
+						break;
+
+						case 'seconds':
+							this._date.setSeconds(this._date.getSeconds() + amount);
+						break;
+
+						case 'milliseconds':
+							this._date.setMilliseconds(this._date.getMilliseconds() + amount);
+						break;
+					}
+
+					return this;
+				} else {
+					throw 'SaneDate _move | part must be one of years, months, days, hours, minutes, seconds, milliseconds';
+				}
+			} else {
+				throw 'SaneDate _move | current date is not usable';
+			}
+		},
+
+
+
+		/**
+		 * Moves the date's time forward a certain offset.
+		 *
+		 * @method
+		 * @param {String} part - the name of the date part to change, one of 'years', 'months', 'days', 'hours', 'minutes', 'seconds'and 'milliseconds'
+		 * @param {?Number.Integer} [amount=0] - integer defining the positve offset from the current date, '-' is dropped if present
+		 * @return {SaneDate} this
+		 * @throws on unusable base date or invalid part name
+		 * @example
+		 * var d = new $.SaneDate();
+		 * d.forward('hours', 8);
+		 **/
+		forward : function(part, amount){
+			amount = $.orDefault(amount, 0, 'int');
+
+			return this.move(''+part, Math.abs(amount));
+		},
+
+
+
+		/**
+		 * Moves the date's time back a certain offset.
+		 *
+		 * @method
+		 * @param {String} part - the name of the date part to change, one of 'years', 'months', 'days', 'hours', 'minutes', 'seconds'and 'milliseconds'
+		 * @param {?Number.Integer} [amount=0] - integer defining the negative offset from the current date, '-' is dropped if present
+		 * @return {SaneDate} this
+		 * @throws on unusable base date or invalid part name
+		 * @example
+		 * var d = new $.SaneDate();
+		 * d.back('years', 1000);
+		 **/
+		back : function(part, amount){
+			amount = $.orDefault(amount, 0, 'int');
+
+			return this.move(''+part, (amount === 0) ? 0 : -Math.abs(amount));
+		},
+
+
+
+		_setInvalid : function(){
+			this._date = null;
+			this._valid = false;
+		},
+
+
+
+		_padValueWithZero : function(value, digitCount){
+			digitCount = $.orDefault(digitCount, 2, 'int');
+			value = parseInt(value, 10);
+			$.assert(!$.isNaN(value), 'SaneDate _padValueWithZero | value is not usable as int');
+			value = ''+value;
+
+			var valueLength = value.length;
+			if( valueLength < digitCount ){
+				for( var i = 0; i < (digitCount - valueLength); i++ ){
+					value = '0'+value;
+				}
+			}
+
+			return value;
+		},
+
+
+
+		_partsToDate : function(parts){
+			var dateParts = $.extend({}, parts);
+			dateParts.year = this._padValueWithZero(dateParts.year, 4);
+			dateParts.month = this._padValueWithZero(dateParts.month);
+			dateParts.date = this._padValueWithZero(dateParts.date);
+
+			if( dateParts.type == 'date' ){
+				return new Date($.strFormat('{year}-{month}-{date}', dateParts));
+			} else if( dateParts.type == 'datetime' ){
+				dateParts.hours = this._padValueWithZero(dateParts.hours);
+				dateParts.minutes = this._padValueWithZero(dateParts.minutes);
+				dateParts.seconds = this._padValueWithZero(dateParts.seconds);
+
+				if( $.isSet(dateParts.milliseconds) ){
+					dateParts.seconds += '.'+dateParts.milliseconds;
+				}
+
+				var dateWithoutOffset = new Date($.strFormat('{year}-{month}-{date}T{hours}:{minutes}:{seconds}', dateParts));
+
+				return new Date(dateWithoutOffset.getTime() + (dateWithoutOffset.getTimezoneOffset() * 60000));
+			} else {
+				throw '_partsToDate | unknown type';
+			}
+		},
+
+
+
+		_verifyDateParts : function(parts){
+			var date = this._partsToDate(parts);
+
+			if( parts.type == 'date' ){
+				return (parseInt(parts.year, 10) == date.getFullYear())
+					&& (parseInt(parts.month, 10) == date.getMonth() + 1)
+					&& (parseInt(parts.date, 10) == date.getDate());
+			} else if( parts.type == 'datetime' ){
+				return (parseInt(parts.year, 10) == date.getFullYear())
+					&& (parseInt(parts.month, 10) == date.getMonth() + 1)
+					&& (parseInt(parts.date, 10) == date.getDate())
+					&& (parseInt(parts.hours, 10) == date.getHours())
+					&& (parseInt(parts.minutes, 10) == date.getMinutes())
+					&& (parseInt(parts.seconds, 10) == date.getSeconds())
+					&& ($.isSet(parts.milliseconds) ? (parseInt(parts.milliseconds, 10) == date.getMilliseconds()) : true);
+			} else {
+				throw '_verifyDateParts | unknown type';
+			}
+		},
+
+
+
+		_parseIsoString : function(isoString){
+			isoString = ''+isoString;
+
+			var parts = {
+				type : 'date',
+				year : null,
+				month : null,
+				date : null,
+				hours : null,
+				minutes : null,
+				seconds : null,
+				milliseconds : null
+			};
+
+			var isoStringParts = isoString.split('T');
+
+			if( isoStringParts.length == 1 ){
+				isoStringParts = isoStringParts[0].split(' ');
+			}
+
+			if( isoStringParts.length >= 2 ){
+				var isoStringTimeParts = isoStringParts[1].split(':');
+
+				if( isoStringTimeParts.length >= 3 ){
+					hours = parseInt(isoStringTimeParts[0], 10);
+					$.assert(!$.isNaN(hours), 'SaneDate _parseIsoString | hours not usable as int');
+					parts.hours = this._padValueWithZero(hours);
+
+					minutes = parseInt(isoStringTimeParts[1], 10);
+					$.assert(!$.isNaN(minutes), 'SaneDate _parseIsoString | minutes not usable as int');
+					parts.minutes = this._padValueWithZero(minutes);
+
+					var isoStringSecondsParts = isoStringTimeParts[2];
+					isoStringSecondsParts = $.strReplace('Z', '', isoStringSecondsParts);
+					isoStringSecondsParts = isoStringSecondsParts.split('+')[0];
+					isoStringSecondsParts = isoStringSecondsParts.split('-')[0];
+					isoStringSecondsParts = isoStringSecondsParts.split('.');
+
+					if( isoStringSecondsParts.length >= 2 ){
+						milliseconds = parseInt(isoStringSecondsParts[1], 10);
+						$.assert(!$.isNaN(milliseconds), 'SaneDate _parseIsoString | milliseconds not usable as int');
+						parts.milliseconds = ''+milliseconds;
+
+						if( parts.milliseconds.length > 3 ){
+							parts.milliseconds = parts.milliseconds.substr(0, 3);
+						} else if( parts.milliseconds.length == 2 ){
+							parts.milliseconds = ''+(milliseconds * 10);
+						} else if( parts.milliseconds.length == 1 ){
+							parts.milliseconds = ''+(milliseconds * 100);
+						}
+					}
+					seconds = parseInt(isoStringSecondsParts[0], 10);
+					$.assert(!$.isNaN(seconds), 'SaneDate _parseIsoString | seconds not usable as int');
+					parts.seconds = this._padValueWithZero(seconds);
+				} else {
+					return null;
+				}
+
+				parts.type = 'datetime';
+			}
+
+			var isoStringDateParts = isoStringParts[0].split('-');
+			if( isoStringDateParts.length >= 3 ){
+				year = parseInt(isoStringDateParts[0], 10);
+				$.assert(!$.isNaN(year), 'SaneDate _parseIsoString | year not usable as int');
+				$.assert((year >= 0 && year <= 9999), 'SaneDate _parseIsoString | this implementation works with years between 0 and 9999');
+				parts.year = this._padValueWithZero(year, 4);
+
+				month = parseInt(isoStringDateParts[1], 10);
+				$.assert(!$.isNaN(month), 'SaneDate _parseIsoString | month not usable as int');
+				parts.month = this._padValueWithZero(month);
+
+				date = parseInt(isoStringDateParts[2], 10);
+				$.assert(!$.isNaN(date), 'SaneDate _parseIsoString | date not usable as int');
+				parts.date = this._padValueWithZero(date);
+			} else {
+				return null;
+			}
+
+			return this._verifyDateParts(parts) ? parts : null;
+		},
+
+
+
+		_tryDatePartChange : function(value, setter, getter, throwExceptionOnFail){
+			throwExceptionOnFail = $.orDefault(throwExceptionOnFail, false, 'bool');
+
+			var _this_ = this,
+				allDatePartGetters = [
+				'getFullYear',
+				'getMonth',
+				'getDate',
+				'getHours',
+				'getMinutes',
+				'getSeconds',
+				'getMilliseconds'
+			];
+
+			if( $.isSet(this._date) ){
+				this._compareDate = new $.SaneDate(this.getIsoString())._date;
+				this._date[setter](value);
+
+				var changed = false;
+				$.each(allDatePartGetters, function(index, datePartGetter){
+					if( datePartGetter !== getter ){
+						changed = changed || (_this_._date[datePartGetter]() !== _this_._compareDate[datePartGetter]());
+					}
+
+					if( changed ){
+						return false;
+					}
+				});
+
+				if( changed ){
+					this._date = this._compareDate;
+				}
+
+				this._compareDate = null;
+
+				if( !throwExceptionOnFail ){
+					return changed;
+				} else if( changed ){
+					throw 'SaneDate _tryDatePartChange | date part change is invalid or would change other parts';
+				}
+			} else {
+				if( !throwExceptionOnFail ){
+					return false;
+				} else {
+					throw 'SaneDate _tryDatePartChange | no date to change the part of';
+				}
+			}
+		}
+
+	}
+);
