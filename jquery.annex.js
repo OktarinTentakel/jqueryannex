@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 23 developed and tested with jQuery 1.11.3
+ * @version Revision 24 developed and tested with jQuery 1.11.3
  **/
 
 
@@ -71,11 +71,11 @@ $.extend({
 
 	/**
 	 * @namespace Logging:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Logging:$.log
-	 */
+	 **/
 
 	/**
 	 * Logs a message to the console. Prevents errors in browsers, that don't support this feature.
@@ -127,7 +127,7 @@ $.extend({
 
 	/**
 	 * @namespace Logging:$.x
-	 */
+	 **/
 
 	/**
 	 * X marks the spot. A very simple method for urgent cases of printf-debugging.
@@ -178,11 +178,11 @@ $.extend({
 
 	/**
 	 * @namespace Elements:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Elements:$.elem
-	 */
+	 **/
 
 	/**
 	 * Creates jQuery-enabled DOM-elements on the fly.
@@ -218,7 +218,7 @@ $.extend({
 
 	/**
 	 * @namespace Elements:$.textContent
-	 */
+	 **/
 
 	/**
 	 * Return the de-nodified text content of a node-ridden string or a jQuery object.
@@ -261,11 +261,11 @@ $.extend({
 
 	/**
 	 * @namespace Inheritance:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Inheritance:$#Class
-	 */
+	 **/
 
 	/**
 	 * @memberof Inheritance:$#Class
@@ -307,11 +307,11 @@ $.extend({
 
 	/**
 	 * @namespace Basic:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Basic:$.assert
-	 */
+	 **/
 
 	/**
 	 * Classical assert method. If not condition, throw assert exception.
@@ -339,7 +339,7 @@ $.extend({
 
 	/**
 	 * @namespace Basic:$.isSet
-	 */
+	 **/
 
 	/**
 	 * Check if variable(s) is set at, by being neither undefined nor null.
@@ -372,7 +372,7 @@ $.extend({
 
 	/**
 	 * @namespace Basic:$.hasMembers
-	 */
+	 **/
 
 	/**
 	 * "Validates" an object in a very basic way by checking if all given members are present and are not null.
@@ -404,7 +404,7 @@ $.extend({
 
 	/**
 	 * @namespace Basic:$.orDefault
-	 */
+	 **/
 
 	/**
 	 * If an expression returns an "empty" value,
@@ -466,7 +466,7 @@ $.extend({
 
 	/**
 	 * @namespace Basic:$.exists
-	 */
+	 **/
 
 	/**
 	 * Check if a variable is defined in a certain context (normally globally in window).
@@ -518,7 +518,7 @@ $.extend({
 
 	/**
 	 * @namespace Basic:$.isA
-	 */
+	 **/
 
 	/**
 	 * Short form of the standard "type"-method with a more compact syntax.
@@ -545,7 +545,7 @@ $.extend({
 
 	/**
 	 * @namespace Basic:$.isInt
-	 */
+	 **/
 
 	/**
 	 * Returns if a value is truly a real integer value and not just an int-parsable value for example.
@@ -569,7 +569,7 @@ $.extend({
 
 	/**
 	 * @namespace Basic:$.isFloat
-	 */
+	 **/
 
 	/**
 	 * Returns if a value is a numeric value, usable as a float number in any calculation.
@@ -594,7 +594,7 @@ $.extend({
 
 	/**
 	 * @namespace Basic:$.isNaN
-	 */
+	 **/
 
 	/**
 	 * Returns if an expression is NaN or not.
@@ -628,7 +628,7 @@ $.extend({
 
 	/**
 	 * @namespace Basic:$.minMax
-	 */
+	 **/
 
 	/**
 	 * Checks if a value is within bounds of a minimum and maximum and returns
@@ -658,11 +658,11 @@ $.extend({
 
 	/**
 	 * @namespace Strings:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Strings:$.strReplace
-	 */
+	 **/
 
 	/**
 	 * Offers similar functionality to phps str_replace and avoids RegExps for this task.
@@ -699,7 +699,7 @@ $.extend({
 
 	/**
 	 * @namespace Strings:$.strTruncate
-	 */
+	 **/
 
 	/**
 	 * Truncates a given string after a certain number of characters to enforce length restrictions.
@@ -735,7 +735,7 @@ $.extend({
 
 	/**
 	 * @namespace Strings:$.strConcat
-	 */
+	 **/
 
 	/**
 	 * Simply concatenates strings with a glue part using array.join in a handy notation.
@@ -759,7 +759,7 @@ $.extend({
 
 	/**
 	 * @namespace Strings:$.strFormat
-	 */
+	 **/
 
 	/**
 	 * This is a pythonesque string format implementation.
@@ -910,7 +910,7 @@ $.extend({
 
 	/**
 	 * @namespace Strings:$.slugify
-	 */
+	 **/
 
 	/**
 	 * Slugifies a text for use in an URL or id/class/attribute.
@@ -942,7 +942,7 @@ $.extend({
 
 	/**
 	 * @namespace Strings:$.maskForSelector
-	 */
+	 **/
 
 	/**
 	 * Masks all selector-special-characters.
@@ -962,7 +962,7 @@ $.extend({
 
 	/**
 	 * @namespace Strings:$.maskForRegEx
-	 */
+	 **/
 
 	/**
 	 * Masks all regex special characters.
@@ -984,11 +984,11 @@ $.extend({
 
 	/**
 	 * @namespace Arrays:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Arrays:$.removeFromArray
-	 */
+	 **/
 
 	/**
 	 * Removes Elements from an Array.
@@ -1016,11 +1016,11 @@ $.extend({
 
 	/**
 	 * @namespace Objects:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Objects:$.objectLength
-	 */
+	 **/
 
 	/**
 	 * Counts enumerable properties of (plain) objects.
@@ -1046,7 +1046,7 @@ $.extend({
 
 	/**
 	 * @namespace Objects:$.copyObjectContent
-	 */
+	 **/
 
 	/**
 	 * Copies all enumerable properties from one object to the target object.
@@ -1099,7 +1099,7 @@ $.extend({
 
 	/**
 	 * @namespace Objects:$.emptyObject
-	 */
+	 **/
 
 	/**
 	 * Removes all enumerable properties of an object, thereby emptying it.
@@ -1123,11 +1123,11 @@ $.extend({
 
 	/**
 	 * @namespace Random:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Random:$.randomInt
-	 */
+	 **/
 
 	/**
 	 * Special form of Math.random, returning an int value between two ints,
@@ -1163,7 +1163,7 @@ $.extend({
 
 	/**
 	 * @namespace Random:$.randomUUID
-	 */
+	 **/
 
 	/**
 	 * Returns a "UUID", as close as possible with JavaScript (so not really, but looks like one :).
@@ -1206,11 +1206,11 @@ $.extend({
 
 	/**
 	 * @namespace Timers:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Timers:$.schedule
-	 */
+	 **/
 
 	/**
 	 * Setup a timer for one-time execution of a callback, kills old timer if wished
@@ -1244,7 +1244,7 @@ $.extend({
 
 	/**
 	 * @namespace Timers:$.pschedule
-	 */
+	 **/
 
 	/**
 	 * Setup a timer for one-time execution of a callback, kills old timer if wished
@@ -1302,7 +1302,7 @@ $.extend({
 
 	/**
 	 * @namespace Timers:$.reschedule
-	 */
+	 **/
 
 	/**
 	 * Alias for schedule() with more natural param-order for rescheduling.
@@ -1334,7 +1334,7 @@ $.extend({
 
 	/**
 	 * @namespace Timers:$.loop
-	 */
+	 **/
 
 	/**
 	 * Setup a loop for repeated execution of a callback, kills old loop if wished
@@ -1368,7 +1368,7 @@ $.extend({
 
 	/**
 	 * @namespace Timers:$.ploop
-	 */
+	 **/
 
 	/**
 	 * Setup a loop for repeated execution of a callback, kills old loop if wished
@@ -1431,7 +1431,7 @@ $.extend({
 
 	/**
 	 * @namespace Timers:$.countermand
-	 */
+	 **/
 
 	/**
 	 * Cancel a timer or loop immediately.
@@ -1661,7 +1661,7 @@ $.extend({
 
 	/**
 	 * @namespace Polling:$.unpoll
-	 */
+	 **/
 
 	/**
 	 * Removes an active poll from the poll stack via given name.
@@ -1704,11 +1704,11 @@ $.extend({
 
 	/**
 	 * @namespace Functions:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Functions:$.throttleExecution
-	 */
+	 **/
 
 	/**
 	 * Throttle the execution of a function to only execute every n ms.
@@ -1784,7 +1784,7 @@ $.extend({
 
 	/**
 	 * @namespace Functions:$.holdExecution
-	 */
+	 **/
 
 	/**
 	 * Hold the execution of a function until it has not been called for n ms.
@@ -1813,7 +1813,7 @@ $.extend({
 
 	/**
 	 * @namespace Functions:$.deferExecution
-	 */
+	 **/
 
 	/**
 	 * Defer the execution of a function until the callstack is empty.
@@ -1841,7 +1841,7 @@ $.extend({
 
 	/**
 	 * @namespace Functions:$.kwargs
-	 */
+	 **/
 
 	/**
 	 * Applies the possiblity to set function parameters by name Python-style like kwargs to a function.
@@ -1911,11 +1911,11 @@ $.extend({
 
 	/**
 	 * @namespace Navigation:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Navigation:$.redirect
-	 */
+	 **/
 
 	/**
 	 * Changes the current window-location.
@@ -2033,7 +2033,7 @@ $.extend({
 
 	/**
 	 * @namespace Navigation:$.changeUrlSilently
-	 */
+	 **/
 
 	/**
 	 * Changes the current URL silently by manipulating the browser history.
@@ -2083,7 +2083,7 @@ $.extend({
 
 	/**
 	 * @namespace Navigation:$.onHistoryChange
-	 */
+	 **/
 
 	/**
 	 * Registers an onpopstate event if history api is available.
@@ -2139,7 +2139,7 @@ $.extend({
 
 	/**
 	 * @namespace Navigation:$.reload
-	 */
+	 **/
 
 	/**
 	 * Reloads the current window-location. Differentiates between cached and cache-refreshing reload.
@@ -2159,7 +2159,7 @@ $.extend({
 
 	/**
 	 * @namespace Navigation:$.openWindow
-	 */
+	 **/
 
 	/**
 	 * Opens a subwindow for the current window or another defined parent window.
@@ -2201,7 +2201,7 @@ $.extend({
 
 	/**
 	 * @namespace Navigation:$.setupHashNavHighlighting
-	 */
+	 **/
 
 	/**
 	 * Defines the default logic for an innerpage hashnav, where the currently visible section should automatically
@@ -2288,11 +2288,11 @@ $.extend({
 
 	/**
 	 * @namespace Capabilities:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Capabilities:$.browserSupportsHistoryManipulation
-	 */
+	 **/
 
 	/**
 	 * Detects if the browser supports history manipulation, by checking the most common
@@ -2314,7 +2314,7 @@ $.extend({
 
 	/**
 	 * @namespace Capabilities:$.browserSupportsLocalStorage
-	 */
+	 **/
 
 	/**
 	 * Detects if the browser supports local storage, by testing if something can be stored in it and removed
@@ -2346,7 +2346,7 @@ $.extend({
 
 	/**
 	 * @namespace Capabilities:$.browserSupportsSessionStorage
-	 */
+	 **/
 
 	/**
 	 * Detects if the browser supports session storage, by testing if something can be stored in it and removed
@@ -2378,7 +2378,7 @@ $.extend({
 
 	/**
 	 * @namespace Capabilities:$.contextIsTouchDevice
-	 */
+	 **/
 
 	/**
 	 * Detects if the current JavaScript-context runs on a (dedicated) touch device.
@@ -2527,11 +2527,11 @@ $.extend({
 
 	/**
 	 * @namespace Dynamicloading:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Dynamicloading:$.getCSS
-	 */
+	 **/
 
 	/**
 	 * AJAX-Loads an external CSS-file and includes the contents into the DOM, very similar to getScript.
@@ -2626,11 +2626,11 @@ $.extend({
 
 	/**
 	 * @namespace Cookies:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Cookies:$.cookie
-	 */
+	 **/
 
 	/**
 	 * Sets cookies and retrieves them again.
@@ -2695,11 +2695,11 @@ $.extend({
 
 	/**
 	 * @namespace Css:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Css:$.cssToInt
-	 */
+	 **/
 
 	/**
 	 * Converts a CSS-value to an integer without unit.
@@ -2721,7 +2721,7 @@ $.extend({
 
 	/**
 	 * @namespace Css:$.cssUrlToSrc
-	 */
+	 **/
 
 	/**
 	 * Converts a CSS-URL to a img-src-usable value.
@@ -2753,7 +2753,7 @@ $.extend({
 
 	/**
 	 * @namespace Css:$.remByPx
-	 */
+	 **/
 
 	/**
 	 * Calculates a rem value based on a given px value.
@@ -2784,11 +2784,11 @@ $.extend({
 
 	/**
 	 * @namespace Images:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Images:$.preloadImages
-	 */
+	 **/
 
 	/**
 	 * Preloads images by URL.
@@ -2896,11 +2896,11 @@ $.extend({
 
 	/**
 	 * @namespace Fonts:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Fonts:$.waitForWebfonts
-	 */
+	 **/
 
 	/**
 	 * Waits for a list of webfonts to load before executing a callback.
@@ -2987,11 +2987,11 @@ $.extend({
 
 	/**
 	 * @namespace Databases:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Databases:$.isolateId
-	 */
+	 **/
 
 	/**
 	 * Tries to isolate a supposed (DB-)Id from a given String
@@ -3017,7 +3017,7 @@ $.extend({
 
 	/**
 	 * @namespace Databases:$.isPossibleId
-	 */
+	 **/
 
 	/**
 	 * Determines if a given value could be a valid id, being digits with or without given pre- and postfix.
@@ -3052,11 +3052,11 @@ $.extend({
 
 	/**
 	 * @namespace Events:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Events:$.bindCursorKey
-	 */
+	 **/
 
 	/**
 	 * Binds a callback to a cursor key, internally identified by keycode.
@@ -3091,7 +3091,7 @@ $.extend({
 
 	/**
 	 * @namespace Events:$.unbindCursorKey
-	 */
+	 **/
 
 	/**
 	 * Unbinds a callback to a cursor key, internally identified by keycode.
@@ -3125,11 +3125,11 @@ $.extend({
 
 	/**
 	 * @namespace Interaction:$
-	 */
+	 **/
 
 	/**
 	 * @namespace Interaction:$.removeSelection
-	 */
+	 **/
 
 	/**
 	 * Removes all textselections from the current frame if possible.
@@ -3162,11 +3162,11 @@ $.fn.extend({
 
 	/**
 	 * @namespace Basic:$fn
-	 */
+	 **/
 
 	/**
 	 * @namespace Basic:$fn.oo
-	 */
+	 **/
 
 	/**
 	 * Returns the original object of a jQuery-enabled object.
@@ -3197,7 +3197,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Basic:$fn.outerHtml
-	 */
+	 **/
 
 	/**
 	 * Returns an element's outerHTML instead of innerHTML, which .html() provides. Avoids clone() for this purpose.
@@ -3271,7 +3271,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Basic:$fn.dataDuo
-	 */
+	 **/
 
 	/**
 	 * Sets and retrieves the element's data attributes like jQuery's original data(), but transparently also updates
@@ -3343,7 +3343,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Basic:$fn.removeDataDuo
-	 */
+	 **/
 
 	/**
 	 * Remove previously set data (with data() or dataDuo()) from the dom as well as from the markup data-*-attr.
@@ -3373,7 +3373,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Basic:$fn.isInDom
-	 */
+	 **/
 
 	/**
 	 * Returns if the current element is currently part of the dom or detached/removed.
@@ -3394,7 +3394,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Basic:$fn.measureHidden
-	 */
+	 **/
 
 	/**
 	 * Measures hidden elements by using a sandbox div.
@@ -3439,7 +3439,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Basic:$fn.rehide
-	 */
+	 **/
 
 	/**
 	 * Replaces hidden-class with the jQuery-state hidden, which is just a weensy bit different :D
@@ -3467,7 +3467,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Basic:$fn.findTextNodes
-	 */
+	 **/
 
 	/**
 	 * Extracts all pure text nodes from an Element, starting directly in the element itself.
@@ -3516,11 +3516,11 @@ $.fn.extend({
 
 	/**
 	 * @namespace Forms:$fn
-	 */
+	 **/
 
 	/**
 	 * @namespace Forms:$fn.doselect
-	 */
+	 **/
 
 	/**
 	 * Sets an option selected or selects the text in a text-field/textarea.
@@ -3557,7 +3557,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Forms:$fn.deselect
-	 */
+	 **/
 
 	/**
 	 * Removes a selection from an option or deselects the text in a text-field/textarea.
@@ -3597,7 +3597,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Forms:$fn.check
-	 */
+	 **/
 
 	/**
 	 * Checks a checkbox or radiobutton.
@@ -3624,7 +3624,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Forms:$fn.uncheck
-	 */
+	 **/
 
 	/**
 	 * Removes a check from a checkbox or radiobutton.
@@ -3649,7 +3649,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Forms:$fn.enable
-	 */
+	 **/
 
 	/**
 	 * Enables a form-element.
@@ -3675,7 +3675,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Forms:$fn.disable
-	 */
+	 **/
 
 	/**
 	 * Disables a form-element.
@@ -4024,11 +4024,11 @@ $.fn.extend({
 
 	/**
 	 * @namespace Events:$fn
-	 */
+	 **/
 
 	/**
 	 * @namespace Events:$fn.moveEventData
-	 */
+	 **/
 
 	/**
 	 * Handles the movement of jQuery event data from one dict to another.
@@ -4126,7 +4126,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Events:$fn.pauseHandlers
-	 */
+	 **/
 
 	/**
 	 * Pauses event handlers of an element, by moving them to a different dict temporarily
@@ -4147,7 +4147,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Events:$fn.resumeHandlers
-	 */
+	 **/
 
 	/**
 	 * Resumes paused event handlers of an element, by moving them back to the element's event handler dict.
@@ -4168,7 +4168,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Events:$fn.simulateTouchEvents
-	 */
+	 **/
 
 	/**
 	 * Treats touchstart, touchmove and touchend events on the element internally
@@ -4249,11 +4249,11 @@ $.fn.extend({
 
 	/**
 	 * @namespace Preparation:$fn
-	 */
+	 **/
 
 	/**
 	 * @namespace Preparation:$fn.setElementIdentity
-	 */
+	 **/
 
 	/**
 	 * Creates the basic attributes for a DOM-element that define its DOM- and CSS-identity.
@@ -4317,7 +4317,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Preparation:$fn.hookUp
-	 */
+	 **/
 
 	/**
 	 * Offers an execution frame for element preparation like setting handlers and transforming dom.
@@ -4375,11 +4375,11 @@ $.fn.extend({
 
 	/**
 	 * @namespace Urls:$fn
-	 */
+	 **/
 
 	/**
 	 * @namespace Urls:$fn.urlParameter
-	 */
+	 **/
 
 	/**
 	 * Searches for and returns parameters embedded in URLs, either in the document(-url) or elements
@@ -4449,7 +4449,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Urls:$fn.urlAnchor
-	 */
+	 **/
 
 	/**
 	 * Returns the currently set URL-Anchor on the document(-url) or elements having a src- or href-attribute.
@@ -4497,11 +4497,11 @@ $.fn.extend({
 
 	/**
 	 * @namespace Viewport:$fn
-	 */
+	 **/
 
 	/**
 	 * @namespace Viewport:$fn.isInViewport
-	 */
+	 **/
 
 	/**
 	 * Returns if the current element is visible in the window's viewport at the moment.
@@ -4564,7 +4564,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Viewport:$fn.scrollTo
-	 */
+	 **/
 
 	/**
 	 * Scrolls the viewport to the first matched element's position.
@@ -4580,7 +4580,7 @@ $.fn.extend({
 	 * @memberof Viewport:$fn.scrollTo
 	 * @example
 	 * $('a.jumpitem').on('click', function(){ $jumpTarget.scrollTo(function(){ alert('scrolled!'); }, 500, -100, true); });
-	 */
+	 **/
 	scrollTo : function(callback, durationMs, offset, scrollEvenIfFullyInViewport){
 		callback = $.isFunction(callback) ? callback : $.noop;
 		durationMs = $.orDefault(durationMs, 1000, 'int');
@@ -4627,11 +4627,11 @@ $.fn.extend({
 
 	/**
 	 * @namespace Images:$fn
-	 */
+	 **/
 
 	/**
 	 * @namespace Images:$fn.imgLoad
-	 */
+	 **/
 
 	/**
 	 * Fixes cross-browser problems with image-loads and fires the event even in case the image is already loaded.
@@ -4674,7 +4674,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Images:$fn.highDpiBackgroundImage
-	 */
+	 **/
 
 	/**
 	 * Configures and sets the element's background image to a normal or highdpi-version depending on the display context.
@@ -4807,11 +4807,11 @@ $.fn.extend({
 
 	/**
 	 * @namespace Animation:$fn
-	 */
+	 **/
 
 	/**
 	 * @namespace Animation:$fn.loopAnimation
-	 */
+	 **/
 
 	/**
 	 * Loops an animation-based (needs to build an animation queue) closure indefinitely.
@@ -4851,11 +4851,11 @@ $.fn.extend({
 
 	/**
 	 * @namespace Css:$fn
-	 */
+	 **/
 
 	/**
 	 * @namespace Css:$fn.cssCrossBrowser
-	 */
+	 **/
 
 	/**
 	 * Sets CSS-rules blindly for all intermediate cross browser variants.
@@ -4891,11 +4891,11 @@ $.fn.extend({
 
 	/**
 	 * @namespace Interaction:$fn
-	 */
+	 **/
 
 	/**
 	 * @namespace Interaction:$fn.createSelection
-	 */
+	 **/
 
 	/**
 	 * Programmatically create a text selection inside a node, possibly reaching across several child nodes,
@@ -5009,7 +5009,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Interaction:$fn.disableSelection
-	 */
+	 **/
 
 	/**
 	 * Disables selectability as far as possible for elements.
@@ -5035,11 +5035,11 @@ $.fn.extend({
 
 	/**
 	 * @namespace Protocols:$fn
-	 */
+	 **/
 
 	/**
 	 * @namespace Protocols:$fn.registerMailto
-	 */
+	 **/
 
 	/**
 	 * Register an event handler to open a mailto dialogue without openly writing
@@ -5077,7 +5077,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Protocols:$fn.registerTel
-	 */
+	 **/
 
 	/**
 	 * Register an event handler to activate a tel-protocol phonecall without openly writing
@@ -5117,11 +5117,11 @@ $.fn.extend({
 
 	/**
 	 * @namespace Sandbox:$fn
-	 */
+	 **/
 
 	/**
 	 * @namespace Sandbox:$fn.sandbox
-	 */
+	 **/
 
 	/**
 	 * Creates a neutral, invisible sandbox in the given context, to mess around with.
@@ -5143,7 +5143,7 @@ $.fn.extend({
 
 	/**
 	 * @namespace Sandbox:$fn.removeSandbox
-	 */
+	 **/
 
 	/**
 	 * Removes the sandbox from given context.
@@ -5228,7 +5228,7 @@ $.Class.extend = function(child){
 
 //--|SANEDATE-IMPLEMENTATION----------
 
-// see $.SaneDate above for signature
+// see SaneDate in $ above for signature
 $.SaneDate = $.Class.extend(
 	/**
 	 * @lends Dates:$#SaneDate.SaneDate.prototype
@@ -5706,7 +5706,7 @@ $.SaneDate = $.Class.extend(
 		 * Moves the date's time a certain offset.
 		 *
 		 * @method
-		 * @param {String} part - the name of the date part to change, one of 'years', 'months', 'days', 'hours', 'minutes', 'seconds'and 'milliseconds'
+		 * @param {(String|Object)} part - the name of the date part to change, one of 'years', 'months', 'days', 'hours', 'minutes', 'seconds'and 'milliseconds' or a dictionary of part/amount pairs ({hours : -1, seconds : 30})
 		 * @param {?Number.Integer} [amount=0] - negative or positive integer defining the offset from the current date
 		 * @return {SaneDate} this
 		 * @throws on unusable base date or invalid part name
@@ -5717,44 +5717,54 @@ $.SaneDate = $.Class.extend(
 		move : function(part, amount){
 			amount = $.orDefault(amount, 0, 'int');
 
-			var parts = ['years', 'months', 'days', 'hours', 'minutes', 'seconds', 'milliseconds'];
+			var _this_ = this,
+				parts = ['years', 'months', 'days', 'hours', 'minutes', 'seconds', 'milliseconds'];
 
 			if( $.isSet(this._date) && this._valid ){
-				if( $.inArray(''+part, parts) >= 0 ){
-					switch( ''+part ){
-						case 'years':
-							this._date.setFullYear(this._date.getFullYear() + amount);
-						break;
-
-						case 'months':
-							this._date.setMonth(this._date.getMonth() + amount);
-						break;
-
-						case 'days':
-							this._date.setDate(this._date.getDate() + amount);
-						break;
-
-						case 'hours':
-							this._date.setHours(this._date.getHours() + amount);
-						break;
-
-						case 'minutes':
-							this._date.setMinutes(this._date.getMinutes() + amount);
-						break;
-
-						case 'seconds':
-							this._date.setSeconds(this._date.getSeconds() + amount);
-						break;
-
-						case 'milliseconds':
-							this._date.setMilliseconds(this._date.getMilliseconds() + amount);
-						break;
-					}
-
-					return this;
+				var partDict = {};
+				if( !$.isPlainObject(part) ){
+					partDict[''+part] = amount;
 				} else {
-					throw 'SaneDate _move | part must be one of years, months, days, hours, minutes, seconds, milliseconds';
+					partDict = part;
 				}
+
+				$.each(partDict, function(part, amount){
+					if( $.inArray(''+part, parts) >= 0 ){
+						switch( ''+part ){
+							case 'years':
+								_this_._date.setFullYear(_this_._date.getFullYear() + amount);
+							break;
+
+							case 'months':
+								_this_._date.setMonth(_this_._date.getMonth() + amount);
+							break;
+
+							case 'days':
+								_this_._date.setDate(_this_._date.getDate() + amount);
+							break;
+
+							case 'hours':
+								_this_._date.setHours(_this_._date.getHours() + amount);
+							break;
+
+							case 'minutes':
+								_this_._date.setMinutes(_this_._date.getMinutes() + amount);
+							break;
+
+							case 'seconds':
+								_this_._date.setSeconds(_this_._date.getSeconds() + amount);
+							break;
+
+							case 'milliseconds':
+								_this_._date.setMilliseconds(_this_._date.getMilliseconds() + amount);
+							break;
+						}
+					} else {
+						throw 'SaneDate _move | part must be one of years, months, days, hours, minutes, seconds, milliseconds';
+					}
+				});
+
+				return this;
 			} else {
 				throw 'SaneDate _move | current date is not usable';
 			}
@@ -5766,7 +5776,7 @@ $.SaneDate = $.Class.extend(
 		 * Moves the date's time forward a certain offset.
 		 *
 		 * @method
-		 * @param {String} part - the name of the date part to change, one of 'years', 'months', 'days', 'hours', 'minutes', 'seconds'and 'milliseconds'
+		 * @param {(String|Object)} part - the name of the date part to change, one of 'years', 'months', 'days', 'hours', 'minutes', 'seconds'and 'milliseconds' or a dictionary of part/amount pairs ({hours : 1, seconds : 30})
 		 * @param {?Number.Integer} [amount=0] - integer defining the positve offset from the current date, '-' is dropped if present
 		 * @return {SaneDate} this
 		 * @throws on unusable base date or invalid part name
@@ -5777,7 +5787,17 @@ $.SaneDate = $.Class.extend(
 		forward : function(part, amount){
 			amount = $.orDefault(amount, 0, 'int');
 
-			return this.move(''+part, Math.abs(amount));
+			var partDict = {};
+			if( !$.isPlainObject(part) ){
+				partDict[''+part] = Math.abs(amount);
+			} else {
+				partDict = part;
+				$.each(partDict, function(part, amount){
+					partDict[part] = Math.abs(amount);
+				});
+			}
+
+			return this.move(partDict);
 		},
 
 
@@ -5786,7 +5806,7 @@ $.SaneDate = $.Class.extend(
 		 * Moves the date's time back a certain offset.
 		 *
 		 * @method
-		 * @param {String} part - the name of the date part to change, one of 'years', 'months', 'days', 'hours', 'minutes', 'seconds'and 'milliseconds'
+		 * @param {(String|Object)} part - the name of the date part to change, one of 'years', 'months', 'days', 'hours', 'minutes', 'seconds'and 'milliseconds' or a dictionary of part/amount pairs ({hours : 1, seconds : 30})
 		 * @param {?Number.Integer} [amount=0] - integer defining the negative offset from the current date, '-' is dropped if present
 		 * @return {SaneDate} this
 		 * @throws on unusable base date or invalid part name
@@ -5797,7 +5817,126 @@ $.SaneDate = $.Class.extend(
 		back : function(part, amount){
 			amount = $.orDefault(amount, 0, 'int');
 
-			return this.move(''+part, (amount === 0) ? 0 : -Math.abs(amount));
+			var partDict = {};
+			if( !$.isPlainObject(part) ){
+				partDict[''+part] = ((amount === 0) ? 0 : -Math.abs(amount));
+			} else {
+				partDict = part;
+				$.each(partDict, function(part, amount){
+					partDict[part] = ((amount === 0) ? 0 : -Math.abs(amount));
+				});
+			}
+
+			return this.move(partDict);
+		},
+
+
+
+		/**
+		 * Calculates a timedata between two SaneDates.
+		 *
+		 * The result is a plain object with the delta's units up to the defined "largestUnit". All values are ints.
+		 * The largest unit are days, since above neither months nor years are calculable via a fixed divisor and therefore
+		 * useless.
+		 *
+		 * By default the order does not matter and only the absolute value is used, but you can change this
+		 * through the parameter "absolute".
+		 *
+		 * @method
+		 * @param {(String|SaneDate)} isoStringOrSaneDate - the date to calculate the delta against as an iso-string or a SaneDate
+		 * @param {?String} [largestUnit='days'] - the largestUnit to differentiate in the result
+		 * @param {?Boolean} [absolute=true] - if set false, returns negative values if first parameter is later than this date
+		 * @return {Object} timedelta in the format {days : 1, hours : 2, minutes : 3, seconds : 4, milliseconds : 5}
+		 * @throws on unknown largestUnit
+		 * @example
+		 * var now = new $.SaneDate();
+		 * var theFuture = now.clone().forward({days : 1, hours : 2, minutes : 3, seconds : 4, milliseconds : 5});
+		 * now.delta(theFuture)
+		 * => {days : 1, hours : 2, minutes : 3, seconds : 4, milliseconds : 5}
+		 * now.delta(theFuture, 'hours', false)
+		 * => {hours : -26, minutes : -3, seconds : -4, milliseconds : -5}
+		 **/
+		delta : function(isoStringOrSaneDate, largestUnit, absolute){
+			largestUnit = $.orDefault(largestUnit, 'days', 'string');
+			if( $.inArray(largestUnit, ['days', 'hours', 'minutes', 'seconds', 'milliseconds']) < 0 ){
+				throw 'SaneDate delta | largestUnit must be one of "days", "hours", "minutes", "seconds" or "milliseconds"';
+			}
+			absolute = $.orDefault(absolute, true, 'bool');
+
+			var _this_ = this;
+
+			if( $.isSet(this._date) && this._valid ){
+				var saneDate = null,
+					delta = null,
+					parts = {};
+
+				if( $.isA(isoStringOrSaneDate, 'object') && $.hasMembers(isoStringOrSaneDate, ['_date', '_valid']) ){
+					saneDate = isoStringOrSaneDate;
+				} else {
+					saneDate = new $.SaneDate(''+isoStringOrSaneDate);
+				}
+
+				delta =
+					absolute
+					? Math.abs(this._date.getTime() - saneDate._date.getTime())
+					: (this._date.getTime() - saneDate._date.getTime())
+				;
+
+				var negativeDelta = delta < 0;
+				delta = Math.abs(delta);
+
+				if( largestUnit === 'days' ){
+					parts.days = Math.floor(delta / 1000 / 60 / 60 / 24);
+					delta -= parts.days * 1000 * 60 * 60 * 24;
+					largestUnit = 'hours';
+				}
+
+				if( largestUnit === 'hours' ){
+					parts.hours = Math.floor(delta / 1000 / 60 / 60);
+					delta -= parts.hours * 1000 * 60 * 60;
+					largestUnit = 'minutes';
+				}
+
+				if( largestUnit === 'minutes' ){
+					parts.minutes = Math.floor(delta / 1000 / 60);
+					delta -= parts.minutes * 1000 * 60;
+					largestUnit = 'seconds';
+				}
+
+				if( largestUnit === 'seconds' ){
+					parts.seconds = Math.floor(delta / 1000);
+					delta -= parts.seconds * 1000;
+					largestUnit = 'milliseconds';
+				}
+
+				if( largestUnit === 'milliseconds' ){
+					parts.milliseconds = delta;
+				}
+
+				if( negativeDelta ){
+					$.each(parts, function(partName, partValue){
+						parts[partName] = (partValue === 0) ? 0 : -partValue;
+					});
+				}
+
+				return parts;
+			}
+		},
+
+
+
+		/**
+		 * Returns a copy of the current SaneDate.
+		 * Might be very handy for creating dates based on another with an offset for example.
+		 *
+		 * @method
+		 * @return {SaneDate} copy of this
+		 * @example
+		 * var d = new $.SaneDate();
+		 * var theFuture = d.clone().forward('hours', 8);
+		 **/
+		clone : function(){
+			return new $.SaneDate(this.getIsoString());
 		},
 
 
@@ -5975,7 +6114,7 @@ $.SaneDate = $.Class.extend(
 			];
 
 			if( $.isSet(this._date) ){
-				this._compareDate = new $.SaneDate(this.getIsoString())._date;
+				this._compareDate = this.clone()._date;
 				this._date[setter](value);
 
 				var changed = false;
