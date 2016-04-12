@@ -1,0 +1,101 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>jQueryAnnex by OktarinTentakel</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>jQueryAnnex</h1>
+        <p>Lots and lots of nice to have jQuery-additions and everyday helpers. And validation as well!</p>
+
+        <p class="view"><a href="https://github.com/OktarinTentakel/jqueryannex">View the Project on GitHub <small>OktarinTentakel/jqueryannex</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/OktarinTentakel/jqueryannex/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/OktarinTentakel/jqueryannex/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/OktarinTentakel/jqueryannex">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="jquery-annex" class="anchor" href="#jquery-annex" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>jQuery Annex</h1>
+
+<p>Written by:  Sebastian Schlapkohl<br>
+eMail:       <a href="mailto:jqueryannex@ifschleife.de">jqueryannex@ifschleife.de</a><br>
+Sites: <a href="http://www.ifschleife.de/jqueryannex">project</a>, <a href="https://github.com/OktarinTentakel/jqueryannex">github</a>, <a href="http://www.ifschleife.de">ifschleife</a></p>
+
+<h2>
+<a id="what-is-this" class="anchor" href="#what-is-this" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What is this?</h2>
+
+<p>Annex is a jQuery-core-expanding collection of "nice to have" methods you'll need more often than not. The basic idea was (and is) to streamline most vanilla-js leftovers every javascript dev still has to deal with (like timeouts) and provide methods for those things as well as the stuff everyone searches for in jQuery at least once, but which aren't there (yet).</p>
+
+<p>An example? Load a stylesheet the same way you'd load a script with getScript().</p>
+
+<p>Another example? Flexible, centrally disablable console logging with check if the console is available.</p>
+
+<p>Some more? Polling. A real isNaN. Pythonic string formatting. Precise long running timers. Method throttling. History manipulation. Image preloading. Webfont display callback. And so on and so forth ...</p>
+
+<p>Generally speaking: everytime i need some general missing functionality, semantically fitting with the jQuery core, I implement a generic solution. If something gets absorbed by the core it will be removed.</p>
+
+<p>Annex should always fit the current jQuery version. Changes may be breaking but are documented in the commits. The fitting jQuery version is always included in the uncompressed file's header doc.</p>
+
+<h2>
+<a id="how-do-i-include-and-use-this" class="anchor" href="#how-do-i-include-and-use-this" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How do I include and use this?</h2>
+
+<p>Easy as pie. Just include it after jQuery and you're good to go.</p>
+
+<pre><code>&lt;script src="jquery-x.xx.x.min.js"&gt;&lt;/script&gt;
+&lt;script src="jquery.annex.min.js"&gt;&lt;/script&gt;
+</code></pre>
+
+<p>If you need some pointers about the possibilities, have a look at the <a href="http://ifschleife.de/jqueryannex/?examples">examples</a> on the project site.</p>
+
+<h2>
+<a id="and-if-i-want-to-load-this-as-a-module" class="anchor" href="#and-if-i-want-to-load-this-as-a-module" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>And if I want to load this as a module?</h2>
+
+<p>Same as for jQuery itself. Shim it, define the export as $ and set jQuery as a dependency.</p>
+
+<h2>
+<a id="is-this-any-good-why-should-i-use-this" class="anchor" href="#is-this-any-good-why-should-i-use-this" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Is this any good, why should I use this?</h2>
+
+<p>Everytime I have to do a one pager or smaller project without this helper lib I'm frustrated about the fact, that I, again, have to deal with all those already solved problems and bloat by code with those typical, ugly javascript weirdnesses.</p>
+
+<p>This just lets you streamline everyday jQuery code and make things generally more friendly, for the price of 25kb.</p>
+
+<p>In bigger projects, I'd recommend a solid framework like angular or backbone and maybe add underscore, here jQuery, if used at all, is mostly included for it's selector engine. So a jQuery addition seems a little pointless.</p>
+
+<p>So in summary: Annex is a good addition for small to medium projects with a heavy focus on jQuery.</p>
+
+<h2>
+<a id="whats-this-validation-plugin-stuff" class="anchor" href="#whats-this-validation-plugin-stuff" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What's this validation plugin stuff?</h2>
+
+<p>A while ago I wrote <a href="https://github.com/OktarinTentakel/htmlform">HtmlForm</a>, which is a form definition framework for PHP5. One result of this project was complex javascript form validation. When I moved away from server-side code to the client I suddenly needed form validation without the PHP context and decided to move the javascript validation part into an Annex-plugin.</p>
+
+<p>This little piece of code is the result.</p>
+
+<p>You can do quite advanced stuff with this plugin and I already used this for quite complex, bigger projects with knockout for example, but the API is still a little strange and convoluted for my taste, which is a result of the original validation structure of HtmlForm.</p>
+
+<p>Nonetheless, this is quite mighty and the example implementation in <code>plugin-validation-example</code> will give you a good idea about the general workings.</p>
+
+<p>By the way: this is a <strong>form</strong> validator, not an <strong>object</strong> or <strong>schema</strong> validator. If you don't have an actual form to validate, do yourself a favour and use <a href="https://github.com/Atinux/schema-inspector">SchemaInspector</a>.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/OktarinTentakel">OktarinTentakel</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
