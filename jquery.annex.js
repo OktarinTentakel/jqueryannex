@@ -2397,8 +2397,8 @@ $.extend({
 	 **/
 	contextIsTouchDevice : function(inspectUserAgent, additionalUserAgentIds, onlyConsiderUserAgent){
 		var _this_ = this,
-			touchEventsPresent = 'createTouch' in document,
-			res = onlyConsiderUserAgent ? true : touchEventsPresent,
+			touchEventsPresent = onlyConsiderUserAgent ? true : ('createTouch' in document),
+			res = touchEventsPresent,
 			ua = navigator.userAgent;
 
 		if( this.isSet(inspectUserAgent) && inspectUserAgent ){
