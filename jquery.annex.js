@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 24 developed and tested with jQuery 1.11.3
+ * @version Revision 25 developed and tested with jQuery 1.11.3
  **/
 
 
@@ -3880,7 +3880,7 @@ $.fn.extend({
 				$label = [];
 
 			if( hasId ){
-				$label = $('label[for='+$target.attr('id')+']');
+				$label = $('label[for="'+$target.attr('id')+'"]');
 			}
 
 			if( $label.length === 0 ){
@@ -3932,7 +3932,7 @@ $.fn.extend({
 						}
 
 						if( $(this).is(':radio') && $.isSet($(this).attr('name')) ){
-							$(':radio[name='+$(this).attr('name')+']').not($(this)).each(function(){
+							$(':radio[name="'+$(this).attr('name')+'"]').not($(this)).each(function(){
 								$siblingLabel = fGetClosestLabel($(this));
 								$siblingLabel.removeClass('checked');
 							});
