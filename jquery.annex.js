@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 25 developed and tested with jQuery 1.11.3
+ * @version Revision 26 developed and tested with jQuery 1.11.3
  **/
 
 
@@ -2236,7 +2236,7 @@ $.extend({
 						var $headline = $(this).find(headlineSelector).first();
 
 						if( ($headline.length > 0) &&  $headline.isInViewport(true) ){
-							$navElements.filter('[href*=#'+$(this).attr('id')+']').first().addClass(activeClass);
+							$navElements.filter('[href*="#'+$(this).attr('id')+'"]').first().addClass(activeClass);
 							found = true;
 							return false;
 						}
@@ -2245,7 +2245,7 @@ $.extend({
 					if( !found ){
 						$sectionElements.each(function(){
 							if( $(this).isInViewport() ){
-								$navElements.filter('[href*=#'+$(this).attr('id')+']').first().addClass(activeClass);
+								$navElements.filter('[href*="#'+$(this).attr('id')+'"]').first().addClass(activeClass);
 								found = true;
 								return false;
 							}
@@ -2265,11 +2265,11 @@ $.extend({
 
 			                if( headlineTop < Math.round(viewportHeight / 10) ){
 								$navElements.removeClass(activeClass);
-								$navElements.filter('[href*=#'+$(this).attr('id')+']').first().addClass(activeClass);
+								$navElements.filter('[href*="#'+$(this).attr('id')+'"]').first().addClass(activeClass);
 			                }
 			            });
 			        } else {
-						$navElements.filter('[href*=#'+$sectionElements.last().attr('id')+']').first().addClass(activeClass);
+						$navElements.filter('[href*="#'+$sectionElements.last().attr('id')+'"]').first().addClass(activeClass);
 			        }
 				break;
 			}
@@ -3862,7 +3862,7 @@ $.fn.extend({
 	 *  and wraps the input in a label if no label could be found
 	 *
 	 * @param  {?String} [containerClass] - if set, adds this class string to the input's newly created container element
-	 * @param  {?String} [labelText] - if set, sets this text as the text content of the input labels if any, does nothing for select
+	 * @param  {?String} [labelText] - if set, sets this text as the text content of the input labels if any, for selects this value takes preference over using the value of the first option (may contain styling in that case)
 	 * @returns {Object} this
 	 *
 	 * @memberof Forms:$fn.makeStylable
@@ -3960,8 +3960,13 @@ $.fn.extend({
 						'bottom' : 0,
 						'left' : 0
 					})
-					.text($(this).children('option').first().text())
 				;
+
+				if( $.isSet(labelText) ){
+					$label.html(labelText);
+				} else {
+					$label.text($(this).children('option').first().text());
+				}
 
 				$selectProxy = $.elem('div')
 					.addClass('selectproxy')
