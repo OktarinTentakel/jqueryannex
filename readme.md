@@ -33,13 +33,15 @@ Easy as pie. Just include it after jQuery and you're good to go.
 <script src="jquery.annex.min.js"></script>
 ```
 
-If you need some pointers about the possibilities, have a look at the [examples](http://ifschleife.de/jqueryannex/?examples) on the project site.
+If you need some pointers about the possibilities, in the "/doc"-folder an expansive documentation (open index.html),
+where each method also includes examples.
 
 
 
 And if I want to load this as a module?
 ---------------------------------------
-Same as for jQuery itself. Shim it, define the export as $ and set jQuery as a dependency.
+Just use it the same as you would with jQuery. Define it as a package in your paths/maps and require it. jQuery,
+of course, is an automatic dependency.
 
 
 
