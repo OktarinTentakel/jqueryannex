@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 27 developed and tested with jQuery 1.12.4
+ * @version Revision 28 developed and tested with jQuery 1.12.4
  **/
 
 
@@ -3620,10 +3620,10 @@
 					stopperFunc = function(e){ return false; };
 
 				$(this)
-					.on('change', stopperFunc)
+					.on('change.deselect', stopperFunc)
 					.val('')
 					.val(tmpVal)
-					.off('change', stopperFunc)
+					.off('change.deselect', stopperFunc)
 				;
 			} else {
 				$(this)
@@ -3966,7 +3966,7 @@
 					fSetLabelText($label);
 
 					$(this)
-						.on('change', function(){
+						.on('change.stylableinput', function(){
 							if( $(this).is(':checked') ){
 								$label.addClass('checked');
 							} else {
@@ -3982,9 +3982,10 @@
 						})
 					;
 
-					if( $(this).is(':visible') ){
-						$(this).hide();
-					}
+					$(this)
+						.hide()
+						.triggerHandler('change.stylableinput')
+					;
 				} else if( $(this).is('select') ){
 					$(this).css({
 						'opacity' : 0.01,
@@ -4027,19 +4028,19 @@
 					;
 
 					$(this)
-						.on('click', function(e){
+						.on('click.stylableinput', function(e){
 							e.stopPropagation();
 						})
-						.on('change', function(){
+						.on('change.stylableinput', function(){
 							var $selectedOption = $(this).children('option:selected').first();
 							if( $selectedOption.length > 0 ){
 								$label.text($selectedOption.text());
 							}
 						})
-						.triggerHandler('change')
+						.triggerHandler('change.stylableinput')
 					;
 
-					$selectProxy.on('click', function(){
+					$selectProxy.on('click.stylableinput', function(){
 						$(this).children('select').click();
 					});
 				} else if( $(this).is(':file') ){
@@ -4833,8 +4834,8 @@
 			$.jqueryAnnexData.highDpiBackgroundImages.targetClosures.push(fSelectImageVersion);
 
 			$(window)
-				.off('resize.highDpiBackgroundImages')
-				.on('resize.highDpiBackgroundImages', function(){
+				.off('resize.highdpibackgroundimages')
+				.on('resize.highdpibackgroundimages', function(){
 					$.jqueryAnnexData.highDpiBackgroundImages.checkTimer = $.reschedule(
 						$.jqueryAnnexData.highDpiBackgroundImages.checkTimer,
 						reactionDelayMs,
