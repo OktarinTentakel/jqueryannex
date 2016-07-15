@@ -1,6 +1,6 @@
 {
     "opts": {
-        "//template": "templates/default",
+        "//template": "./node_modules/jsdoc/templates/default",
         "encoding": "utf8",
         "destination": "./doc/",
         "recurse": true,
@@ -11,7 +11,7 @@
         "allowUnknownTags": true
     },
     "source": {
-        "include" : ["jquery.annex.js"],
+        "include" : ["src/jquery.annex.js"],
         "includePattern": ".+\\.js(doc|x)?$",
         "excludePattern": "(^|\\/|\\\\)_"
     },

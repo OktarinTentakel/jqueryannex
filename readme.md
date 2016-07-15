@@ -28,7 +28,7 @@ How do I include and use this?
 ------------------------------
 Easy as pie. Just include it after jQuery and you're good to go.
 
-```
+```html
 <script src="jquery-x.xx.x.min.js"></script>
 <script src="jquery.annex.min.js"></script>
 ```
