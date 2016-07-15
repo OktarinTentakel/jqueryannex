@@ -12,7 +12,7 @@
 			}
 		</style>
 
-		<script type="text/javascript" src="jquery-1.11.3.min.js"></script>
+		<script type="text/javascript" src="jquery-1.12.4.min.js"></script>
 		<script type="text/javascript" src="jquery.annex.js"></script>
 		<script type="text/javascript" src="jquery.annex.validation-plugin.js"></script>
 		<script type="text/javascript">
@@ -52,15 +52,24 @@
 						{required : 'needs a value'},
 						{rangelength : 'too short or too long', args : [3, 8]},
 						{customcase : 'shorter 4 needs to be "test"', args : function(){ return (($('#test').val().length <= 4) && ($('#test').val() == 'test')) || ($('#test').val().length > 4); }},
-						{customcase_async : 'remote file missing', args : function(callback, errorCallback){
+						// to test and activate this, serve this file not via file://
+						/*{customcase_async : 'remote file missing', args : function(callback, errorCallback){
 							$.get('plugin-validation-example.html')
 								.done(function(data){ callback(($('#test').val().length <= 10) ? true : 'too short'); })
 								.fail(errorCallback)
 							;
-						}}
+						}}*/
 					],
 					function(success, messages, $target){
-						// do something
+						$target.next('.messages').remove();
+
+						if( !success){
+							$target.after($.elem('div').addClass('messages'));
+
+							$.each(messages, function(index, value){
+								$target.next('.messages').append($.elem('p').text(value));
+							});
+						}
 					},
 					null,
 					$('body')
@@ -80,24 +89,26 @@
 
 				// needs to be an email address,
 				// sets the closest fieldset as errorcontainer, to mark errors correctly
-				$(':radio[name=test3]').setValidation(
+				$(':radio[name=test3]').first().setValidation(
 					[
 						{email : 'this is no email address'}
 					],
 					null,
-					$(':radio[name=test3]').closest('fieldset')
+					$(':radio[name=test3]').first().closest('fieldset'),
+					$(':radio[name=test3]').first().closest('fieldset')
 				);
 
 				// needs to be an url,
 				// is set optional, so doesn't need a value,
 				// sets the closest fieldset as errorcontainer, to mark errors correctly
-				$(':checkbox[name=test4]').setValidation(
+				$(':checkbox[name=test4]').first().setValidation(
 					[
 						{url : 'this is no url'},
 						{optional : null}
 					],
 					null,
-					$(':checkbox[name=test4]').closest('fieldset')
+					$(':checkbox[name=test4]').first().closest('fieldset'),
+					$(':checkbox[name=test4]').first().closest('fieldset')
 				);
 
 				// possible removal of validation added beforehand, uncomment to use
@@ -138,32 +149,32 @@
 		</fieldset>
 
 		<fieldset>
-			<input id="test5" name="test5" type="text" value="01/13/2013" data-validation='{"date" : "needs to be an american date"}'/>
-			<input id="test6" name="test6" type="text" value="01:30am" data-validation='{"time" : "needs to be an american time"}'/>
-			<input id="test7" name="test7" type="text" value="12/1/2012 12:30:59 pm" data-validation='{"datetime" : "needs to be an american datetime"}'/>
+			<input name="test5" type="text" value="01/13/2013" data-validation='{"date" : "needs to be an american date"}'/>
+			<input name="test6" type="text" value="01:30am" data-validation='{"time" : "needs to be an american time"}'/>
+			<input name="test7" type="text" value="12/1/2012 12:30:59 pm" data-validation='{"datetime" : "needs to be an american datetime"}'/>
 		</fieldset>
 
 		<fieldset>
-			<input id="test5" name="test8" type="text" value="2002-12-01" data-validation='{"dateISO" : "needs to be an ISO-date"}'/>
-			<input id="test6" name="test9" type="text" value="23:59:59" data-validation='{"timeISO" : "needs to be an ISO-time"}'/>
-			<input id="test7" name="test10" type="text" value="2012-12-13T13:13:13" data-validation='{"datetimeISO" : "needs to be an ISO-datetime"}'/>
+			<input name="test8" type="text" value="2002-12-01" data-validation='{"dateISO" : "needs to be an ISO-date"}'/>
+			<input name="test9" type="text" value="23:59:59" data-validation='{"timeISO" : "needs to be an ISO-time"}'/>
+			<input name="test10" type="text" value="2012-12-13T13:13:13" data-validation='{"datetimeISO" : "needs to be an ISO-datetime"}'/>
 		</fieldset>
 
 		<fieldset>
-			<input id="test5" name="test11" type="text" value="01.12.2002" data-validation='{"dateDE" : "needs to be a german date"}'/>
-			<input id="test6" name="test12" type="text" value="13:13h" data-validation='{"timeDE" : "needs to be a german time"}'/>
-			<input id="test7" name="test13" type="text" value="13.12.2012 12:30:59" data-validation='{"datetimeDE" : "needs to be a german datetime"}'/>
+			<input name="test11" type="text" value="01.12.2002" data-validation='{"dateDE" : "needs to be a german date"}'/>
+			<input name="test12" type="text" value="13:13h" data-validation='{"timeDE" : "needs to be a german time"}'/>
+			<input name="test13" type="text" value="13.12.2012 12:30:59" data-validation='{"datetimeDE" : "needs to be a german datetime"}'/>
 		</fieldset>
 
 		<fieldset>
-			<input id="test" name="test14" type="text" value="100.1" data-validation='{"number" : "needs to be an american number"}'/>
-			<input id="test" name="test15" type="text" value="100,1" data-validation='{"numberDE" : "needs to be a german number"}'/>
-			<input id="test" name="test16" type="text" value="100" data-validation='{"digits" : "needs to be only digits"}'/>
+			<input name="test14" type="text" value="100.1" data-validation='{"number" : "needs to be an american number"}'/>
+			<input name="test15" type="text" value="100,1" data-validation='{"numberDE" : "needs to be a german number"}'/>
+			<input name="test16" type="text" value="100" data-validation='{"digits" : "needs to be only digits"}'/>
 		</fieldset>
 
 		<fieldset>
-			<input id="test" name="test17" type="text" value="123-1234-1234-1234" data-validation='{"creditcard" : "needs to be a creditcard number"}'/>
-			<input id="test" name="test18" type="text" value="abcdefg" data-validation='{"characterclass" : "has to be of regex characterclass", "args" : "a-z"}'/>
+			<input name="test17" type="text" value="123-1234-1234-1234" data-validation='{"creditcard" : "needs to be a creditcard number"}'/>
+			<input name="test18" type="text" value="abcdefg" data-validation='{"characterclass" : "has to be of regex characterclass", "args" : "a-z"}'/>
 		</fieldset>
 	</body>
 </html>

@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 28 developed and tested with jQuery 1.12.4
+ * @version Revision 29 developed and tested with jQuery 1.12.4
  **/
 
 
@@ -33,24 +33,36 @@
 		}
 
 		var jQueryVersion = $().jquery.split('.'),
-			requredVersion = '1.12.4',
+			requiredVersions = {
+				'1' : '12.4',
+				'2' : '2.4',
+				'3' : '1.0'
+			};
 			versionMayBeDeprecated = false;
 
-		$.each(requredVersion.split('.'), function(index, versionPart){
-			if( jQueryVersion[index] ){
-				if( parseInt(jQueryVersion[index], 10) < parseInt(versionPart, 10) ){
+		if( requiredVersions[jQueryVersion[0]] ){
+			$.each(requiredVersions[jQueryVersion[0]].split('.'), function(index, versionPart){
+				if( jQueryVersion[index + 1] ){
+					if( parseInt(jQueryVersion[index + 1], 10) < parseInt(versionPart, 10) ){
+						versionMayBeDeprecated = true;
+						return false;
+					} else if( parseInt(jQueryVersion[index + 1], 10) > parseInt(versionPart, 10) ){
+						return false;
+					}
+				} else {
 					versionMayBeDeprecated = true;
 					return false;
 				}
-			} else {
-				versionMayBeDeprecated = true;
-				return false;
+			});
+		} else {
+			if( window.console && (typeof window.console.warn === 'function') ){
+				window.console.warn('jQueryAnnex | the available jQuery version is unknown, use at your own risk');
 			}
-		});
+		}
 
 		if( versionMayBeDeprecated ){
 			if( window.console && (typeof window.console.warn === 'function') ){
-				window.console.warn('jQueryAnnex | the available jQuery version is older than '+requredVersion+', use at your own risk');
+				window.console.warn('jQueryAnnex | the available jQuery version is older than '+jQueryVersion[0]+'.'+requiredVersions[jQueryVersion[0]]+', use at your own risk');
 			}
 		}
 	}());
@@ -162,6 +174,69 @@
 						console.log(obj);
 					});
 				}
+			}
+		},
+
+
+
+		/**
+		 * @namespace Logging:$.warn
+		 **/
+
+		/**
+		 * Logs a warning to the console. Prevents errors in browsers, that don't support this feature.
+		 *
+		 * @param {...*} [...] - add any number of arguments you wish to log
+		 *
+		 * @memberof Logging:$.warn
+		 * @example
+		 * $.warn('warning yo!');
+		 * $.warn(randomVar, 'string');
+		 * $.warn(false);
+		 * $.warn(true);
+		 **/
+		warn : function(){
+			if( this.exists('console') && $.isFunction(console.warn) ){
+				$.each(arguments, function(index, obj){
+					if( $.isA(obj, 'boolean') ){
+						obj = obj ? 'true' : 'false';
+					}
+
+					console.warn(obj);
+				});
+			}
+		},
+
+
+
+		/**
+		 * @namespace Logging:$.err
+		 **/
+
+		/**
+		 * Logs an error to the console. Prevents errors in browsers, that don't support this feature.
+		 *
+		 * This function is not named $.error because that already exists in jQuery for another purpose,
+		 * namely for exception handling for jQuery plugins. We're not touching that.
+		 *
+		 * @param {...*} [...] - add any number of arguments you wish to log
+		 *
+		 * @memberof Logging:$.err
+		 * @example
+		 * $.err('error yo!');
+		 * $.err(randomVar, 'string');
+		 * $.err(false);
+		 * $.err(true);
+		 **/
+		err : function(){
+			if( this.exists('console') && $.isFunction(console.error) ){
+				$.each(arguments, function(index, obj){
+					if( $.isA(obj, 'boolean') ){
+						obj = obj ? 'true' : 'false';
+					}
+
+					console.error(obj);
+				});
 			}
 		},
 
@@ -384,7 +459,7 @@
 		 **/
 
 		/**
-		 * Check if variable(s) is set at, by being neither undefined nor null.
+		 * Check if variable(s) is set, by being neither undefined nor null.
 		 *
 		 * @param {...*} [...] - add any number of variables you wish to check
 		 * @returns {Boolean} variable(s) is/are set
@@ -404,6 +479,82 @@
 				res = res && ((obj !== undefined) && (obj !== null));
 				if( !res ){
 					return false;
+				}
+			});
+
+			return res;
+		},
+
+
+
+		/**
+		 * @namespace Basic:$.isEmpty
+		 **/
+
+		/**
+		 * Check if variable(s) contain non-empty value
+		 * (not undefined, null, '', 0, [], {} or an empy Set/Map).
+		 *
+		 * You can supply additional non-empty values by providing an array as first parameter of the form
+		 * ['__additionalempty__', '0', false]
+		 * Where the first item identifies the array as empty values, and starting with the second item providing
+		 * additional empy values.
+		 *
+		 * @param {Array} [additionalEmptyValues] - provide additional empty values, array must contain '__additionalempty__' as first element
+		 * @param {...*} [...] - add any number of variables you wish to check
+		 * @returns {Boolean} variable(s) is/are non-empty
+		 *
+		 * @memberof Basic:$.isEmpty
+		 * @example
+		 * function set(name, value){
+	     *   if( $.isEmpty(fooBar) || $.isEmpty(['__additionalempty__', false, '0'], someArray, someSet, someString, value) ){
+		 *     ...
+	     *   }
+		 * }
+		 **/
+		isEmpty : function(additionalEmptyValues){
+			var res = false,
+				args = null;
+
+			if(
+				$.isArray(additionalEmptyValues)
+				&& (additionalEmptyValues.length > 0)
+				&& (additionalEmptyValues[0] === '__additionalempty__')
+			){
+				args = $.makeArray(arguments).slice(1);
+				additionalEmptyValues = additionalEmptyValues.slice(1);
+			} else {
+				args = $.makeArray(arguments);
+				additionalEmptyValues = [];
+			}
+
+			$.each(args, function(index, obj){
+				res = res || (
+					(obj === undefined)
+					|| (obj === null)
+					|| (obj === '')
+					|| (obj === 0)
+					|| ($.inArray(obj, additionalEmptyValues) >= 0)
+				);
+
+				if( !res ){
+					if( $.isArray(obj) ){
+						res = res || (obj.length === 0);
+					} else if( $.isPlainObject(obj) ){
+						res = res || $.isEmptyObject(obj);
+					} else if(
+						$.isA(obj, 'object')
+						&& ($.inArray(
+							Object.prototype.toString.call(obj),
+							['[object Set]', '[object Map]']
+						) >= 0)
+					){
+	      				res = res || (obj.size === 0);
+					}
+				}
+
+				if( res ){
+					return true;
 				}
 			});
 
@@ -466,7 +617,11 @@
 		 * }
 		 **/
 		orDefault : function(expression, defaultValue, caster, additionalEmptyValues){
-			additionalEmptyValues = $.isArray(additionalEmptyValues) ? additionalEmptyValues : [additionalEmptyValues];
+			if( $.isSet(additionalEmptyValues) ){
+				additionalEmptyValues = $.isArray(additionalEmptyValues) ? additionalEmptyValues : [additionalEmptyValues];
+			} else {
+				additionalEmptyValues = [];
+			}
 
 			if( $.isSet(caster) ){
 				if(

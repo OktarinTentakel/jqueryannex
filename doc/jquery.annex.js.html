@@ -38,7 +38,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl &lt;jqueryannex@ifschleife.de>
- * @version Revision 27 developed and tested with jQuery 1.12.4
+ * @version Revision 29 developed and tested with jQuery 1.12.4
  **/
 
 
@@ -55,9 +55,45 @@
 
 	//--|CHECK-AND-PREPARE-JQUERY----------
 
-	if( !$ || !$.fn || !$().jquery ){
-		throw 'jQueryAnnex | cannot extend jQuery, since it does not seem to be available as "jQuery" or is missing basic functionality';
-	}
+	(function(){
+		if( !$ || !$.fn || !$().jquery ){
+			throw 'jQueryAnnex | cannot extend jQuery, since it does not seem to be available as "jQuery" or is missing basic functionality';
+		}
+
+		var jQueryVersion = $().jquery.split('.'),
+			requiredVersions = {
+				'1' : '12.4',
+				'2' : '2.4',
+				'3' : '1.0'
+			};
+			versionMayBeDeprecated = false;
+
+		if( requiredVersions[jQueryVersion[0]] ){
+			$.each(requiredVersions[jQueryVersion[0]].split('.'), function(index, versionPart){
+				if( jQueryVersion[index + 1] ){
+					if( parseInt(jQueryVersion[index + 1], 10) &lt; parseInt(versionPart, 10) ){
+						versionMayBeDeprecated = true;
+						return false;
+					} else if( parseInt(jQueryVersion[index + 1], 10) > parseInt(versionPart, 10) ){
+						return false;
+					}
+				} else {
+					versionMayBeDeprecated = true;
+					return false;
+				}
+			});
+		} else {
+			if( window.console &amp;&amp; (typeof window.console.warn === 'function') ){
+				window.console.warn('jQueryAnnex | the available jQuery version is unknown, use at your own risk');
+			}
+		}
+
+		if( versionMayBeDeprecated ){
+			if( window.console &amp;&amp; (typeof window.console.warn === 'function') ){
+				window.console.warn('jQueryAnnex | the available jQuery version is older than '+jQueryVersion[0]+'.'+requiredVersions[jQueryVersion[0]]+', use at your own risk');
+			}
+		}
+	}());
 
 
 
@@ -166,6 +202,69 @@
 						console.log(obj);
 					});
 				}
+			}
+		},
+
+
+
+		/**
+		 * @namespace Logging:$.warn
+		 **/
+
+		/**
+		 * Logs a warning to the console. Prevents errors in browsers, that don't support this feature.
+		 *
+		 * @param {...*} [...] - add any number of arguments you wish to log
+		 *
+		 * @memberof Logging:$.warn
+		 * @example
+		 * $.warn('warning yo!');
+		 * $.warn(randomVar, 'string');
+		 * $.warn(false);
+		 * $.warn(true);
+		 **/
+		warn : function(){
+			if( this.exists('console') &amp;&amp; $.isFunction(console.warn) ){
+				$.each(arguments, function(index, obj){
+					if( $.isA(obj, 'boolean') ){
+						obj = obj ? 'true' : 'false';
+					}
+
+					console.warn(obj);
+				});
+			}
+		},
+
+
+
+		/**
+		 * @namespace Logging:$.err
+		 **/
+
+		/**
+		 * Logs an error to the console. Prevents errors in browsers, that don't support this feature.
+		 *
+		 * This function is not named $.error because that already exists in jQuery for another purpose,
+		 * namely for exception handling for jQuery plugins. We're not touching that.
+		 *
+		 * @param {...*} [...] - add any number of arguments you wish to log
+		 *
+		 * @memberof Logging:$.err
+		 * @example
+		 * $.err('error yo!');
+		 * $.err(randomVar, 'string');
+		 * $.err(false);
+		 * $.err(true);
+		 **/
+		err : function(){
+			if( this.exists('console') &amp;&amp; $.isFunction(console.error) ){
+				$.each(arguments, function(index, obj){
+					if( $.isA(obj, 'boolean') ){
+						obj = obj ? 'true' : 'false';
+					}
+
+					console.error(obj);
+				});
 			}
 		},
 
@@ -388,7 +487,7 @@
 		 **/
 
 		/**
-		 * Check if variable(s) is set at, by being neither undefined nor null.
+		 * Check if variable(s) is set, by being neither undefined nor null.
 		 *
 		 * @param {...*} [...] - add any number of variables you wish to check
 		 * @returns {Boolean} variable(s) is/are set
@@ -408,6 +507,82 @@
 				res = res &amp;&amp; ((obj !== undefined) &amp;&amp; (obj !== null));
 				if( !res ){
 					return false;
+				}
+			});
+
+			return res;
+		},
+
+
+
+		/**
+		 * @namespace Basic:$.isEmpty
+		 **/
+
+		/**
+		 * Check if variable(s) contain non-empty value
+		 * (not undefined, null, '', 0, [], {} or an empy Set/Map).
+		 *
+		 * You can supply additional non-empty values by providing an array as first parameter of the form
+		 * ['__additionalempty__', '0', false]
+		 * Where the first item identifies the array as empty values, and starting with the second item providing
+		 * additional empy values.
+		 *
+		 * @param {Array} [additionalEmptyValues] - provide additional empty values, array must contain '__additionalempty__' as first element
+		 * @param {...*} [...] - add any number of variables you wish to check
+		 * @returns {Boolean} variable(s) is/are non-empty
+		 *
+		 * @memberof Basic:$.isEmpty
+		 * @example
+		 * function set(name, value){
+	     *   if( $.isEmpty(fooBar) || $.isEmpty(['__additionalempty__', false, '0'], someArray, someSet, someString, value) ){
+		 *     ...
+	     *   }
+		 * }
+		 **/
+		isEmpty : function(additionalEmptyValues){
+			var res = false,
+				args = null;
+
+			if(
+				$.isArray(additionalEmptyValues)
+				&amp;&amp; (additionalEmptyValues.length > 0)
+				&amp;&amp; (additionalEmptyValues[0] === '__additionalempty__')
+			){
+				args = $.makeArray(arguments).slice(1);
+				additionalEmptyValues = additionalEmptyValues.slice(1);
+			} else {
+				args = $.makeArray(arguments);
+				additionalEmptyValues = [];
+			}
+
+			$.each(args, function(index, obj){
+				res = res || (
+					(obj === undefined)
+					|| (obj === null)
+					|| (obj === '')
+					|| (obj === 0)
+					|| ($.inArray(obj, additionalEmptyValues) >= 0)
+				);
+
+				if( !res ){
+					if( $.isArray(obj) ){
+						res = res || (obj.length === 0);
+					} else if( $.isPlainObject(obj) ){
+						res = res || $.isEmptyObject(obj);
+					} else if(
+						$.isA(obj, 'object')
+						&amp;&amp; ($.inArray(
+							Object.prototype.toString.call(obj),
+							['[object Set]', '[object Map]']
+						) >= 0)
+					){
+	      				res = res || (obj.size === 0);
+					}
+				}
+
+				if( res ){
+					return true;
 				}
 			});
 
@@ -470,7 +645,11 @@
 		 * }
 		 **/
 		orDefault : function(expression, defaultValue, caster, additionalEmptyValues){
-			additionalEmptyValues = $.isArray(additionalEmptyValues) ? additionalEmptyValues : [additionalEmptyValues];
+			if( $.isSet(additionalEmptyValues) ){
+				additionalEmptyValues = $.isArray(additionalEmptyValues) ? additionalEmptyValues : [additionalEmptyValues];
+			} else {
+				additionalEmptyValues = [];
+			}
 
 			if( $.isSet(caster) ){
 				if(
@@ -3624,10 +3803,10 @@
 					stopperFunc = function(e){ return false; };
 
 				$(this)
-					.on('change', stopperFunc)
+					.on('change.deselect', stopperFunc)
 					.val('')
 					.val(tmpVal)
-					.off('change', stopperFunc)
+					.off('change.deselect', stopperFunc)
 				;
 			} else {
 				$(this)
@@ -3970,7 +4149,7 @@
 					fSetLabelText($label);
 
 					$(this)
-						.on('change', function(){
+						.on('change.stylableinput', function(){
 							if( $(this).is(':checked') ){
 								$label.addClass('checked');
 							} else {
@@ -3986,9 +4165,10 @@
 						})
 					;
 
-					if( $(this).is(':visible') ){
-						$(this).hide();
-					}
+					$(this)
+						.hide()
+						.triggerHandler('change.stylableinput')
+					;
 				} else if( $(this).is('select') ){
 					$(this).css({
 						'opacity' : 0.01,
@@ -4031,19 +4211,19 @@
 					;
 
 					$(this)
-						.on('click', function(e){
+						.on('click.stylableinput', function(e){
 							e.stopPropagation();
 						})
-						.on('change', function(){
+						.on('change.stylableinput', function(){
 							var $selectedOption = $(this).children('option:selected').first();
 							if( $selectedOption.length > 0 ){
 								$label.text($selectedOption.text());
 							}
 						})
-						.triggerHandler('change')
+						.triggerHandler('change.stylableinput')
 					;
 
-					$selectProxy.on('click', function(){
+					$selectProxy.on('click.stylableinput', function(){
 						$(this).children('select').click();
 					});
 				} else if( $(this).is(':file') ){
@@ -4837,8 +5017,8 @@
 			$.jqueryAnnexData.highDpiBackgroundImages.targetClosures.push(fSelectImageVersion);
 
 			$(window)
-				.off('resize.highDpiBackgroundImages')
-				.on('resize.highDpiBackgroundImages', function(){
+				.off('resize.highdpibackgroundimages')
+				.on('resize.highdpibackgroundimages', function(){
 					$.jqueryAnnexData.highDpiBackgroundImages.checkTimer = $.reschedule(
 						$.jqueryAnnexData.highDpiBackgroundImages.checkTimer,
 						reactionDelayMs,
@@ -6215,13 +6395,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Dates_$_SaneDate.SaneDate.html">SaneDate</a></li><li><a href="Inheritance_$_Class.Class.html">Class</a></li></ul><h3>Namespaces</h3><ul><li><a href="Animation_$fn.html">Animation:$fn</a></li><li><a href="Animation_$fn.loopAnimation.html">loopAnimation</a></li><li><a href="Arrays_$.html">Arrays:$</a></li><li><a href="Arrays_$.removeFromArray.html">removeFromArray</a></li><li><a href="Basic_$.html">Basic:$</a></li><li><a href="Basic_$.assert.html">assert</a></li><li><a href="Basic_$.exists.html">exists</a></li><li><a href="Basic_$.hasMembers.html">hasMembers</a></li><li><a href="Basic_$.isA.html">isA</a></li><li><a href="Basic_$.isFloat.html">isFloat</a></li><li><a href="Basic_$.isInt.html">isInt</a></li><li><a href="Basic_$.isNaN.html">isNaN</a></li><li><a href="Basic_$.isSet.html">isSet</a></li><li><a href="Basic_$.minMax.html">minMax</a></li><li><a href="Basic_$.orDefault.html">orDefault</a></li><li><a href="Basic_$fn.html">Basic:$fn</a></li><li><a href="Basic_$fn.dataDuo.html">dataDuo</a></li><li><a href="Basic_$fn.findTextNodes.html">findTextNodes</a></li><li><a href="Basic_$fn.isInDom.html">isInDom</a></li><li><a href="Basic_$fn.measureHidden.html">measureHidden</a></li><li><a href="Basic_$fn.oo.html">oo</a></li><li><a href="Basic_$fn.outerHtml.html">outerHtml</a></li><li><a href="Basic_$fn.rehide.html">rehide</a></li><li><a href="Basic_$fn.removeDataDuo.html">removeDataDuo</a></li><li><a href="Capabilities_$.html">Capabilities:$</a></li><li><a href="Capabilities_$.browserSupportsHistoryManipulation.html">browserSupportsHistoryManipulation</a></li><li><a href="Capabilities_$.browserSupportsLocalStorage.html">browserSupportsLocalStorage</a></li><li><a href="Capabilities_$.browserSupportsSessionStorage.html">browserSupportsSessionStorage</a></li><li><a href="Capabilities_$.contextHasHighDpi.html">contextHasHighDpi</a></li><li><a href="Capabilities_$.contextIsTouchDevice.html">contextIsTouchDevice</a></li><li><a href="Capabilities_$.contextScrollbarWidth.html">contextScrollbarWidth</a></li><li><a href="Cookies_$.html">Cookies:$</a></li><li><a href="Cookies_$.cookie.html">cookie</a></li><li><a href="Css_$.html">Css:$</a></li><li><a href="Css_$.cssToInt.html">cssToInt</a></li><li><a href="Css_$.cssUrlToSrc.html">cssUrlToSrc</a></li><li><a href="Css_$.remByPx.html">remByPx</a></li><li><a href="Css_$fn.html">Css:$fn</a></li><li><a href="Css_$fn.cssCrossBrowser.html">cssCrossBrowser</a></li><li><a href="Databases_$.html">Databases:$</a></li><li><a href="Databases_$.isolateId.html">isolateId</a></li><li><a href="Databases_$.isPossibleId.html">isPossibleId</a></li><li><a href="Dates_$.html">Dates:$</a></li><li><a href="Dates_$_SaneDate.html">SaneDate</a></li><li><a href="Dynamicloading_$.html">Dynamicloading:$</a></li><li><a href="Dynamicloading_$.getCSS.html">getCSS</a></li><li><a href="Elements_$.html">Elements:$</a></li><li><a href="Elements_$.elem.html">elem</a></li><li><a href="Elements_$.textContent.html">textContent</a></li><li><a href="Events_$.html">Events:$</a></li><li><a href="Events_$.bindCursorKey.html">bindCursorKey</a></li><li><a href="Events_$.unbindCursorKey.html">unbindCursorKey</a></li><li><a href="Events_$fn.html">Events:$fn</a></li><li><a href="Events_$fn.moveEventData.html">moveEventData</a></li><li><a href="Events_$fn.pauseHandlers.html">pauseHandlers</a></li><li><a href="Events_$fn.resumeHandlers.html">resumeHandlers</a></li><li><a href="Events_$fn.simulateTouchEvents.html">simulateTouchEvents</a></li><li><a href="Fonts_$.html">Fonts:$</a></li><li><a href="Fonts_$.waitForWebfonts.html">waitForWebfonts</a></li><li><a href="Forms_$fn.html">Forms:$fn</a></li><li><a href="Forms_$fn.check.html">check</a></li><li><a href="Forms_$fn.deselect.html">deselect</a></li><li><a href="Forms_$fn.disable.html">disable</a></li><li><a href="Forms_$fn.doselect.html">doselect</a></li><li><a href="Forms_$fn.enable.html">enable</a></li><li><a href="Forms_$fn.formDataToFormData.html">formDataToFormData</a></li><li><a href="Forms_$fn.formDataToObject.html">formDataToObject</a></li><li><a href="Forms_$fn.makeStylable.html">makeStylable</a></li><li><a href="Forms_$fn.uncheck.html">uncheck</a></li><li><a href="Functions_$.html">Functions:$</a></li><li><a href="Functions_$.deferExecution.html">deferExecution</a></li><li><a href="Functions_$.holdExecution.html">holdExecution</a></li><li><a href="Functions_$.kwargs.html">kwargs</a></li><li><a href="Functions_$.throttleExecution.html">throttleExecution</a></li><li><a href="Images_$.html">Images:$</a></li><li><a href="Images_$.preloadImages.html">preloadImages</a></li><li><a href="Images_$fn.html">Images:$fn</a></li><li><a href="Images_$fn.highDpiBackgroundImage.html">highDpiBackgroundImage</a></li><li><a href="Images_$fn.imgLoad.html">imgLoad</a></li><li><a href="Inheritance_$.html">Inheritance:$</a></li><li><a href="Inheritance_$_Class.html">Class</a></li><li><a href="Interaction_$.html">Interaction:$</a></li><li><a href="Interaction_$.removeSelection.html">removeSelection</a></li><li><a href="Interaction_$fn.html">Interaction:$fn</a></li><li><a href="Interaction_$fn.createSelection.html">createSelection</a></li><li><a href="Interaction_$fn.disableSelection.html">disableSelection</a></li><li><a href="Logging_$.html">Logging:$</a></li><li><a href="Logging_$.log.html">log</a></li><li><a href="Logging_$.x.html">x</a></li><li><a href="Navigation_$.html">Navigation:$</a></li><li><a href="Navigation_$.changeUrlSilently.html">changeUrlSilently</a></li><li><a href="Navigation_$.onHistoryChange.html">onHistoryChange</a></li><li><a href="Navigation_$.openWindow.html">openWindow</a></li><li><a href="Navigation_$.redirect.html">redirect</a></li><li><a href="Navigation_$.reload.html">reload</a></li><li><a href="Navigation_$.setupHashNavHighlighting.html">setupHashNavHighlighting</a></li><li><a href="Objects_$.html">Objects:$</a></li><li><a href="Objects_$.copyObjectContent.html">copyObjectContent</a></li><li><a href="Objects_$.emptyObject.html">emptyObject</a></li><li><a href="Objects_$.objectLength.html">objectLength</a></li><li><a href="Polling_$.html">Polling:$</a></li><li><a href="Polling_$.poll.html">poll</a></li><li><a href="Polling_$.unpoll.html">unpoll</a></li><li><a href="Preparation_$fn.html">Preparation:$fn</a></li><li><a href="Preparation_$fn.hookUp.html">hookUp</a></li><li><a href="Preparation_$fn.setElementIdentity.html">setElementIdentity</a></li><li><a href="Protocols_$fn.html">Protocols:$fn</a></li><li><a href="Protocols_$fn.registerMailto.html">registerMailto</a></li><li><a href="Protocols_$fn.registerTel.html">registerTel</a></li><li><a href="Random_$.html">Random:$</a></li><li><a href="Random_$.randomInt.html">randomInt</a></li><li><a href="Random_$.randomUUID.html">randomUUID</a></li><li><a href="Sandbox_$fn.html">Sandbox:$fn</a></li><li><a href="Sandbox_$fn.removeSandbox.html">removeSandbox</a></li><li><a href="Sandbox_$fn.sandbox.html">sandbox</a></li><li><a href="Strings_$.html">Strings:$</a></li><li><a href="Strings_$.maskForRegEx.html">maskForRegEx</a></li><li><a href="Strings_$.maskForSelector.html">maskForSelector</a></li><li><a href="Strings_$.slugify.html">slugify</a></li><li><a href="Strings_$.strConcat.html">strConcat</a></li><li><a href="Strings_$.strFormat.html">strFormat</a></li><li><a href="Strings_$.strReplace.html">strReplace</a></li><li><a href="Strings_$.strTruncate.html">strTruncate</a></li><li><a href="Timers_$.html">Timers:$</a></li><li><a href="Timers_$.countermand.html">countermand</a></li><li><a href="Timers_$.loop.html">loop</a></li><li><a href="Timers_$.ploop.html">ploop</a></li><li><a href="Timers_$.pschedule.html">pschedule</a></li><li><a href="Timers_$.reschedule.html">reschedule</a></li><li><a href="Timers_$.schedule.html">schedule</a></li><li><a href="Urls_$fn.html">Urls:$fn</a></li><li><a href="Urls_$fn.urlAnchor.html">urlAnchor</a></li><li><a href="Urls_$fn.urlParameter.html">urlParameter</a></li><li><a href="Viewport_$fn.html">Viewport:$fn</a></li><li><a href="Viewport_$fn.isInViewport.html">isInViewport</a></li><li><a href="Viewport_$fn.scrollTo.html">scrollTo</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Dates_$_SaneDate.SaneDate.html">SaneDate</a></li><li><a href="Inheritance_$_Class.Class.html">Class</a></li></ul><h3>Namespaces</h3><ul><li><a href="Animation_$fn.html">Animation:$fn</a></li><li><a href="Animation_$fn.loopAnimation.html">loopAnimation</a></li><li><a href="Arrays_$.html">Arrays:$</a></li><li><a href="Arrays_$.removeFromArray.html">removeFromArray</a></li><li><a href="Basic_$.html">Basic:$</a></li><li><a href="Basic_$.assert.html">assert</a></li><li><a href="Basic_$.exists.html">exists</a></li><li><a href="Basic_$.hasMembers.html">hasMembers</a></li><li><a href="Basic_$.isA.html">isA</a></li><li><a href="Basic_$.isEmpty.html">isEmpty</a></li><li><a href="Basic_$.isFloat.html">isFloat</a></li><li><a href="Basic_$.isInt.html">isInt</a></li><li><a href="Basic_$.isNaN.html">isNaN</a></li><li><a href="Basic_$.isSet.html">isSet</a></li><li><a href="Basic_$.minMax.html">minMax</a></li><li><a href="Basic_$.orDefault.html">orDefault</a></li><li><a href="Basic_$fn.html">Basic:$fn</a></li><li><a href="Basic_$fn.dataDuo.html">dataDuo</a></li><li><a href="Basic_$fn.findTextNodes.html">findTextNodes</a></li><li><a href="Basic_$fn.isInDom.html">isInDom</a></li><li><a href="Basic_$fn.measureHidden.html">measureHidden</a></li><li><a href="Basic_$fn.oo.html">oo</a></li><li><a href="Basic_$fn.outerHtml.html">outerHtml</a></li><li><a href="Basic_$fn.rehide.html">rehide</a></li><li><a href="Basic_$fn.removeDataDuo.html">removeDataDuo</a></li><li><a href="Capabilities_$.html">Capabilities:$</a></li><li><a href="Capabilities_$.browserSupportsHistoryManipulation.html">browserSupportsHistoryManipulation</a></li><li><a href="Capabilities_$.browserSupportsLocalStorage.html">browserSupportsLocalStorage</a></li><li><a href="Capabilities_$.browserSupportsSessionStorage.html">browserSupportsSessionStorage</a></li><li><a href="Capabilities_$.contextHasHighDpi.html">contextHasHighDpi</a></li><li><a href="Capabilities_$.contextIsTouchDevice.html">contextIsTouchDevice</a></li><li><a href="Capabilities_$.contextScrollbarWidth.html">contextScrollbarWidth</a></li><li><a href="Cookies_$.html">Cookies:$</a></li><li><a href="Cookies_$.cookie.html">cookie</a></li><li><a href="Css_$.html">Css:$</a></li><li><a href="Css_$.cssToInt.html">cssToInt</a></li><li><a href="Css_$.cssUrlToSrc.html">cssUrlToSrc</a></li><li><a href="Css_$.remByPx.html">remByPx</a></li><li><a href="Css_$fn.html">Css:$fn</a></li><li><a href="Css_$fn.cssCrossBrowser.html">cssCrossBrowser</a></li><li><a href="Databases_$.html">Databases:$</a></li><li><a href="Databases_$.isolateId.html">isolateId</a></li><li><a href="Databases_$.isPossibleId.html">isPossibleId</a></li><li><a href="Dates_$.html">Dates:$</a></li><li><a href="Dates_$_SaneDate.html">SaneDate</a></li><li><a href="Dynamicloading_$.html">Dynamicloading:$</a></li><li><a href="Dynamicloading_$.getCSS.html">getCSS</a></li><li><a href="Elements_$.html">Elements:$</a></li><li><a href="Elements_$.elem.html">elem</a></li><li><a href="Elements_$.textContent.html">textContent</a></li><li><a href="Events_$.html">Events:$</a></li><li><a href="Events_$.bindCursorKey.html">bindCursorKey</a></li><li><a href="Events_$.unbindCursorKey.html">unbindCursorKey</a></li><li><a href="Events_$fn.html">Events:$fn</a></li><li><a href="Events_$fn.moveEventData.html">moveEventData</a></li><li><a href="Events_$fn.pauseHandlers.html">pauseHandlers</a></li><li><a href="Events_$fn.resumeHandlers.html">resumeHandlers</a></li><li><a href="Events_$fn.simulateTouchEvents.html">simulateTouchEvents</a></li><li><a href="Fonts_$.html">Fonts:$</a></li><li><a href="Fonts_$.waitForWebfonts.html">waitForWebfonts</a></li><li><a href="Forms_$fn.html">Forms:$fn</a></li><li><a href="Forms_$fn.check.html">check</a></li><li><a href="Forms_$fn.deselect.html">deselect</a></li><li><a href="Forms_$fn.disable.html">disable</a></li><li><a href="Forms_$fn.doselect.html">doselect</a></li><li><a href="Forms_$fn.enable.html">enable</a></li><li><a href="Forms_$fn.formDataToFormData.html">formDataToFormData</a></li><li><a href="Forms_$fn.formDataToObject.html">formDataToObject</a></li><li><a href="Forms_$fn.makeStylable.html">makeStylable</a></li><li><a href="Forms_$fn.uncheck.html">uncheck</a></li><li><a href="Functions_$.html">Functions:$</a></li><li><a href="Functions_$.deferExecution.html">deferExecution</a></li><li><a href="Functions_$.holdExecution.html">holdExecution</a></li><li><a href="Functions_$.kwargs.html">kwargs</a></li><li><a href="Functions_$.throttleExecution.html">throttleExecution</a></li><li><a href="Images_$.html">Images:$</a></li><li><a href="Images_$.preloadImages.html">preloadImages</a></li><li><a href="Images_$fn.html">Images:$fn</a></li><li><a href="Images_$fn.highDpiBackgroundImage.html">highDpiBackgroundImage</a></li><li><a href="Images_$fn.imgLoad.html">imgLoad</a></li><li><a href="Inheritance_$.html">Inheritance:$</a></li><li><a href="Inheritance_$_Class.html">Class</a></li><li><a href="Interaction_$.html">Interaction:$</a></li><li><a href="Interaction_$.removeSelection.html">removeSelection</a></li><li><a href="Interaction_$fn.html">Interaction:$fn</a></li><li><a href="Interaction_$fn.createSelection.html">createSelection</a></li><li><a href="Interaction_$fn.disableSelection.html">disableSelection</a></li><li><a href="Logging_$.html">Logging:$</a></li><li><a href="Logging_$.err.html">err</a></li><li><a href="Logging_$.log.html">log</a></li><li><a href="Logging_$.warn.html">warn</a></li><li><a href="Logging_$.x.html">x</a></li><li><a href="Navigation_$.html">Navigation:$</a></li><li><a href="Navigation_$.changeUrlSilently.html">changeUrlSilently</a></li><li><a href="Navigation_$.onHistoryChange.html">onHistoryChange</a></li><li><a href="Navigation_$.openWindow.html">openWindow</a></li><li><a href="Navigation_$.redirect.html">redirect</a></li><li><a href="Navigation_$.reload.html">reload</a></li><li><a href="Navigation_$.setupHashNavHighlighting.html">setupHashNavHighlighting</a></li><li><a href="Objects_$.html">Objects:$</a></li><li><a href="Objects_$.copyObjectContent.html">copyObjectContent</a></li><li><a href="Objects_$.emptyObject.html">emptyObject</a></li><li><a href="Objects_$.objectLength.html">objectLength</a></li><li><a href="Polling_$.html">Polling:$</a></li><li><a href="Polling_$.poll.html">poll</a></li><li><a href="Polling_$.unpoll.html">unpoll</a></li><li><a href="Preparation_$fn.html">Preparation:$fn</a></li><li><a href="Preparation_$fn.hookUp.html">hookUp</a></li><li><a href="Preparation_$fn.setElementIdentity.html">setElementIdentity</a></li><li><a href="Protocols_$fn.html">Protocols:$fn</a></li><li><a href="Protocols_$fn.registerMailto.html">registerMailto</a></li><li><a href="Protocols_$fn.registerTel.html">registerTel</a></li><li><a href="Random_$.html">Random:$</a></li><li><a href="Random_$.randomInt.html">randomInt</a></li><li><a href="Random_$.randomUUID.html">randomUUID</a></li><li><a href="Sandbox_$fn.html">Sandbox:$fn</a></li><li><a href="Sandbox_$fn.removeSandbox.html">removeSandbox</a></li><li><a href="Sandbox_$fn.sandbox.html">sandbox</a></li><li><a href="Strings_$.html">Strings:$</a></li><li><a href="Strings_$.maskForRegEx.html">maskForRegEx</a></li><li><a href="Strings_$.maskForSelector.html">maskForSelector</a></li><li><a href="Strings_$.slugify.html">slugify</a></li><li><a href="Strings_$.strConcat.html">strConcat</a></li><li><a href="Strings_$.strFormat.html">strFormat</a></li><li><a href="Strings_$.strReplace.html">strReplace</a></li><li><a href="Strings_$.strTruncate.html">strTruncate</a></li><li><a href="Timers_$.html">Timers:$</a></li><li><a href="Timers_$.countermand.html">countermand</a></li><li><a href="Timers_$.loop.html">loop</a></li><li><a href="Timers_$.ploop.html">ploop</a></li><li><a href="Timers_$.pschedule.html">pschedule</a></li><li><a href="Timers_$.reschedule.html">reschedule</a></li><li><a href="Timers_$.schedule.html">schedule</a></li><li><a href="Urls_$fn.html">Urls:$fn</a></li><li><a href="Urls_$fn.urlAnchor.html">urlAnchor</a></li><li><a href="Urls_$fn.urlParameter.html">urlParameter</a></li><li><a href="Viewport_$fn.html">Viewport:$fn</a></li><li><a href="Viewport_$fn.isInViewport.html">isInViewport</a></li><li><a href="Viewport_$fn.scrollTo.html">scrollTo</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu Jun 09 2016 11:57:35 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Jul 15 2016 14:39:18 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: isSet</title>
+    <title>JSDoc: Namespace: isEmpty</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: isSet</h1>
+    <h1 class="page-title">Namespace: isEmpty</h1>
 
     
 
@@ -29,7 +29,7 @@
 <header>
     
         <h2>
-            <span class="ancestors"><a href="Basic_$.html">Basic:$</a>.</span>isSet</h2>
+            <span class="ancestors"><a href="Basic_$.html">Basic:$</a>.</span>isEmpty</h2>
         
     
 </header>
@@ -71,7 +71,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line457">line 457</a>
+        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line490">line 490</a>
     </li></ul></dd>
     
 
@@ -107,14 +107,20 @@
 
     
 
-    <h4 class="name" id=".isSet"><span class="type-signature">(static) </span>isSet<span class="signature">()</span><span class="type-signature"> &rarr; {Boolean}</span></h4>
+    <h4 class="name" id=".isEmpty"><span class="type-signature">(static) </span>isEmpty<span class="signature">(additionalEmptyValues<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Boolean}</span></h4>
 
     
 
 
 
 <div class="description">
-    Check if variable(s) is set, by being neither undefined nor null.
+    Check if variable(s) contain non-empty value
+(not undefined, null, '', 0, [], {} or an empy Set/Map).
+
+You can supply additional non-empty values by providing an array as first parameter of the form
+['__additionalempty__', '0', false]
+Where the first item identifies the array as empty values, and starting with the second item providing
+additional empy values.
 </div>
 
 
@@ -148,6 +154,39 @@
     </thead>
 
     <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>additionalEmptyValues</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">provide additional empty values, array must contain '__additionalempty__' as first element</td>
+        </tr>
+
     
 
         <tr>
@@ -221,7 +260,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line475">line 475</a>
+        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line515">line 515</a>
     </li></ul></dd>
     
 
@@ -248,7 +287,7 @@
 
         
 <div class="param-desc">
-    variable(s) is/are set
+    variable(s) is/are non-empty
 </div>
 
 
@@ -271,7 +310,7 @@
     <h5>Example</h5>
     
     <pre class="prettyprint"><code>function set(name, value){
-  if( $.isSet(name, value) ){
+  if( $.isEmpty(fooBar) || $.isEmpty(['__additionalempty__', false, '0'], someArray, someSet, someString, value) ){
     ...
   }
 }</code></pre>
