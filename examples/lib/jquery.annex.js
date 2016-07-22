@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 31 developed and tested with jQuery 1.12.4
+ * @version Revision 32 developed and tested with jQuery 1.12.4
  **/
 
 

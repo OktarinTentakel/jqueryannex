@@ -15,7 +15,7 @@
  * your browser.
  *
  * @author Sebastian Schlapkohl
- * @version Revision 31 developed and tested with jQuery 1.12.4
+ * @version Revision 32 developed and tested with jQuery 1.12.4
  **/
 
 
@@ -68,6 +68,7 @@
 
 				defaultValidationData : {
 					isValid : true,
+					isDirty : false,
 
 					isOptional : false,
 					hasNonOptionalValue : false,
@@ -103,84 +104,87 @@
 
 								// catch trailing elements, not cleaned properly
 								if( $.isSet(validationData) ){
-									$target.first().one('finished.validation', function(e, isValid){
-										e.stopPropagation();
+									if( !isTriggeredByWidget || validationData.status.isDirty ){
+										$target.first().one('finished.validation', function(e, isValid){
+											e.stopPropagation();
 
-										$.jqueryAnnexData.validation.config.isValid = $.jqueryAnnexData.validation.config.isValid && isValid;
+											$.jqueryAnnexData.validation.config.isValid = $.jqueryAnnexData.validation.config.isValid && isValid;
 
-										if( !isValid ){
-											$.merge($.jqueryAnnexData.validation.config.messages, $(e.target).data('validationdata').status.messages);
-										}
+											if( !isValid ){
+												$.merge($.jqueryAnnexData.validation.config.messages, $(e.target).data('validationdata').status.messages);
+											}
 
-										validationRest--;
-										if( validationRest <= 0 ){
-											$.jqueryAnnexData.validation.config.globalCallback($.jqueryAnnexData.validation.config.isValid, $.jqueryAnnexData.validation.config.messages);
-											$(document).trigger('finished.validation', $.jqueryAnnexData.validation.config.isValid);
-										}
-									});
-
-									var isOptional = validationData.status.isOptional;
-									var asyncCount = validationData.status.asyncCount;
-									validationData.status = $.extend(true, {}, $.jqueryAnnexData.validation.config.defaultValidationData);
-									validationData.status.isOptional = isOptional;
-									validationData.status.asyncCount = asyncCount;
-									validationData.status.asyncLeft = asyncCount;
-
-									validationData.status.values = validationData.container.formDataToObject()[$target.attr('name').replace(/\[\]/, '')];
-
-									if( $.isSet(validationData.status.values) ){
-										if( !$.isArray(validationData.status.values) ){
-											validationData.status.values = [validationData.status.values];
-										}
-									} else {
-										validationData.status.values = [];
-									}
-
-									if( validationData.status.isOptional ){
-										$.each(validationData.status.values, function(index, value){
-											if( $.inArray(value, validationData.status.optionalValues) == -1 ){
-												validationData.status.hasNonOptionalValue = true;
-												return false;
+											validationRest--;
+											if( validationRest <= 0 ){
+												$.jqueryAnnexData.validation.config.globalCallback($.jqueryAnnexData.validation.config.isValid, $.jqueryAnnexData.validation.config.messages);
+												$(document).trigger('finished.validation', $.jqueryAnnexData.validation.config.isValid);
 											}
 										});
-									}
 
-									$target.data('validationdata', validationData);
+										var isOptional = validationData.status.isOptional;
+										var asyncCount = validationData.status.asyncCount;
+										validationData.status = $.extend(true, {}, $.jqueryAnnexData.validation.config.defaultValidationData);
+										validationData.status.isDirty = true;
+										validationData.status.isOptional = isOptional;
+										validationData.status.asyncCount = asyncCount;
+										validationData.status.asyncLeft = asyncCount;
 
-									$.jqueryAnnexData.validation.functions.unmarkValidationError($target);
+										validationData.status.values = validationData.container.formDataToObject()[$target.attr('name').replace(/\[\]/, '')];
 
-									if(
-										(!validationData.status.isOptional
-										|| validationData.status.hasNonOptionalValue)
-										&& !$.isSet($target.attr('disabled'))
-									){
-										$.each(validationData.rules, function(key, value){
-											validationData.status.isValid = value() && validationData.status.isValid;
-										});
+										if( $.isSet(validationData.status.values) ){
+											if( !$.isArray(validationData.status.values) ){
+												validationData.status.values = [validationData.status.values];
+											}
+										} else {
+											validationData.status.values = [];
+										}
 
-										if( !validationData.status.isValid ){
-											$.jqueryAnnexData.validation.functions.markValidationError($target);
-
-											if( validationData.status.asyncLeft <= 0 ){
-												if( $.isSet(validationData.callback) && $.isFunction(validationData.callback) ){
-													validationData.callback(false, validationData.status.messages, $target);
+										if( validationData.status.isOptional ){
+											$.each(validationData.status.values, function(index, value){
+												if( $.inArray(value, validationData.status.optionalValues) == -1 ){
+													validationData.status.hasNonOptionalValue = true;
+													return false;
 												}
-
-												$target.trigger('error.validation', validationData.status.messages);
-											}
+											});
 										}
-									} else {
-										validationData.status.asyncLeft = 0;
-									}
 
-									if( validationData.status.asyncLeft <= 0 ){
-										if( validationData.status.isValid ){
-											if( $.isSet(validationData.callback) && $.isFunction(validationData.callback) ){
-												validationData.callback(true, [], $target);
+										$target.data('validationdata', validationData);
+
+										$.jqueryAnnexData.validation.functions.unmarkValidationError($target);
+
+										if(
+											(!validationData.status.isOptional
+											|| validationData.status.hasNonOptionalValue)
+											&& !$.isSet($target.attr('disabled'))
+										){
+											$.each(validationData.rules, function(key, value){
+												validationData.status.isValid = value() && validationData.status.isValid;
+											});
+
+											if( !validationData.status.isValid ){
+												$.jqueryAnnexData.validation.functions.markValidationError($target);
+
+												if( validationData.status.asyncLeft <= 0 ){
+													if( $.isSet(validationData.callback) && $.isFunction(validationData.callback) ){
+														validationData.callback(false, validationData.status.messages, $target);
+													}
+
+													$target.trigger('error.validation', validationData.status.messages);
+												}
 											}
-											$target.trigger('success.validation');
+										} else {
+											validationData.status.asyncLeft = 0;
 										}
-										$target.trigger('finished.validation', validationData.status.isValid);
+
+										if( validationData.status.asyncLeft <= 0 ){
+											if( validationData.status.isValid ){
+												if( $.isSet(validationData.callback) && $.isFunction(validationData.callback) ){
+													validationData.callback(true, [], $target);
+												}
+												$target.trigger('success.validation');
+											}
+											$target.trigger('finished.validation', validationData.status.isValid);
+										}
 									}
 								} else {
 									// manually kill validation for elements with lost validation data
@@ -1128,6 +1132,7 @@
 				}
 
 				var blurChangeTimeout = null,
+					focusTimeout = null,
 					$elements = $container.find('[name="'+$(this).attr('name')+'"]');
 
 				if( $elements.length === 0 ){
@@ -1137,11 +1142,22 @@
 				$elements.each(function(){
 					$(this)
 						.data('validationdata', validationData)
-						.off('change.validation blur.validation'+$.jqueryAnnexData.validation.config.additionalWidgetEvents)
+						.off('change.validation blur.validation focus.validation'+$.jqueryAnnexData.validation.config.additionalWidgetEvents)
 						.on('change.validation blur.validation'+$.jqueryAnnexData.validation.config.additionalWidgetEvents, function(){
+							var _this_ = this;
+
 							$.countermand(blurChangeTimeout);
 							blurChangeTimeout = $.schedule(10, function(){
+								$(_this_).data('validationdata').status.isDirty = true;
 								$.jqueryAnnexData.validation.functions.validate($.jqueryAnnexData.validation.config.registeredTargets[targetGroup], true);
+							});
+						})
+						.on('focus.validation', function(){
+							var _this_ = this;
+
+							$.countermand(focusTimeout);
+							focusTimeout = $.schedule(10, function(){
+								$(_this_).data('validationdata').status.isDirty = true;
 							});
 						})
 					;
