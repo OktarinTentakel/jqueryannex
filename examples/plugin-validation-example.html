@@ -51,9 +51,9 @@
 					[
 						{required : 'needs a value'},
 						{rangelength : 'too short or too long', args : [3, 8]},
-						{customcase : 'shorter 4 needs to be "test"', args : function(){ return (($('#test').val().length <= 4) && ($('#test').val() == 'test')) || ($('#test').val().length > 4); }},
+						{customcase : 'shorter 4 needs to be "test"', args : function($target){ return (($target.val().length <= 4) && ($target.val() == 'test')) || ($target.val().length > 4); }},
 						// to test and activate this, serve this file not via file://
-						/*{customcase_async : 'remote file missing', args : function(callback, errorCallback){
+						/*{customcase_async : 'remote file missing', args : function($target, callback, errorCallback){
 							$.get('plugin-validation-example.html')
 								.done(function(data){ callback(($('#test').val().length <= 10) ? true : 'too short'); })
 								.fail(errorCallback)

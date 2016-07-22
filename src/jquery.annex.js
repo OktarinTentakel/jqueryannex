@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 30 developed and tested with jQuery 1.12.4
+ * @version Revision 31 developed and tested with jQuery 1.12.4
  **/
 
 
@@ -4038,19 +4038,19 @@
 		 * interactions between the label and the widget. This method only sets the most basic styling necessary for
 		 * the proposed functionality, everything visual has to be defined via CSS.
 		 *
-		 * :checkbox / :radio
+		 * :checkbox / :radio (style the label :before or :after as the widget, use .checked-class for status)
 		 * - find the closest label*
 		 * - toggle class "checked" on the label on input change
 		 * - in case of :radio syncs all inputs with same name
 		 * - change is triggered automatically since label is connected to (now invisible) input
 		 *
-		 * select
+		 * select (style the selectproxy for dims and the selectlabel for the rest)
 		 * - create a selectProxy-element
 		 * - insert a selectLabel into it, displaying the currently selected value text
 		 * - insert the select invisible on top
 		 * - position select and label fittingly over each other with select on top to catch clicks
 		 *
-		 * :file
+		 * :file (style the label as the button)
 		 * - find the closest label*
 		 * - position the :file invisibly in the label, receiving clicks from the label
 		 * - if the label does not enclose the input at the start, the input will be put into it and for-attrs will be removed
@@ -4148,6 +4148,7 @@
 						'width' : '100%',
 						'height' : '100%'
 					});
+					$(this).cssCrossBrowser({'appearance' : 'none'});
 
 					$label = $.elem('span')
 						.addClass('selectlabel')

@@ -4,7 +4,7 @@ jQuery Annex
 
 Written by:  Sebastian Schlapkohl  
 eMail:       jqueryannex@ifschleife.de  
-Sites: [project](http://www.ifschleife.de/jqueryannex), [github](https://github.com/OktarinTentakel/jqueryannex), [ifschleife](http://www.ifschleife.de)
+Sites: [github](https://github.com/OktarinTentakel/jqueryannex), [ifschleife](http://www.ifschleife.de)
 
 
 
@@ -16,7 +16,7 @@ An example? Load a stylesheet the same way you'd load a script with getScript().
 
 Another example? Flexible, centrally disablable console logging with check if the console is available.
 
-Some more? Polling. A real isNaN. Pythonic string formatting. Precise long running timers. Method throttling. History manipulation. Image preloading. Webfont display callback. And so on and so forth ...
+Some more? Polling. A real isNaN. Pythonic string formatting. Precise long running timers. Method throttling. History manipulation. Image preloading. Webfont display callback. Sane date objects. And so on and so forth ...
 
 Generally speaking: everytime i need some general missing functionality, semantically fitting with the jQuery core, I implement a generic solution. If something gets absorbed by the core it will be removed.
 

@@ -15,7 +15,7 @@
  * your browser.
  *
  * @author Sebastian Schlapkohl
- * @version Revision 30 developed and tested with jQuery 1.12.4
+ * @version Revision 31 developed and tested with jQuery 1.12.4
  **/
 
 
@@ -317,6 +317,7 @@
 						}
 					} else {
 						var tmpRes = customRes(
+							$(this),
 							$.jqueryAnnexData.validation.functions.asyncCallbackFactory($(this), msg),
 							$.jqueryAnnexData.validation.functions.asyncErrorCallbackFactory($(this))
 						);
@@ -326,7 +327,7 @@
 								res = tmpRes;
 							} else if( $.trim(''+tmpRes) !== '' ){
 								res = false;
-								dynamicMessage =  $.trim(''+tmpRes);
+								dynamicMessage = $.trim(''+tmpRes);
 							}
 						}
 					}

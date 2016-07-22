@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "jqueryannex",
-  "version": "0.30.0",
+  "version": "0.31.0",
   "homepage": "https://github.com/OktarinTentakel/jqueryannex",
   "description": "Lots and lots of nice to have jQuery-additions and everyday helpers. And validation as well!",
   "main": "jquery-annex",
