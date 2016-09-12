@@ -33,7 +33,7 @@ gulp.task('examples-lib', function(){
 
 
 gulp.task('watch', function(){
-	gulp.watch('./src/**/*.js', ['js']);
+	gulp.watch('./src/**/*.js', ['build']);
 });
 
 
@@ -55,7 +55,7 @@ gulp.task('build', function(){
 
 
 gulp.task('serve', ['build'], function(){
-	sequence('server');
+	sequence('server', 'watch');
 });
 
 

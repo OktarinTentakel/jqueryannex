@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 32 developed and tested with jQuery 1.12.4
+ * @version Revision 33 developed and tested with jQuery 1.12.4
  **/
 
 
@@ -69,6 +69,41 @@
 
 
 
+	//--|PRIVATE-UTILITY-FUNCTIONS----------
+
+	var _utils = {};
+
+	// generically wraps console functions for chainability even if method is unavailable or fails
+	// used in jqueryAnnexData.logging.chainable
+	_utils.genericConsoleMethodWrapper = function(name, executeIfLoggingDisabled){
+		executeIfLoggingDisabled = executeIfLoggingDisabled ? !!executeIfLoggingDisabled : false;
+
+		if( $.jqueryAnnexData.logging.enabled || executeIfLoggingDisabled ){
+			if( $.exists('console') && $.isFunction(console[''+name]) ){
+				var args = $.makeArray(arguments).slice(2);
+
+				try {
+					console[''+name].apply(console, args);
+				} catch(ex){
+					$.warn('console call to "'+name+'" failed, implementation seemingly incompatible');
+				}
+			} else {
+				$.warn('console call to "'+name+'" failed, is seemingly not supported');
+			}
+		}
+
+		return $.log();
+	};
+
+	// prepare an executable wrapper version based on a specific function name
+	// used in jqueryAnnexData.logging.chainable
+	_utils.genericConsoleMethodWrapperFactory = function(name, executeIfLoggingDisabled){
+		executeIfLoggingDisabled = executeIfLoggingDisabled ? !!executeIfLoggingDisabled : false;
+		return function(){ return _utils.genericConsoleMethodWrapper.apply(_utils, $.merge([''+name, executeIfLoggingDisabled], $.makeArray(arguments))); };
+	};
+
+
+
 	//--|JQUERY-$-GENERAL-FUNCTIONS----------
 
 	$.extend({
@@ -83,6 +118,61 @@
 			logging : {
 				originalLoggingFunction : ((window.console !== undefined) && $.isFunction(console.log)) ? console.log : $.noop,
 				enabled : true,
+				chainable : {
+					__chainable_object_of_log_execute_for_doc__ : function(){
+						return 'Use this object to chain logging calls. All standard methods are supported'
+							+' (see https://developer.mozilla.org/en-US/docs/Web/API/Console) and are executed'
+							+' with silent fails if not supported by the browser. See other methods in this'
+							+' object for an overview. Use disable()/enable() to deactivate/activate all debug outputs'
+							+' (exceptions are assert, clear, error and warn) to the console centrally'
+						;
+					},
+					disable : function(){
+						if( $.jqueryAnnexData.logging.enabled ){
+							$.jqueryAnnexData.logging.originalLoggingFunction = console.log;
+							console.log = $.noop;
+							$.jqueryAnnexData.logging.enabled = false;
+						}
+
+						return $.log();
+					},
+					enable : function(){
+						if( !$.jqueryAnnexData.logging.enabled ){
+							console.log = $.jqueryAnnexData.logging.originalLoggingFunction;
+							$.jqueryAnnexData.logging.enabled = true;
+						}
+
+						return $.log();
+					},
+					assert : _utils.genericConsoleMethodWrapperFactory('assert', true),
+					clear : _utils.genericConsoleMethodWrapperFactory('clear', true),
+					count : _utils.genericConsoleMethodWrapperFactory('count'),
+					dir : _utils.genericConsoleMethodWrapperFactory('dir'),
+					dirxml : _utils.genericConsoleMethodWrapperFactory('dirxml'),
+					dirXml : _utils.genericConsoleMethodWrapperFactory('dirxml'),
+					error : function(){
+						$.err.apply($, $.makeArray(arguments));
+						return $.log();
+					},
+					group : _utils.genericConsoleMethodWrapperFactory('group'),
+					groupCollapsed : _utils.genericConsoleMethodWrapperFactory('groupCollapsed'),
+					groupEnd : _utils.genericConsoleMethodWrapperFactory('groupEnd'),
+					info : _utils.genericConsoleMethodWrapperFactory('info'),
+					log : function(){
+						return $.log.apply($, $.makeArray(arguments));
+					},
+					profile : _utils.genericConsoleMethodWrapperFactory('profile'),
+					profileEnd : _utils.genericConsoleMethodWrapperFactory('profileEnd'),
+					table : _utils.genericConsoleMethodWrapperFactory('table'),
+					time : _utils.genericConsoleMethodWrapperFactory('time'),
+					timeEnd : _utils.genericConsoleMethodWrapperFactory('timeEnd'),
+					timeStamp : _utils.genericConsoleMethodWrapperFactory('timeStamp'),
+					trace : _utils.genericConsoleMethodWrapperFactory('trace'),
+					warn : function(){
+						$.warn.apply($, $.makeArray(arguments));
+						return $.log();
+					}
+				},
 				xlog : {}
 			},
 			inheritance : {
@@ -133,48 +223,35 @@
 
 		/**
 		 * Logs a message to the console. Prevents errors in browsers, that don't support this feature.
+		 * This method is chainable (always returns a chainable object with all methods) and wraps all
+		 * advanced logging methods like dir, assert and count (https://developer.mozilla.org/en-US/docs/Web/API/Console).
 		 *
-		 * If the first parameter is not __enable__ or __disable__ it is treated as a value to log, in any other
-		 * case the list to log begins after the first param.
+		 * Use the methods disable() and enable() of the chainable object to globally disable/enable logging (controlled by
+		 * a debug setting for example). assert, clear, warn and error will still work, the rest will be muted.
 		 *
-		 * @param {String} [enabled] - enable/disable logging globally, including console.log, use tokens __enable__ and __disable__
-		 * @param {...*} [...] - add any number of arguments you wish to log
+		 * @param {...*} [...] - any number of arguments you wish to log
+		 * @returns {Object} - chainable logging object
 		 *
 		 * @memberof Logging:$.log
 		 * @example
 		 * $.log(randomVar, 'string');
-		 * $.log(false);
-		 * $.log(true);
-		 * $.log('__disable__');
-		 * $.log('__enable__', 'test', {test : 'test'});
+		 * $.log(false, true);
+		 * $.log().group().log(1).log(2).log(3).groupEnd().error('ouch');
+		 * $.log().disable();
+		 * $.log('test', {test : 'test'}).disable().warn('oh noez, but printed').log('not printed').enable().clear();
 		 **/
-		log : function(enabled){
-			if( this.isSet(enabled) && ($.inArray(enabled, ['__enable__', '__disable__']) >= 0) ){
-				var args = $.makeArray(arguments).slice(1);
-
-				if( enabled == '__enable__' ){
-					if( !this.jqueryAnnexData.logging.enabled ){
-						console.log = this.jqueryAnnexData.logging.originalLoggingFunction;
+		log : function(){
+			if( this.exists('console') && $.isFunction(console.log) ){
+				$.each(arguments, function(index, obj){
+					if( $.isA(obj, 'boolean') ){
+						obj = obj ? 'true' : 'false';
 					}
-				} else {
-					this.jqueryAnnexData.logging.originalLoggingFunction = console.log;
-					console.log = $.noop;
-				}
 
-				this.jqueryAnnexData.logging.enabled = (enabled == '__enable__');
-
-				this.log.apply(this, args);
-			} else {
-				if( this.exists('console') && $.isFunction(console.log) ){
-					$.each(arguments, function(index, obj){
-						if( $.isA(obj, 'boolean') ){
-							obj = obj ? 'true' : 'false';
-						}
-
-						console.log(obj);
-					});
-				}
+					console.log(obj);
+				});
 			}
+
+			return $.jqueryAnnexData.logging.chainable;
 		},
 
 
