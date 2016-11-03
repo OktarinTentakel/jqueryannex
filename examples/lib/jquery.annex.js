@@ -4198,7 +4198,7 @@
 					fSetLabelText($label);
 
 					$(this)
-						.on('change.stylableinput', function(){
+						.on('change.stylableinput init.stylableinput', function(){
 							if( $(this).is(':checked') ){
 								$label.addClass('checked');
 							} else {
@@ -4216,7 +4216,7 @@
 
 					$(this)
 						.hide()
-						.triggerHandler('change.stylableinput')
+						.triggerHandler('init.stylableinput')
 					;
 				} else if( $(this).is('select') ){
 					$(this).css({
@@ -4264,13 +4264,13 @@
 						.on('click.stylableinput', function(e){
 							e.stopPropagation();
 						})
-						.on('change.stylableinput', function(){
+						.on('change.stylableinput init.stylableinput', function(){
 							var $selectedOption = $(this).children('option:selected').first();
 							if( $selectedOption.length > 0 ){
 								$label.text($selectedOption.text());
 							}
 						})
-						.triggerHandler('change.stylableinput')
+						.triggerHandler('init.stylableinput')
 					;
 
 					$selectProxy.on('click.stylableinput', function(){
