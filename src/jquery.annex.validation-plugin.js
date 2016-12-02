@@ -15,7 +15,7 @@
  * your browser.
  *
  * @author Sebastian Schlapkohl
- * @version Revision 34 developed and tested with jQuery 1.12.4
+ * @version Revision 35 developed and tested with jQuery 1.12.4
  **/
 
 

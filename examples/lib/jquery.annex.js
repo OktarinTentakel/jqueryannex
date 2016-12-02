@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 34 developed and tested with jQuery 1.12.4
+ * @version Revision 35 developed and tested with jQuery 1.12.4
  **/
 
 
@@ -84,6 +84,10 @@
 
 				try {
 					console[''+name].apply(console, args);
+
+					if( $.jqueryAnnexData.logging.tryToLogToParent ){
+						parent.console[''+name].apply(parent.console, args);
+					}
 				} catch(ex){
 					$.warn('console call to "'+name+'" failed, implementation seemingly incompatible');
 				}
@@ -116,8 +120,9 @@
 		 **/
 		jqueryAnnexData : {
 			logging : {
-				originalLoggingFunction : ((window.console !== undefined) && $.isFunction(console.log)) ? console.log : $.noop,
+				originalLoggingFunction : ((window.console !== undefined) && $.isFunction(window.console.log)) ? window.console.log : $.noop,
 				enabled : true,
+				tryToLogToParent : false,
 				chainable : {
 					__chainable_object_of_log_execute_for_doc__ : function(){
 						return 'Use this object to chain logging calls. All standard methods are supported'
@@ -129,7 +134,6 @@
 					},
 					disable : function(){
 						if( $.jqueryAnnexData.logging.enabled ){
-							$.jqueryAnnexData.logging.originalLoggingFunction = console.log;
 							console.log = $.noop;
 							$.jqueryAnnexData.logging.enabled = false;
 						}
@@ -143,6 +147,10 @@
 						}
 
 						return $.log();
+					},
+					tryToLogToParent : function(setting){
+						setting = (setting === undefined) ? true : !!setting;
+						$.jqueryAnnexData.logging.tryToLogToParent = setting;
 					},
 					assert : _utils.genericConsoleMethodWrapperFactory('assert', true),
 					clear : _utils.genericConsoleMethodWrapperFactory('clear', true),
@@ -229,6 +237,9 @@
 		 * Use the methods disable() and enable() of the chainable object to globally disable/enable logging (controlled by
 		 * a debug setting for example). assert, clear, warn and error will still work, the rest will be muted.
 		 *
+		 * You can use the method tryToLogToParent(true/false) to instruct log to try to log to the parent window also,
+		 * which comes in handy if you are developing inside a same domain iframe.
+		 *
 		 * @param {...*} [...] - any number of arguments you wish to log
 		 * @returns {Object} - chainable logging object
 		 *
@@ -239,6 +250,7 @@
 		 * $.log().group().log(1).log(2).log(3).groupEnd().error('ouch');
 		 * $.log().disable();
 		 * $.log('test', {test : 'test'}).disable().warn('oh noez, but printed').log('not printed').enable().clear();
+		 * $.log().tryToLogToParent().log('hooray times two').tryToLogToParent(false);
 		 **/
 		log : function(){
 			if( this.exists('console') && $.isFunction(console.log) ){
@@ -248,6 +260,9 @@
 					}
 
 					console.log(obj);
+					if( $.jqueryAnnexData.logging.tryToLogToParent ){
+						parent.console.log(obj);
+					}
 				});
 			}
 
@@ -280,6 +295,9 @@
 					}
 
 					console.warn(obj);
+					if( $.jqueryAnnexData.logging.tryToLogToParent ){
+						parent.console.warn(obj);
+					}
 				});
 			}
 		},
@@ -313,6 +331,9 @@
 					}
 
 					console.error(obj);
+					if( $.jqueryAnnexData.logging.tryToLogToParent ){
+						parent.console.error(obj);
+					}
 				});
 			}
 		},
