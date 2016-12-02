@@ -83,10 +83,10 @@
 				var args = $.makeArray(arguments).slice(2);
 
 				try {
-					console[''+name].apply(console, args);
-
 					if( $.jqueryAnnexData.logging.tryToLogToParent ){
 						parent.console[''+name].apply(parent.console, args);
+					} else {
+						console[''+name].apply(console, args);
 					}
 				} catch(ex){
 					$.warn('console call to "'+name+'" failed, implementation seemingly incompatible');
@@ -151,6 +151,8 @@
 					tryToLogToParent : function(setting){
 						setting = (setting === undefined) ? true : !!setting;
 						$.jqueryAnnexData.logging.tryToLogToParent = setting;
+
+						return $.log();
 					},
 					assert : _utils.genericConsoleMethodWrapperFactory('assert', true),
 					clear : _utils.genericConsoleMethodWrapperFactory('clear', true),
@@ -259,9 +261,10 @@
 						obj = obj ? 'true' : 'false';
 					}
 
-					console.log(obj);
 					if( $.jqueryAnnexData.logging.tryToLogToParent ){
 						parent.console.log(obj);
+					} else {
+						console.log(obj);
 					}
 				});
 			}
@@ -294,9 +297,10 @@
 						obj = obj ? 'true' : 'false';
 					}
 
-					console.warn(obj);
 					if( $.jqueryAnnexData.logging.tryToLogToParent ){
 						parent.console.warn(obj);
+					} else {
+						console.warn(obj);
 					}
 				});
 			}
@@ -330,9 +334,10 @@
 						obj = obj ? 'true' : 'false';
 					}
 
-					console.error(obj);
 					if( $.jqueryAnnexData.logging.tryToLogToParent ){
 						parent.console.error(obj);
+					} else {
+						console.error(obj);
 					}
 				});
 			}
