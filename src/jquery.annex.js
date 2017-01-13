@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 35 developed and tested with jQuery 1.12.4
+ * @version Revision 36 developed and tested with jQuery 1.12.4
  **/
 
 
@@ -4224,14 +4224,14 @@
 					fSetLabelText($label);
 
 					$(this)
-						.on('change.stylableinput init.stylableinput', function(){
+						.on('change.stylableinput init.stylableinput', function(e){
 							if( $(this).is(':checked') ){
 								$label.addClass('checked');
 							} else {
 								$label.removeClass('checked');
 							}
 
-							if( $(this).is(':radio') && $.isSet($(this).attr('name')) ){
+							if( (e.type === 'change') && $(this).is(':radio') && $.isSet($(this).attr('name')) ){
 								$(':radio[name="'+$(this).attr('name')+'"]').not($(this)).each(function(){
 									$siblingLabel = fGetClosestLabel($(this));
 									$siblingLabel.removeClass('checked');
