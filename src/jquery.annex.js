@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 36 developed and tested with jQuery 1.12.4
+ * @version Revision 37 developed and tested with jQuery 1.12.4
  **/
 
 
@@ -35,8 +35,8 @@
 		var jQueryVersion = $().jquery.split('.'),
 			requiredVersions = {
 				'1' : '12.4',
-				'2' : '2.4',
-				'3' : '1.0'
+				'2' : '2.4'//,
+				//'3' : '1.0'
 			};
 			versionMayBeDeprecated = false;
 
@@ -675,6 +675,7 @@
 		 *
 		 * @param {Object} obj - the object to check
 		 * @param {String[]} memberNames - the names of the members to check
+		 * @param {Boolean} [verbose=false] - defines if method should ouput missing members to console
 		 * @returns {Boolean} all memberNames present and not null
 		 *
 		 * @memberof Basic:$.hasMembers
@@ -685,10 +686,14 @@
 	     *   }
 		 * }
 		 **/
-		hasMembers : function(obj, memberNames){
+		hasMembers : function(obj, memberNames, verbose){
+			verbose = $.orDefault(verbose, false, 'bool');
+
 			for( var i = 0; i < memberNames.length; i++ ){
 				if( !this.isSet(obj[memberNames[i]]) ){
-					this.log('hasMembers | missing member '+memberNames[i]);
+					if( verbose ){
+						this.log().info('hasMembers | missing member '+memberNames[i]);
+					}
 					return false;
 				}
 			}
@@ -1867,7 +1872,7 @@
 		 * @memberof Polling:$.poll
 		 * @see unpoll
 		 * @example
-		 * var poll = $.poll('testpoll', function(){ return $('body').height() > 1000; }, function(){ alert('too high!'); }, 5000);
+		 * var poll = $.poll('testpoll', function(){ return $('body').height() > 1000; }, function(){ alert('too high!'); }, $.noop, 5000);
 		 **/
 		poll : function(name, fCondition, fAction, fElseAction, newLoopMs, useOwnTimer){
 			name = $.trim(''+name);
@@ -4954,10 +4959,10 @@
 		imgLoad : function(callback, needsJqueryDims){
 			var targets = $(this).filter('img'),
 				targetCount = targets.length,
-				blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+				blank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 
 			targets.on('load.imgload', function(e){
-				if( (!needsJqueryDims || (needsJqueryDims && $(this).width() > 0)) && (this.src != blank) ){
+				if( (!needsJqueryDims || (needsJqueryDims && $(this).width() > 0)) && (this.src !== blank) ){
 					if( (--targetCount <= 0) && $.isFunction(callback) ){
 						targets.off('load.imgload');
 						callback.call(targets, e);
@@ -5174,7 +5179,7 @@
 		 *
 		 * @memberof Css:$fn.cssCrossBrowser
 		 * @example
-		 * $('body').cssCrossBrowser({'box-shadow', '1px 1px 1px 1px #000'});
+		 * $('body').cssCrossBrowser({'box-shadow' : '1px 1px 1px 1px #000'});
 		 **/
 		cssCrossBrowser : function(cssObj){
 			if( $.isPlainObject(cssObj) ){

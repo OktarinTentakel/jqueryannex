@@ -38,7 +38,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl &lt;jqueryannex@ifschleife.de>
- * @version Revision 35 developed and tested with jQuery 1.12.4
+ * @version Revision 37 developed and tested with jQuery 1.12.4
  **/
 
 
@@ -63,8 +63,8 @@
 		var jQueryVersion = $().jquery.split('.'),
 			requiredVersions = {
 				'1' : '12.4',
-				'2' : '2.4',
-				'3' : '1.0'
+				'2' : '2.4'//,
+				//'3' : '1.0'
 			};
 			versionMayBeDeprecated = false;
 
@@ -111,10 +111,10 @@
 				var args = $.makeArray(arguments).slice(2);
 
 				try {
-					console[''+name].apply(console, args);
-
 					if( $.jqueryAnnexData.logging.tryToLogToParent ){
 						parent.console[''+name].apply(parent.console, args);
+					} else {
+						console[''+name].apply(console, args);
 					}
 				} catch(ex){
 					$.warn('console call to "'+name+'" failed, implementation seemingly incompatible');
@@ -179,6 +179,8 @@
 					tryToLogToParent : function(setting){
 						setting = (setting === undefined) ? true : !!setting;
 						$.jqueryAnnexData.logging.tryToLogToParent = setting;
+
+						return $.log();
 					},
 					assert : _utils.genericConsoleMethodWrapperFactory('assert', true),
 					clear : _utils.genericConsoleMethodWrapperFactory('clear', true),
@@ -287,9 +289,10 @@
 						obj = obj ? 'true' : 'false';
 					}
 
-					console.log(obj);
 					if( $.jqueryAnnexData.logging.tryToLogToParent ){
 						parent.console.log(obj);
+					} else {
+						console.log(obj);
 					}
 				});
 			}
@@ -322,9 +325,10 @@
 						obj = obj ? 'true' : 'false';
 					}
 
-					console.warn(obj);
 					if( $.jqueryAnnexData.logging.tryToLogToParent ){
 						parent.console.warn(obj);
+					} else {
+						console.warn(obj);
 					}
 				});
 			}
@@ -358,9 +362,10 @@
 						obj = obj ? 'true' : 'false';
 					}
 
-					console.error(obj);
 					if( $.jqueryAnnexData.logging.tryToLogToParent ){
 						parent.console.error(obj);
+					} else {
+						console.error(obj);
 					}
 				});
 			}
@@ -698,6 +703,7 @@
 		 *
 		 * @param {Object} obj - the object to check
 		 * @param {String[]} memberNames - the names of the members to check
+		 * @param {Boolean} [verbose=false] - defines if method should ouput missing members to console
 		 * @returns {Boolean} all memberNames present and not null
 		 *
 		 * @memberof Basic:$.hasMembers
@@ -708,10 +714,14 @@
 	     *   }
 		 * }
 		 **/
-		hasMembers : function(obj, memberNames){
+		hasMembers : function(obj, memberNames, verbose){
+			verbose = $.orDefault(verbose, false, 'bool');
+
 			for( var i = 0; i &lt; memberNames.length; i++ ){
 				if( !this.isSet(obj[memberNames[i]]) ){
-					this.log('hasMembers | missing member '+memberNames[i]);
+					if( verbose ){
+						this.log().info('hasMembers | missing member '+memberNames[i]);
+					}
 					return false;
 				}
 			}
@@ -1890,7 +1900,7 @@
 		 * @memberof Polling:$.poll
 		 * @see unpoll
 		 * @example
-		 * var poll = $.poll('testpoll', function(){ return $('body').height() > 1000; }, function(){ alert('too high!'); }, 5000);
+		 * var poll = $.poll('testpoll', function(){ return $('body').height() > 1000; }, function(){ alert('too high!'); }, $.noop, 5000);
 		 **/
 		poll : function(name, fCondition, fAction, fElseAction, newLoopMs, useOwnTimer){
 			name = $.trim(''+name);
@@ -4247,14 +4257,14 @@
 					fSetLabelText($label);
 
 					$(this)
-						.on('change.stylableinput init.stylableinput', function(){
+						.on('change.stylableinput init.stylableinput', function(e){
 							if( $(this).is(':checked') ){
 								$label.addClass('checked');
 							} else {
 								$label.removeClass('checked');
 							}
 
-							if( $(this).is(':radio') &amp;&amp; $.isSet($(this).attr('name')) ){
+							if( (e.type === 'change') &amp;&amp; $(this).is(':radio') &amp;&amp; $.isSet($(this).attr('name')) ){
 								$(':radio[name="'+$(this).attr('name')+'"]').not($(this)).each(function(){
 									$siblingLabel = fGetClosestLabel($(this));
 									$siblingLabel.removeClass('checked');
@@ -4977,10 +4987,10 @@
 		imgLoad : function(callback, needsJqueryDims){
 			var targets = $(this).filter('img'),
 				targetCount = targets.length,
-				blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+				blank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
 
 			targets.on('load.imgload', function(e){
-				if( (!needsJqueryDims || (needsJqueryDims &amp;&amp; $(this).width() > 0)) &amp;&amp; (this.src != blank) ){
+				if( (!needsJqueryDims || (needsJqueryDims &amp;&amp; $(this).width() > 0)) &amp;&amp; (this.src !== blank) ){
 					if( (--targetCount &lt;= 0) &amp;&amp; $.isFunction(callback) ){
 						targets.off('load.imgload');
 						callback.call(targets, e);
@@ -5197,7 +5207,7 @@
 		 *
 		 * @memberof Css:$fn.cssCrossBrowser
 		 * @example
-		 * $('body').cssCrossBrowser({'box-shadow', '1px 1px 1px 1px #000'});
+		 * $('body').cssCrossBrowser({'box-shadow' : '1px 1px 1px 1px #000'});
 		 **/
 		cssCrossBrowser : function(cssObj){
 			if( $.isPlainObject(cssObj) ){
@@ -6500,7 +6510,7 @@
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Fri Dec 02 2016 12:39:04 GMT+0100 (CET)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Apr 07 2017 16:53:46 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
