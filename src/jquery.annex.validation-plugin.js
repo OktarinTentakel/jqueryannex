@@ -15,7 +15,7 @@
  * your browser.
  *
  * @author Sebastian Schlapkohl
- * @version Revision 37 developed and tested with jQuery 1.12.4
+ * @version Revision 38 developed and tested with jQuery 1.12.4
  **/
 
 
@@ -1116,7 +1116,7 @@
 									asyncRulesCount++;
 								}
 
-								validationData.rules[ruleName+'_'+$.randomUUID(true)] = $.proxy.apply($, $.merge([], $.merge([$.jqueryAnnexData.validation.validators[ruleName], $(that), ''+$.trim(ruleMessage)], ruleArgs)));
+								validationData.rules[ruleName+'_'+$.randomUuid(true)] = $.proxy.apply($, $.merge([], $.merge([$.jqueryAnnexData.validation.validators[ruleName], $(that), ''+$.trim(ruleMessage)], ruleArgs)));
 							}
 						}
 					}

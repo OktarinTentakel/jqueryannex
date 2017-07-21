@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: waitForWebfonts</title>
+    <title>JSDoc: Namespace: getHtmlBody</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: waitForWebfonts</h1>
+    <h1 class="page-title">Namespace: getHtmlBody</h1>
 
     
 
@@ -29,7 +29,7 @@
 <header>
     
         <h2>
-            <span class="ancestors"><a href="Fonts_$.html">Fonts:$</a>.</span>waitForWebfonts</h2>
+            <span class="ancestors"><a href="Dynamicloading_$.html">Dynamicloading:$</a>.</span>getHtmlBody</h2>
         
     
 </header>
@@ -71,7 +71,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line3265">line 3265</a>
+        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line2984">line 2984</a>
     </li></ul></dd>
     
 
@@ -107,15 +107,15 @@
 
     
 
-    <h4 class="name" id=".waitForWebfonts"><span class="type-signature">(static) </span>waitForWebfonts<span class="signature">(fonts, callback<span class="signature-attributes">nullable</span>, fallbackFontName<span class="signature-attributes">opt, nullable</span>)</span><span class="type-signature"> &rarr; {Promise}</span></h4>
+    <h4 class="name" id=".getHtmlBody"><span class="type-signature">(static) </span>getHtmlBody<span class="signature">(url, callback)</span><span class="type-signature"> &rarr; {jqXHR}</span></h4>
 
     
 
 
 
 <div class="description">
-    Waits for a list of webfonts to load before executing a callback.
-Works for fonts already loaded as well.
+    Loads HTML from an URL and extracts only the <body> from it and returns it to a callback as a detached
+jQuery element.
 </div>
 
 
@@ -139,11 +139,7 @@ Works for fonts already loaded as well.
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
-        
-        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -155,38 +151,23 @@ Works for fonts already loaded as well.
 
         <tr>
             
-                <td class="name"><code>fonts</code></td>
+                <td class="name"><code>url</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">String</span>
-|
-
-<span class="param-type">Array.&lt;String></span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
 
             
-                <td class="default">
-                
-                </td>
-            
 
-            <td class="description last">the CSS-names of the fonts to wait upon</td>
+            <td class="description last">the URL of the HTML-page to load</td>
         </tr>
 
     
@@ -206,65 +187,10 @@ Works for fonts already loaded as well.
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-                    &lt;nullable><br>
-                
-
-                
-                </td>
-            
 
             
-                <td class="default">
-                
-                </td>
-            
 
-            <td class="description last">the callback to execute once all given webfonts are loaded</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>fallbackFontName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">String</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                    &lt;nullable><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    sans-serif
-                
-                </td>
-            
-
-            <td class="description last">the system font onto which the page falls back if the webfont is not loaded</td>
+            <td class="description last">function to call after HTML is loaded, gets $body-element as parameter</td>
         </tr>
 
     
@@ -305,7 +231,7 @@ Works for fonts already loaded as well.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line3284">line 3284</a>
+        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line3000">line 3000</a>
     </li></ul></dd>
     
 
@@ -332,7 +258,7 @@ Works for fonts already loaded as well.
 
         
 <div class="param-desc">
-    a promise object (not failing atm)
+    the promise object from the internally used $.get
 </div>
 
 
@@ -343,7 +269,7 @@ Works for fonts already loaded as well.
     </dt>
     <dd>
         
-<span class="param-type">Promise</span>
+<span class="param-type">jqXHR</span>
 
 
     </dd>
@@ -354,9 +280,7 @@ Works for fonts already loaded as well.
 
     <h5>Example</h5>
     
-    <pre class="prettyprint"><code>$.waitForWebfonts(['purr-regular', 'scratch-light'], function(){
-  $('.useswebfont').fadeIn();
-}, 'helvetica, sans-serif');</code></pre>
+    <pre class="prettyprint"><code>$.getHtmlBody('/foo/bar.html', function($body){ $('body').append($body.find('.super-special').first()); }).fail(function(){ throw 'could not load HTML!'; });</code></pre>
 
 
 

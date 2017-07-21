@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 37 developed and tested with jQuery 1.12.4
+ * @version Revision 38 developed and tested with jQuery 1.12.4
  **/
 
 
@@ -36,6 +36,8 @@
 			requiredVersions = {
 				'1' : '12.4',
 				'2' : '2.4'//,
+				// do not enable until breaking changes are checked
+				// https://jquery.com/upgrade-guide/3.0/
 				//'3' : '1.0'
 			};
 			versionMayBeDeprecated = false;
@@ -218,6 +220,11 @@
 			},
 			slugify : {
 				latinMap : {'Á':'A','Ă':'A','Ắ':'A','Ặ':'A','Ằ':'A','Ẳ':'A','Ẵ':'A','Ǎ':'A','Â':'A','Ấ':'A','Ậ':'A','Ầ':'A','Ẩ':'A','Ẫ':'A','Ä':'A','Ǟ':'A','Ȧ':'A','Ǡ':'A','Ạ':'A','Ȁ':'A','À':'A','Ả':'A','Ȃ':'A','Ā':'A','Ą':'A','Å':'A','Ǻ':'A','Ḁ':'A','Ⱥ':'A','Ã':'A','Ꜳ':'AA','Æ':'AE','Ǽ':'AE','Ǣ':'AE','Ꜵ':'AO','Ꜷ':'AU','Ꜹ':'AV','Ꜻ':'AV','Ꜽ':'AY','Ḃ':'B','Ḅ':'B','Ɓ':'B','Ḇ':'B','Ƀ':'B','Ƃ':'B','Ć':'C','Č':'C','Ç':'C','Ḉ':'C','Ĉ':'C','Ċ':'C','Ƈ':'C','Ȼ':'C','Ď':'D','Ḑ':'D','Ḓ':'D','Ḋ':'D','Ḍ':'D','Ɗ':'D','Ḏ':'D','ǲ':'D','ǅ':'D','Đ':'D','Ƌ':'D','Ǳ':'DZ','Ǆ':'DZ','É':'E','Ĕ':'E','Ě':'E','Ȩ':'E','Ḝ':'E','Ê':'E','Ế':'E','Ệ':'E','Ề':'E','Ể':'E','Ễ':'E','Ḙ':'E','Ë':'E','Ė':'E','Ẹ':'E','Ȅ':'E','È':'E','Ẻ':'E','Ȇ':'E','Ē':'E','Ḗ':'E','Ḕ':'E','Ę':'E','Ɇ':'E','Ẽ':'E','Ḛ':'E','Ꝫ':'ET','Ḟ':'F','Ƒ':'F','Ǵ':'G','Ğ':'G','Ǧ':'G','Ģ':'G','Ĝ':'G','Ġ':'G','Ɠ':'G','Ḡ':'G','Ǥ':'G','Ḫ':'H','Ȟ':'H','Ḩ':'H','Ĥ':'H','Ⱨ':'H','Ḧ':'H','Ḣ':'H','Ḥ':'H','Ħ':'H','Í':'I','Ĭ':'I','Ǐ':'I','Î':'I','Ï':'I','Ḯ':'I','İ':'I','Ị':'I','Ȉ':'I','Ì':'I','Ỉ':'I','Ȋ':'I','Ī':'I','Į':'I','Ɨ':'I','Ĩ':'I','Ḭ':'I','Ꝺ':'D','Ꝼ':'F','Ᵹ':'G','Ꞃ':'R','Ꞅ':'S','Ꞇ':'T','Ꝭ':'IS','Ĵ':'J','Ɉ':'J','Ḱ':'K','Ǩ':'K','Ķ':'K','Ⱪ':'K','Ꝃ':'K','Ḳ':'K','Ƙ':'K','Ḵ':'K','Ꝁ':'K','Ꝅ':'K','Ĺ':'L','Ƚ':'L','Ľ':'L','Ļ':'L','Ḽ':'L','Ḷ':'L','Ḹ':'L','Ⱡ':'L','Ꝉ':'L','Ḻ':'L','Ŀ':'L','Ɫ':'L','ǈ':'L','Ł':'L','Ǉ':'LJ','Ḿ':'M','Ṁ':'M','Ṃ':'M','Ɱ':'M','Ń':'N','Ň':'N','Ņ':'N','Ṋ':'N','Ṅ':'N','Ṇ':'N','Ǹ':'N','Ɲ':'N','Ṉ':'N','Ƞ':'N','ǋ':'N','Ñ':'N','Ǌ':'NJ','Ó':'O','Ŏ':'O','Ǒ':'O','Ô':'O','Ố':'O','Ộ':'O','Ồ':'O','Ổ':'O','Ỗ':'O','Ö':'O','Ȫ':'O','Ȯ':'O','Ȱ':'O','Ọ':'O','Ő':'O','Ȍ':'O','Ò':'O','Ỏ':'O','Ơ':'O','Ớ':'O','Ợ':'O','Ờ':'O','Ở':'O','Ỡ':'O','Ȏ':'O','Ꝋ':'O','Ꝍ':'O','Ō':'O','Ṓ':'O','Ṑ':'O','Ɵ':'O','Ǫ':'O','Ǭ':'O','Ø':'O','Ǿ':'O','Õ':'O','Ṍ':'O','Ṏ':'O','Ȭ':'O','Ƣ':'OI','Ꝏ':'OO','Ɛ':'E','Ɔ':'O','Ȣ':'OU','Ṕ':'P','Ṗ':'P','Ꝓ':'P','Ƥ':'P','Ꝕ':'P','Ᵽ':'P','Ꝑ':'P','Ꝙ':'Q','Ꝗ':'Q','Ŕ':'R','Ř':'R','Ŗ':'R','Ṙ':'R','Ṛ':'R','Ṝ':'R','Ȑ':'R','Ȓ':'R','Ṟ':'R','Ɍ':'R','Ɽ':'R','Ꜿ':'C','Ǝ':'E','Ś':'S','Ṥ':'S','Š':'S','Ṧ':'S','Ş':'S','Ŝ':'S','Ș':'S','Ṡ':'S','Ṣ':'S','Ṩ':'S','ẞ':'SS','Ť':'T','Ţ':'T','Ṱ':'T','Ț':'T','Ⱦ':'T','Ṫ':'T','Ṭ':'T','Ƭ':'T','Ṯ':'T','Ʈ':'T','Ŧ':'T','Ɐ':'A','Ꞁ':'L','Ɯ':'M','Ʌ':'V','Ꜩ':'TZ','Ú':'U','Ŭ':'U','Ǔ':'U','Û':'U','Ṷ':'U','Ü':'U','Ǘ':'U','Ǚ':'U','Ǜ':'U','Ǖ':'U','Ṳ':'U','Ụ':'U','Ű':'U','Ȕ':'U','Ù':'U','Ủ':'U','Ư':'U','Ứ':'U','Ự':'U','Ừ':'U','Ử':'U','Ữ':'U','Ȗ':'U','Ū':'U','Ṻ':'U','Ų':'U','Ů':'U','Ũ':'U','Ṹ':'U','Ṵ':'U','Ꝟ':'V','Ṿ':'V','Ʋ':'V','Ṽ':'V','Ꝡ':'VY','Ẃ':'W','Ŵ':'W','Ẅ':'W','Ẇ':'W','Ẉ':'W','Ẁ':'W','Ⱳ':'W','Ẍ':'X','Ẋ':'X','Ý':'Y','Ŷ':'Y','Ÿ':'Y','Ẏ':'Y','Ỵ':'Y','Ỳ':'Y','Ƴ':'Y','Ỷ':'Y','Ỿ':'Y','Ȳ':'Y','Ɏ':'Y','Ỹ':'Y','Ź':'Z','Ž':'Z','Ẑ':'Z','Ⱬ':'Z','Ż':'Z','Ẓ':'Z','Ȥ':'Z','Ẕ':'Z','Ƶ':'Z','Ĳ':'IJ','Œ':'OE','ᴀ':'A','ᴁ':'AE','ʙ':'B','ᴃ':'B','ᴄ':'C','ᴅ':'D','ᴇ':'E','ꜰ':'F','ɢ':'G','ʛ':'G','ʜ':'H','ɪ':'I','ʁ':'R','ᴊ':'J','ᴋ':'K','ʟ':'L','ᴌ':'L','ᴍ':'M','ɴ':'N','ᴏ':'O','ɶ':'OE','ᴐ':'O','ᴕ':'OU','ᴘ':'P','ʀ':'R','ᴎ':'N','ᴙ':'R','ꜱ':'S','ᴛ':'T','ⱻ':'E','ᴚ':'R','ᴜ':'U','ᴠ':'V','ᴡ':'W','ʏ':'Y','ᴢ':'Z','á':'a','ă':'a','ắ':'a','ặ':'a','ằ':'a','ẳ':'a','ẵ':'a','ǎ':'a','â':'a','ấ':'a','ậ':'a','ầ':'a','ẩ':'a','ẫ':'a','ä':'a','ǟ':'a','ȧ':'a','ǡ':'a','ạ':'a','ȁ':'a','à':'a','ả':'a','ȃ':'a','ā':'a','ą':'a','ᶏ':'a','ẚ':'a','å':'a','ǻ':'a','ḁ':'a','ⱥ':'a','ã':'a','ꜳ':'aa','æ':'ae','ǽ':'ae','ǣ':'ae','ꜵ':'ao','ꜷ':'au','ꜹ':'av','ꜻ':'av','ꜽ':'ay','ḃ':'b','ḅ':'b','ɓ':'b','ḇ':'b','ᵬ':'b','ᶀ':'b','ƀ':'b','ƃ':'b','ɵ':'o','ć':'c','č':'c','ç':'c','ḉ':'c','ĉ':'c','ɕ':'c','ċ':'c','ƈ':'c','ȼ':'c','ď':'d','ḑ':'d','ḓ':'d','ȡ':'d','ḋ':'d','ḍ':'d','ɗ':'d','ᶑ':'d','ḏ':'d','ᵭ':'d','ᶁ':'d','đ':'d','ɖ':'d','ƌ':'d','ı':'i','ȷ':'j','ɟ':'j','ʄ':'j','ǳ':'dz','ǆ':'dz','é':'e','ĕ':'e','ě':'e','ȩ':'e','ḝ':'e','ê':'e','ế':'e','ệ':'e','ề':'e','ể':'e','ễ':'e','ḙ':'e','ë':'e','ė':'e','ẹ':'e','ȅ':'e','è':'e','ẻ':'e','ȇ':'e','ē':'e','ḗ':'e','ḕ':'e','ⱸ':'e','ę':'e','ᶒ':'e','ɇ':'e','ẽ':'e','ḛ':'e','ꝫ':'et','ḟ':'f','ƒ':'f','ᵮ':'f','ᶂ':'f','ǵ':'g','ğ':'g','ǧ':'g','ģ':'g','ĝ':'g','ġ':'g','ɠ':'g','ḡ':'g','ᶃ':'g','ǥ':'g','ḫ':'h','ȟ':'h','ḩ':'h','ĥ':'h','ⱨ':'h','ḧ':'h','ḣ':'h','ḥ':'h','ɦ':'h','ẖ':'h','ħ':'h','ƕ':'hv','í':'i','ĭ':'i','ǐ':'i','î':'i','ï':'i','ḯ':'i','ị':'i','ȉ':'i','ì':'i','ỉ':'i','ȋ':'i','ī':'i','į':'i','ᶖ':'i','ɨ':'i','ĩ':'i','ḭ':'i','ꝺ':'d','ꝼ':'f','ᵹ':'g','ꞃ':'r','ꞅ':'s','ꞇ':'t','ꝭ':'is','ǰ':'j','ĵ':'j','ʝ':'j','ɉ':'j','ḱ':'k','ǩ':'k','ķ':'k','ⱪ':'k','ꝃ':'k','ḳ':'k','ƙ':'k','ḵ':'k','ᶄ':'k','ꝁ':'k','ꝅ':'k','ĺ':'l','ƚ':'l','ɬ':'l','ľ':'l','ļ':'l','ḽ':'l','ȴ':'l','ḷ':'l','ḹ':'l','ⱡ':'l','ꝉ':'l','ḻ':'l','ŀ':'l','ɫ':'l','ᶅ':'l','ɭ':'l','ł':'l','ǉ':'lj','ſ':'s','ẜ':'s','ẛ':'s','ẝ':'s','ḿ':'m','ṁ':'m','ṃ':'m','ɱ':'m','ᵯ':'m','ᶆ':'m','ń':'n','ň':'n','ņ':'n','ṋ':'n','ȵ':'n','ṅ':'n','ṇ':'n','ǹ':'n','ɲ':'n','ṉ':'n','ƞ':'n','ᵰ':'n','ᶇ':'n','ɳ':'n','ñ':'n','ǌ':'nj','ó':'o','ŏ':'o','ǒ':'o','ô':'o','ố':'o','ộ':'o','ồ':'o','ổ':'o','ỗ':'o','ö':'o','ȫ':'o','ȯ':'o','ȱ':'o','ọ':'o','ő':'o','ȍ':'o','ò':'o','ỏ':'o','ơ':'o','ớ':'o','ợ':'o','ờ':'o','ở':'o','ỡ':'o','ȏ':'o','ꝋ':'o','ꝍ':'o','ⱺ':'o','ō':'o','ṓ':'o','ṑ':'o','ǫ':'o','ǭ':'o','ø':'o','ǿ':'o','õ':'o','ṍ':'o','ṏ':'o','ȭ':'o','ƣ':'oi','ꝏ':'oo','ɛ':'e','ᶓ':'e','ɔ':'o','ᶗ':'o','ȣ':'ou','ṕ':'p','ṗ':'p','ꝓ':'p','ƥ':'p','ᵱ':'p','ᶈ':'p','ꝕ':'p','ᵽ':'p','ꝑ':'p','ꝙ':'q','ʠ':'q','ɋ':'q','ꝗ':'q','ŕ':'r','ř':'r','ŗ':'r','ṙ':'r','ṛ':'r','ṝ':'r','ȑ':'r','ɾ':'r','ᵳ':'r','ȓ':'r','ṟ':'r','ɼ':'r','ᵲ':'r','ᶉ':'r','ɍ':'r','ɽ':'r','ↄ':'c','ꜿ':'c','ɘ':'e','ɿ':'r','ś':'s','ṥ':'s','š':'s','ṧ':'s','ş':'s','ŝ':'s','ș':'s','ṡ':'s','ṣ':'s','ṩ':'s','ʂ':'s','ᵴ':'s','ᶊ':'s','ȿ':'s','ɡ':'g','ß':'ss','ᴑ':'o','ᴓ':'o','ᴝ':'u','ť':'t','ţ':'t','ṱ':'t','ț':'t','ȶ':'t','ẗ':'t','ⱦ':'t','ṫ':'t','ṭ':'t','ƭ':'t','ṯ':'t','ᵵ':'t','ƫ':'t','ʈ':'t','ŧ':'t','ᵺ':'th','ɐ':'a','ᴂ':'ae','ǝ':'e','ᵷ':'g','ɥ':'h','ʮ':'h','ʯ':'h','ᴉ':'i','ʞ':'k','ꞁ':'l','ɯ':'m','ɰ':'m','ᴔ':'oe','ɹ':'r','ɻ':'r','ɺ':'r','ⱹ':'r','ʇ':'t','ʌ':'v','ʍ':'w','ʎ':'y','ꜩ':'tz','ú':'u','ŭ':'u','ǔ':'u','û':'u','ṷ':'u','ü':'u','ǘ':'u','ǚ':'u','ǜ':'u','ǖ':'u','ṳ':'u','ụ':'u','ű':'u','ȕ':'u','ù':'u','ủ':'u','ư':'u','ứ':'u','ự':'u','ừ':'u','ử':'u','ữ':'u','ȗ':'u','ū':'u','ṻ':'u','ų':'u','ᶙ':'u','ů':'u','ũ':'u','ṹ':'u','ṵ':'u','ᵫ':'ue','ꝸ':'um','ⱴ':'v','ꝟ':'v','ṿ':'v','ʋ':'v','ᶌ':'v','ⱱ':'v','ṽ':'v','ꝡ':'vy','ẃ':'w','ŵ':'w','ẅ':'w','ẇ':'w','ẉ':'w','ẁ':'w','ⱳ':'w','ẘ':'w','ẍ':'x','ẋ':'x','ᶍ':'x','ý':'y','ŷ':'y','ÿ':'y','ẏ':'y','ỵ':'y','ỳ':'y','ƴ':'y','ỷ':'y','ỿ':'y','ȳ':'y','ẙ':'y','ɏ':'y','ỹ':'y','ź':'z','ž':'z','ẑ':'z','ʑ':'z','ⱬ':'z','ż':'z','ẓ':'z','ȥ':'z','ẕ':'z','ᵶ':'z','ᶎ':'z','ʐ':'z','ƶ':'z','ɀ':'z','ﬀ':'ff','ﬃ':'ffi','ﬄ':'ffl','ﬁ':'fi','ﬂ':'fl','ĳ':'ij','œ':'oe','ﬆ':'st','ₐ':'a','ₑ':'e','ᵢ':'i','ⱼ':'j','ₒ':'o','ᵣ':'r','ᵤ':'u','ᵥ':'v','ₓ':'x'}
+			},
+			uuid : {
+				usedSinceReload : {
+					'none' : null
+				}
 			}
 		},
 
@@ -537,7 +544,7 @@
 		 * Classical assert method. If not condition, throw assert exception.
 		 *
 		 * @param {Boolean} condition - defines if an assertion is successful
-		 * @param {String} [message] - to display if assertion fails
+		 * @param {?String} [message='assert exception: assertion failed'] - to display if assertion fails
 		 * @throws assert exception
 		 *
 		 * @memberof Basic:$.assert
@@ -553,6 +560,40 @@
 				message = this.orDefault(message, 'assert exception: assertion failed', 'string');
 				throw message;
 			}
+		},
+
+
+
+		/**
+		 * @namespace Basic:$.attempt
+		 **/
+
+		/**
+		 * Attempt to compute contents of closure and catch all occurring exceptions.
+		 * The boolean result tells you if the operation was successful or not.
+		 *
+		 * This is most helpful, when used to test value conversions or other atomic/singluar operations, where it
+		 * just is important if something isolated works or not.
+		 *
+		 * Do not encapsulate complex code in the closure and mind recursively occurring exceptions!
+		 *
+		 * @param {Boolean} closure - the code to test
+		 * @returns {Boolean} true if no exception occurred
+		 *
+		 * @memberof Basic:$.attempt
+		 * @example
+		 * if( !$.attempt(function(){ foobar(); }) ){ $.log('foobar cannot be executed!'); }
+		 **/
+		attempt : function(closure){
+			this.assert($.isFunction(closure), 'attempt | closure is not a function');
+
+			try {
+				closure();
+			} catch(ex){
+				return false;
+			}
+
+			return true;
 		},
 
 
@@ -1467,23 +1508,26 @@
 
 
 		/**
-		 * @namespace Random:$.randomUUID
+		 * @namespace Random:$.randomUuid
 		 **/
 
 		/**
 		 * Returns a "UUID", as close as possible with JavaScript (so not really, but looks like one :).
 		 *
+		 * Is guaranteed to deliver every value only once per reload.
+		 *
 		 * @param {?Boolean} [withoutDashes=false] - defines if UUID shall include dashes or not
 		 * @returns {String} a "UUID"
 		 *
-		 * @memberof Random:$.randomUUID
+		 * @memberof Random:$.randomUuid
 		 * @example
-		 * var uuid = $.randomUUID(true);
+		 * var uuid = $.randomUuid(true);
 		 **/
-		randomUUID : function(withoutDashes){
+		randomUuid : function(withoutDashes){
 			withoutDashes = this.isSet(withoutDashes) ? !!withoutDashes : false;
 
-			var uuidLength = 36;
+			var uuid = 'none',
+				uuidLength = 36;
 			if( withoutDashes ){
 				uuidLength = 32;
 			}
@@ -1492,19 +1536,25 @@
 				itoh = '0123456789ABCDEF',
 				i = 0;
 
-			for (i = 0; i < uuidLength; i++) s[i] = Math.floor(Math.random() * 0x10);
+			while( this.jqueryAnnexData.uuid.usedSinceReload[uuid] === null ){
+				for (i = 0; i < uuidLength; i++) s[i] = Math.floor(Math.random() * 0x10);
 
-			// Conform to RFC-4122, section 4.4
-			s[withoutDashes ? 12 : 14] = 4;
-			s[withoutDashes ? 16 : 19] = (s[19] & 0x3) | 0x8;
+				// Conform to RFC-4122, section 4.4
+				s[withoutDashes ? 12 : 14] = 4;
+				s[withoutDashes ? 16 : 19] = (s[19] & 0x3) | 0x8;
 
-			for (i = 0; i < uuidLength; i++) s[i] = itoh[s[i]];
+				for (i = 0; i < uuidLength; i++) s[i] = itoh[s[i]];
 
-			if( !withoutDashes ){
-				s[8] = s[13] = s[18] = s[23] = '-';
+				if( !withoutDashes ){
+					s[8] = s[13] = s[18] = s[23] = '-';
+				}
+
+				uuid = s.join('');
 			}
 
-			return s.join('');
+			this.jqueryAnnexData.uuid.usedSinceReload[uuid] = null;
+
+			return uuid;
 		},
 
 
@@ -2835,7 +2885,7 @@
 		 **/
 
 		/**
-		 * @namespace Dynamicloading:$.getCSS
+		 * @namespace Dynamicloading:$.getCss
 		 **/
 
 		/**
@@ -2843,16 +2893,18 @@
 		 * The method offers the possiblity to include the CSS as a link or a style tag. Includes are marked with a
 		 * html5-conform "data-id"-attribute, so additional loads can be removed again unproblematically.
 		 *
+		 * This function is also available as getCSS() to comply with jQuery notation of these kind of functions.
+		 *
 		 * @param {String} url - the URL of the CSS-file to load
 		 * @param {?Object.<String, *>} [options] - config for the call (styletag : true/false, media : screen/print/all/etc., charset : utf-8/etc., id : {String})
 		 * @param {?Function} [callback] - function to call after css is loaded and included into DOM, gets included DOM-element as parameter
 		 * @returns {jqXHR} the promise object from the internally used $.get
 		 *
-		 * @memberof Dynamicloading:$.getCSS
+		 * @memberof Dynamicloading:$.getCss
 		 * @example
-		 * $.getCSS('/css/addon.css', {styletag : true, id : 'addon'}, function(){ $('script[data-id=addon]').remove(); });
+		 * $.getCss('/css/addon.css', {styletag : true, id : 'addon'}, function(){ $('script[data-id=addon]').remove(); });
 		 **/
-		getCSS : function(url, options, callback){
+		getCss : function(url, options, callback){
 			var _this_ = this,
 				$res = null;
 
@@ -2925,6 +2977,35 @@
 					}
 				}
 			});
+		},
+
+
+
+		/**
+		 * @namespace Dynamicloading:$.getHtmlBody
+		 **/
+
+		/**
+		 * Loads HTML from an URL and extracts only the <body> from it and returns it to a callback as a detached
+		 * jQuery element.
+		 *
+		 * @param {String} url - the URL of the HTML-page to load
+		 * @param {Function} callback - function to call after HTML is loaded, gets $body-element as parameter
+		 * @returns {jqXHR} the promise object from the internally used $.get
+		 *
+		 * @memberof Dynamicloading:$.getHtmlBody
+		 * @example
+		 * $.getHtmlBody('/foo/bar.html', function($body){ $('body').append($body.find('.super-special').first()); }).fail(function(){ throw 'could not load HTML!'; });
+		 **/
+		getHtmlBody : function(url, callback){
+			$.assert($.isFunction(callback), 'getHtmlBody | callback is no function');
+
+			return $.get(url, {}, function(rawHtml){
+				var rawBody = rawHtml.match(/<body[^>]*>((.|[\n\r])*)<\/body>/i)[1],
+					$body = $.elem('body').html(rawBody);
+
+				callback($body);
+			}, 'html');
 		},
 
 
@@ -3160,28 +3241,6 @@
 
 			var targetCount = imageList.length,
 				blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
-
-			// xxx remove if imgLoad solution proves robust
-			/*$.each(imageList, function(index, value){
-				$(value).on('load.preload', function(e){
-					if( this.src != blank ){
-						if( (--targetCount <= 0) && $.isFunction(callback) ){
-							$.each(imageList, function(index, value){ $(this).off('load.preload'); });
-							callback(imageList, e);
-							deferred.resolve();
-						}
-					} else {
-						var $target = $(this);
-						_this_.schedule(10, function(){ $target.trigger('load.preload'); });
-					}
-				});
-
-				if( value.complete || value.complete === undefined ){
-					var src = value.src;
-					value.src = blank;
-					value.src = src;
-				}
-			});*/
 
 			$(imageList).imgLoad(function(targets, e){
 				if( $.isFunction(callback) ){
@@ -3461,6 +3520,14 @@
 
 
 
+	//--|ALTERNATE-SIGNATURES-TO-COMPLY-TO-JQUERY-STANDARDS
+
+	$.extend({
+		getCSS : $.getCss
+	});
+
+
+
 	//--|JQUERY-OBJECT-GENERAL-FUNCTIONS----------
 
 	$.fn.extend({
@@ -3582,13 +3649,25 @@
 		 * Sets and retrieves the element's data attributes like jQuery's original data(), but transparently also updates
 		 * the corresponding data-*-attr as far as possible with the given value.
 		 *
-		 * Returns the current value if attrValue is not set. For the attribute representation everything not an object or
-		 * array gets casted to string. Objects and arrays are JSON.stringifyed. Functions are executed and their return
-		 * values are used. The prop always keeps the raw value.
+		 * This function operates with slugged/dashed names, camelCased names may not work in all instances.
+		 * Just use the names like you would in a data-attribute.
 		 *
-		 * On returning a value the function always returns the prop if present, else it tries to parse the attribute from
-		 * JSON. If that fails the value is returned as a string. If the prop is missing it will be restored on read with
-		 * the return value.
+		 * Returns the current value if attrValue is not set.
+		 *
+		 * All values in the data-*-attributes and set via attrValue are treated as JSON by default and as a string
+		 * as a fallback. To setting "true" in the DOM or as a string as attrValue will return a true boolean on
+		 * access. Have a look at this to understand which values will be parsed:
+		 * https://developer.mozilla.org/de/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse
+		 *
+		 * However, all values not being JSON-parsable should go through as strings.
+		 *
+		 * Functions passed into attrValue are executed and their return values will be used.
+		 *
+		 * On returning a value the function always returns the data-prop if present, else it tries to parse the attribute.
+		 * If that fails the value is returned taken as a string.
+		 *
+		 * In both cases (attribute parsable or string), if the prop is missing it will be written again from the read result
+		 * to the data prop to always keep all presentations available.
 		 *
 		 * @param  {String} attrName - the data attr/prop name
 		 * @param  {?*} attrValue - the value to set
@@ -3611,20 +3690,24 @@
 			}
 
 			if( attrValue !== undefined ){
-				if( $.isA(attrValue, 'object') || $.isA(attrValue, 'array') ){
-					try {
-						attrValueString = JSON.stringify(attrValue);
-					} catch(ex){
-						attrValueString = ''+attrValue;
-					}
-				} else {
+				try {
+					attrValueString = JSON.stringify(attrValue);
+				} catch(ex){
 					attrValueString = ''+attrValue;
 				}
 			}
 
 			if( $.isSet(attrName) ){
 				if( attrValue !== undefined ){
-					$(this).data(attrName, attrValue);
+					var vanillaValue;
+
+					try {
+						vanillaValue = JSON.parse(attrValue);
+					} catch(ex){
+						vanillaValue = attrValue;
+					}
+
+					$(this).data(attrName, vanillaValue);
 					$(this).attr('data-'+attrName, attrValueString);
 					res = this;
 				} else {
@@ -3652,6 +3735,9 @@
 
 		/**
 		 * Remove previously set data (with data() or dataDuo()) from the dom as well as from the markup data-*-attr.
+		 *
+		 * This function operates with slugged/dashed names, camelCased names may not work in all instances.
+		 * Just use the names like you would in a data-attribute.
 		 *
 		 * @param  {String} attrName - the data attr/prop name
 		 * @returns {Object} this
@@ -4146,6 +4232,8 @@
 		 * interactions between the label and the widget. This method only sets the most basic styling necessary for
 		 * the proposed functionality, everything visual has to be defined via CSS.
 		 *
+		 * Prevents multiple executions on same element.
+		 *
 		 * :checkbox / :radio (style the label :before or :after as the widget, use .checked-class for status)
 		 * - find the closest label*
 		 * - toggle class "checked" on the label on input change
@@ -4221,112 +4309,116 @@
 			};
 
 			$(this).each(function(){
-				var $label, $siblingLabel, $selectProxy;
+				if( !$.isSet($(this).dataDuo('made-stylable')) || !$(this).dataDuo('made-stylable') ){
+					var $label, $siblingLabel, $selectProxy;
 
-				if( $(this).is(':checkbox, :radio') ){
-					$label = fGetClosestLabel($(this));
-					fSetContainerClass($label);
-					fSetLabelText($label);
+					if( $(this).is(':checkbox, :radio') ){
+						$label = fGetClosestLabel($(this));
+						fSetContainerClass($label);
+						fSetLabelText($label);
 
-					$(this)
-						.on('change.stylableinput init.stylableinput', function(e){
-							if( $(this).is(':checked') ){
-								$label.addClass('checked');
-							} else {
-								$label.removeClass('checked');
-							}
+						$(this)
+							.on('change.stylableinput init.stylableinput', function(e){
+								if( $(this).is(':checked') ){
+									$label.addClass('checked');
+								} else {
+									$label.removeClass('checked');
+								}
 
-							if( (e.type === 'change') && $(this).is(':radio') && $.isSet($(this).attr('name')) ){
-								$(':radio[name="'+$(this).attr('name')+'"]').not($(this)).each(function(){
-									$siblingLabel = fGetClosestLabel($(this));
-									$siblingLabel.removeClass('checked');
-								});
-							}
-						})
-					;
+								if( (e.type === 'change') && $(this).is(':radio') && $.isSet($(this).attr('name')) ){
+									$(':radio[name="'+$(this).attr('name')+'"]').not($(this)).each(function(){
+										$siblingLabel = fGetClosestLabel($(this));
+										$siblingLabel.removeClass('checked');
+									});
+								}
+							})
+						;
 
-					$(this)
-						.hide()
-						.triggerHandler('init.stylableinput')
-					;
-				} else if( $(this).is('select') ){
-					$(this).css({
-						'opacity' : 0.01,
-						'position' : 'relative',
-						'width' : '100%',
-						'height' : '100%'
-					});
-					$(this).cssCrossBrowser({'appearance' : 'none'});
+						$(this)
+							.hide()
+							.triggerHandler('init.stylableinput')
+						;
+					} else if( $(this).is('select') ){
+						$(this).css({
+							'opacity' : 0.01,
+							'position' : 'relative',
+							'width' : '100%',
+							'height' : '100%'
+						});
+						$(this).cssCrossBrowser({'appearance' : 'none'});
 
-					$label = $.elem('span')
-						.addClass('selectlabel')
-						.css({
+						$label = $.elem('span')
+							.addClass('selectlabel')
+							.css({
+								'position' : 'absolute',
+								'top' : 0,
+								'right' : 0,
+								'bottom' : 0,
+								'left' : 0
+							})
+						;
+
+						if( $.isSet(labelText) ){
+							$label.html(labelText);
+						} else {
+							$label.text($(this).children('option').first().text());
+						}
+
+						$selectProxy = $.elem('div')
+							.addClass('selectproxy')
+							.css('position', 'relative')
+						;
+						fSetContainerClass($selectProxy);
+
+						if( $.isSet($(this).attr('id')) ){
+							$selectProxy.attr('id', 'selectproxy-for-'+$(this).attr('id'));
+						}
+
+						$(this).before($selectProxy);
+						$selectProxy
+							.append($label)
+							.append($(this))
+						;
+
+						$(this)
+							.on('click.stylableinput', function(e){
+								e.stopPropagation();
+							})
+							.on('change.stylableinput init.stylableinput', function(){
+								var $selectedOption = $(this).children('option:selected').first();
+								if( $selectedOption.length > 0 ){
+									$label.text($selectedOption.text());
+								}
+							})
+							.triggerHandler('init.stylableinput')
+						;
+
+						$selectProxy.on('click.stylableinput', function(){
+							$(this).children('select').click();
+						});
+					} else if( $(this).is(':file') ){
+						$label = fGetClosestLabel($(this));
+						$label
+							.append($(this))
+							.removeAttr('for')
+						;
+						fSetContainerClass($label);
+						fSetLabelText($label);
+
+						$label.css('position', 'relative');
+
+						$(this).css({
+							'opacity' : 0.01,
 							'position' : 'absolute',
+							'width' : 1,
+							'height' : 1,
 							'top' : 0,
-							'right' : 0,
-							'bottom' : 0,
 							'left' : 0
-						})
-					;
-
-					if( $.isSet(labelText) ){
-						$label.html(labelText);
-					} else {
-						$label.text($(this).children('option').first().text());
+						});
 					}
-
-					$selectProxy = $.elem('div')
-						.addClass('selectproxy')
-						.css('position', 'relative')
-					;
-					fSetContainerClass($selectProxy);
-
-					if( $.isSet($(this).attr('id')) ){
-						$selectProxy.attr('id', 'selectproxy-for-'+$(this).attr('id'));
-					}
-
-					$(this).before($selectProxy);
-					$selectProxy
-						.append($label)
-						.append($(this))
-					;
-
-					$(this)
-						.on('click.stylableinput', function(e){
-							e.stopPropagation();
-						})
-						.on('change.stylableinput init.stylableinput', function(){
-							var $selectedOption = $(this).children('option:selected').first();
-							if( $selectedOption.length > 0 ){
-								$label.text($selectedOption.text());
-							}
-						})
-						.triggerHandler('init.stylableinput')
-					;
-
-					$selectProxy.on('click.stylableinput', function(){
-						$(this).children('select').click();
-					});
-				} else if( $(this).is(':file') ){
-					$label = fGetClosestLabel($(this));
-					$label
-						.append($(this))
-						.removeAttr('for')
-					;
-					fSetContainerClass($label);
-					fSetLabelText($label);
-
-					$label.css('position', 'relative');
-
-					$(this).css({
-						'opacity' : 0.01,
-						'position' : 'absolute',
-						'width' : 1,
-						'height' : 1,
-						'top' : 0,
-						'left' : 0
-					});
 				}
+
+				$(this).dataDuo('made-stylable', true);
 			});
 
 			return this;
@@ -4628,35 +4720,41 @@
 
 
 		/**
-		 * @namespace Preparation:$fn.hookUp
+		 * @namespace Preparation:$fn.prime
 		 **/
 
 		/**
 		 * Offers an execution frame for element preparation like setting handlers and transforming dom.
 		 * Takes a function including the initialization code of a (set of) element(s) and wraps it with
-		 * a check if this initialization was already executed (has data-hooked-up="true" then) as well
+		 * a check if this initialization was already executed (has data-primed="true" then) as well
 		 * as a document ready handler to make sure no initializations are executed with a half ready dom.
 		 *
-		 * If the initialization returns a promise, this promise will be returned if returnPromise is set true.
-		 * If returnPromise is set true without fInitialization returning a promise the promise is always immediately resolved.
+		 * The initialization function gets called on each member of the element set individually, setting "this"
+		 * inside the function to the individual member.
+		 *
+		 * If the initialization function returns a promise and returnPromise is set to "true", prime will return
+		 * a promise that resolves, when all individual element promises are resolved and fails if one fails.
 		 *
 		 * @param {Function} fInitialization - the function containing all initialization code for the element(s), this-context is set
 		 * @param {?Boolean} [returnPromise=false] - if true, forces the function to return a promise object, if possible the result of fInitialization
+		 * @param {?Array<String>|String} [classesToRemoveOnReady=[]] - if set, removed these css classes from all primed elements, helpful to automatically remove visual cloaking
 		 * @returns {(Object|Promise)} this or a promise
 		 *
-		 * @memberof Preparation:$fn.hookUp
+		 * @memberof Preparation:$fn.prime
 		 * @example
-		 * $.when($('.widget').hookUp(function(){ ... }, true), $('.anotherWidget').hookUp(function(){ ... }, true)).then(function(){ ... })
+		 * $.when($('.widget').prime(function(){ ... return promise; }, true), $('.anotherWidget').prime(function(){ ... return promise; }, true)).then(function(){ ... })
+		 * $('.many-widgets').prime(function(){ ... return promise; }, true, 'cloaked').done(function(){ ... });
 		 **/
-		hookUp : function(fInitialization, returnPromise){
+		prime : function(fInitialization, returnPromise, classesToRemoveOnReady){
 			returnPromise = $.orDefault(returnPromise, false, 'bool');
+			classesToRemoveOnReady = $.orDefault(classesToRemoveOnReady, [], 'array');
 
 			var deferred = $.Deferred();
 			deferred.resolve();
-			var promise = deferred.promise();
+			var promises = [deferred.promise()];
 
 			$(this).each(function(){
-				if( $(this).dataDuo('hooked-up') !== true ){
+				if( $(this).dataDuo('primed') !== true ){
 					var _this_ = this;
 
 					$(function(){
@@ -4668,17 +4766,25 @@
 							&& $.isFunction(initPromise.done)
 							&& $.isFunction(initPromise.fail)
 						){
-							promise = initPromise;
+							promises.push(initPromise);
 						}
 
-						$(_this_).dataDuo('hooked-up', true);
+						$(_this_).dataDuo('primed', true);
 					});
 				}
 			});
 
+			var fFinishedCallback = function(){
+				if( classesToRemoveOnReady.length > 0 ){
+					$(this).removeClass(classesToRemoveOnReady.join(' '));
+				}
+			};
+
 			if( returnPromise ){
-				return promise;
+				$.when.apply($, promises).then($.proxy(fFinishedCallback, this));
+				return $.when.apply($, promises).promise();
 			} else {
+				$.proxy(fFinishedCallback, this)();
 				return this;
 			}
 		},
@@ -4750,7 +4856,7 @@
 				return null;
 			} else if( res.length === 0 ){
 				return true;
-			} else if( res.length == 1 ){
+			} else if( res.length === 1 ){
 				return res[0];
 			} else {
 				return res;
@@ -4879,25 +4985,35 @@
 		 **/
 
 		/**
-		 * Scrolls the viewport to the first matched element's position.
+		 * Scrolls the viewport to the first matched element's position (first pixel at half viewport height).
 		 * Does not do anything if target element is already fully in viewport, unless scrollEvenIfFullyInViewport is set to
 		 * true. Uses getBoundingClientRect to measure viewport check, scrolls always if missing.
+		 *
+		 * Scrolls may be cancelled by setting cancelOnUserScroll to true, but keep in mind, that this will only work
+		 * with mousewheels and (maybe) touchpads on modern browsers. No keyboard or scrollbar support yet.
+		 * The root of the problem is that a user scroll is indistinguashable from a js-triggered scroll
+		 * (with animate in this case), since both trigger the scroll event and look exactly the same. So we have to
+		 * use exotic and specific events like mousewheel and DOMMouseScroll. So, please, use cancelOnUserScroll only
+		 * as a convenience option and not as a must.
 		 *
 		 * @param  {?Function} [callback=$.noop] - callback to fire when scrolling is done, also fires if scrolling was not needed
 		 * @param  {?Number.Integer} [durationMs=1000] - duration of the scrolling animation
 		 * @param  {?Number.Integer} [offset=0] - offset from the viewport center to apply to the end position
 		 * @param  {?Boolean} [scrollEvenIfFullyInViewport=false] - if true, forces method to always scroll no matter the element's position
+		 * @param  {?Boolean} [cancelOnUserScroll=false] - if true, scrolling animation will immediately be canceled on manual user scroll, callback will not fire in that case
 		 * @returns {Object} this
 		 *
 		 * @memberof Viewport:$fn.scrollTo
 		 * @example
 		 * $('a.jumpitem').on('click', function(){ $jumpTarget.scrollTo(function(){ alert('scrolled!'); }, 500, -100, true); });
+		 * $jumpTarget.scrollTo(function(){ alert('Not triggered if user uses mousewheel.'); }, 5000, -0, false, true);
 		 **/
-		scrollTo : function(callback, durationMs, offset, scrollEvenIfFullyInViewport){
+		scrollTo : function(callback, durationMs, offset, scrollEvenIfFullyInViewport, cancelOnUserScroll){
 			callback = $.isFunction(callback) ? callback : $.noop;
 			durationMs = $.orDefault(durationMs, 1000, 'int');
 			offset = $.orDefault(offset, 0, 'int');
 			scrollEvenIfFullyInViewport = $.orDefault(scrollEvenIfFullyInViewport, false, 'bool');
+			cancelOnUserScroll = $.orDefault(cancelOnUserScroll, false, 'bool');
 
 			var $target = $(this).first();
 			if( $.isSet($target) && $target.length > 0 ){
@@ -4912,15 +5028,27 @@
 				}
 
 				if( scrollEvenIfFullyInViewport || !isInViewport ){
+					if( cancelOnUserScroll ){
+						$(window).on('DOMMouseScroll.scrollTo mousewheel.scrollTo', function(e){
+							$('html, body').stop(true);
+							$(window).off('DOMMouseScroll.scrollTo mousewheel.scrollTo');
+						});
+					}
+
 					$('html, body')
 						.stop(true)
 						.animate(
 							{scrollTop: $target.offset().top - Math.round(vpHeight / 2) + offset},
-							durationMs,
-							function(){
-								if( !callbackFired ){
-									callback();
-									callbackFired = true;
+							{
+								duration : durationMs,
+								progress : function(){
+									animateScroll = true;
+								},
+								complete : function(){
+									if( !callbackFired ){
+										callback();
+										callbackFired = true;
+									}
 								}
 							}
 						);
@@ -4948,6 +5076,10 @@
 		/**
 		 * Fixes cross-browser problems with image-loads and fires the event even in case the image is already loaded.
 		 *
+		 * Also supports <imgs> inside picture elements, while handling the polyfills respimage and picturefill if
+		 * present in window. Make sure to apply this method to the <img> inside the <picture> and not on the <picure>
+		 * itself.
+		 *
 		 * @param {Function} callback - callback to call when all images have been loaded
 		 * @param {?Boolean} [needsJqueryDims=false] - tells the check if we expect the loaded image to have readable dimensions
 		 * @returns {Object} this
@@ -4957,25 +5089,65 @@
 		 * $.elem('img', {src : '/img/kitten.png'}).imgLoad(function(){ $(this).removeClass('hidden'); });
 		 **/
 		imgLoad : function(callback, needsJqueryDims){
-			var targets = $(this).filter('img'),
-				targetCount = targets.length,
-				blank = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+			var $targets = $(this).filter('img'),
+				$subTargets = $(),
+				targetCount = $targets.length,
+				blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 
-			targets.on('load.imgload', function(e){
+			var fOnLoad = function(e){
 				if( (!needsJqueryDims || (needsJqueryDims && $(this).width() > 0)) && (this.src !== blank) ){
 					if( (--targetCount <= 0) && $.isFunction(callback) ){
-						targets.off('load.imgload');
-						callback.call(targets, e);
+						$targets.off('load.imgload');
+						$subTargets.off('load.imgload');
+						callback.call($targets, e);
 					}
 				} else {
 					var $target = $(this);
 					$.schedule(10, function(){ $target.trigger('load.imgload'); });
 				}
-			}).each(function(){
-				if( this.complete || this.complete === undefined ){
-					var src = this.src;
-					this.src = blank;
-					this.src = src;
+			};
+
+			$targets.on('load.imgload', fOnLoad).each(function(){
+				var src = this.src,
+					$parent = $(this).parent(),
+					isPicture = $parent.is('picture');
+
+				if( isPicture || this.complete || this.complete === undefined ){
+					if( isPicture ){
+						var $img = $();
+
+						if( window.respimage ){
+							window.respimage({elements : [$parent.oo()]});
+							$img = $parent.children('img').first();
+						} else if( window.picturefill ){
+							window.picturefill({elements : [$parent.oo()]});
+							$img = $parent.children('img').first();
+						} else {
+							$img = $(this);
+						}
+
+						$subTargets = $img;
+
+						$(this).off('load.imgload');
+						$img.each(function(){
+							var img = $(this).oo();
+							$(this).off('load.imgload');
+
+							if( img.complete || img.complete === undefined ){
+								var loadImg = new Image();
+								$(loadImg).on('load.imgload', $.proxy(fOnLoad, this));
+								loadImg.src = src;
+							} else {
+								$(this).on('load.imgload', $.proxy(fOnLoad, this));
+							}
+						});
+					} else {
+						$(this).off('load.imgload');
+
+						var loadImg = new Image();
+						$(loadImg).on('load.imgload', $.proxy(fOnLoad, this));
+						loadImg.src = src;
+					}
 				}
 			});
 
