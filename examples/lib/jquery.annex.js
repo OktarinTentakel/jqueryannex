@@ -4571,7 +4571,7 @@
 
 
 		/**
-		 * @namespace Events:$fn.simulateTouchEvents
+		 * @namespace Events:$fn.translateTouchToMouseEvents
 		 **/
 
 		/**
@@ -4581,11 +4581,11 @@
 		 * @param {?Boolean} [ignoreChildren=false] - defines if only the element itself should count and whether to ignore bubbling
 		 * @returns {Object} this
 		 *
-		 * @memberof Events:$fn.simulateTouchEvents
+		 * @memberof Events:$fn.translateTouchToMouseEvents
 		 * @example
-		 * $elementReactingToTouchAndClickOnlyWithMouseHandlers.simulateTouchEvents().click(function(){ alert('I got touched!'); });
+		 * $elementReactingToTouchAndClickOnlyWithMouseHandlers.translateTouchToMouseEvents().click(function(){ alert('I got touched!'); });
 		 **/
-		simulateTouchEvents : function(ignoreChildren){
+		translateTouchToMouseEvents : function(ignoreChildren){
 			$(this).on('touchstart touchmove touchend', function(e){
 				var isTarget = (e.target == this);
 
@@ -4615,7 +4615,7 @@
 
 						if( !eventNeedsReplacement && ($.inArray(e.target.tagName.toLowerCase(), $.jqueryAnnexData.touch.inputs) < 0) ){
 							var touch = orgEvent.changedTouches[0],
-								mouseEvent = document.createEvent("MouseEvent");
+								mouseEvent = document.createEvent('MouseEvent');
 
 							mouseEvent.initMouseEvent(
 								$.jqueryAnnexData.touch.types[e.type.toLowerCase()],
@@ -4645,6 +4645,134 @@
 					}
 				}
 			});
+
+			return this;
+		},
+
+
+
+		/**
+		 * @namespace Events:$fn.bindSwipeGesture
+		 **/
+
+		/**
+		 * Binds a callback to a swipe gesture (on touch devices).
+		 * Offers four swipe directions (up/right/down/left), where triggering the callback depends on the distance
+		 * between touchstart and touchend in relation to the element's dimensions (multiplied by a factor to
+		 * express a percentage).
+		 *
+		 * @param {String} direction - the direction to bind => up/down/left/right
+		 * @param {Function} callback - callback to call on swipe, takes event e
+		 * @param {?String} [eventNameSpace='annexSwipeGesture'] - apply an event namespace, which identifies specific events, helpful for a specific unbind later using the same namespace
+		 * @param {?Float} [dimFactor=0.2] - to determine what registers as a swipe we use a percentage of the viewport's width/height, the touch has to move, default is 20%
+		 * @param {?Boolean} [hasToBeTouchDevice=true] - if true, makes sure the handlers are only active on real touch devices, not in chrome emulation for example
+		 * @returns {Object} this
+		 *
+		 * @memberof Events:$fn.bindSwipeGesture
+		 * @see unbindSwipeGesture
+		 * @example
+		 * $slider.bindSwipeGesture('up', function(e){ $(e.currentTarget).fadeOut(); });
+		 * $slider.bindSwipeGesture('right', function(){ $('body').triggerHandler('load-previous-thing'); }, 'foobarPrev', 0.15, false);
+		 **/
+		bindSwipeGesture : function(direction, callback, eventNameSpace, dimFactor, hasToBeTouchDevice){
+			$.assert($.inArray(direction, ['up', 'right', 'down', 'left']) >= 0, 'bindSwipeGesture | direction is not in up/right/down/left');
+			$.assert($.isFunction(callback), 'bindSwipeGesture | callback is not a function');
+
+			eventNameSpace = $.orDefault(eventNameSpace, 'annexSwipeGesture', 'string');
+			dimFactor = $.orDefault(dimFactor, 0.2, 'float');
+			hasToBeTouchDevice = $.orDefault(hasToBeTouchDevice, true, 'bool');
+
+			if( !hasToBeTouchDevice || $.contextIsTouchDevice() ){
+				var $el = $(this),
+					touch = {
+						startX : 0,
+						startY : 0,
+						endX : 0,
+						endY : 0
+					}
+				;
+
+				$(this)
+					.on('touchstart.'+eventNameSpace+'-'+direction, function(e){
+						touch.startX = e.originalEvent.changedTouches[0].screenX;
+						touch.startY = e.originalEvent.changedTouches[0].screenY;
+					})
+					.on('touchend.'+eventNameSpace+'-'+direction, function(e){
+						var elWidth = $el.outerWidth(),
+							elHeight = $el.outerHeight();
+
+						touch.endX = e.originalEvent.changedTouches[0].screenX;
+						touch.endY = e.originalEvent.changedTouches[0].screenY;
+
+						switch( direction ){
+							case 'up':
+								if( touch.startY > (touch.endY + elHeight * dimFactor) ){
+									callback(e);
+								}
+							break;
+
+							case 'right':
+								if( touch.startX < (touch.endX - elWidth * dimFactor) ){
+									callback(e);
+								}
+							break;
+
+							case 'down':
+								if( touch.startY < (touch.endY - elHeight * dimFactor) ){
+									callback(e);
+								}
+							break;
+
+							case 'left':
+								if( touch.startX > (touch.endX + elWidth * dimFactor) ){
+									callback(e);
+								}
+							break;
+
+							default:break;
+						}
+					})
+				;
+			}
+
+			return this;
+		},
+
+
+
+		/**
+		 * @namespace Events:$fn.bindSwipeGesture
+		 **/
+
+		/**
+		 * Unbinds a callback to a swipe gesture.
+		 *
+		 * Normally all directions unbind individually, but if you leave out the direction all directions are unbound
+		 * in a loop.
+		 *
+		 * @param {?String} [direction] - the direction to unbind => up/down/left/right, if null/undefined all directions for namespace are unbound
+		 * @param {?String} [eventNameSpace='annexSwipeGesture'] - event namespace to unbind, useful to only unbind a specific group of events
+		 * @returns {Object} this
+		 *
+		 * @memberof Events:$fn.unbindSwipeGesture
+		 * @see bindSwipeGesture
+		 * @example
+		 * $slider.unbindSwipeGesture('right', 'foobarPrev');
+		 * $slider.unbindSwipeGesture();
+		 **/
+		unbindSwipeGesture : function(direction, eventNameSpace){
+			eventNameSpace = $.orDefault(eventNameSpace, 'annexSwipeGesture', 'string');
+
+			var _this_ = this;
+
+			if( $.isSet(direction) ){
+				$.assert($.inArray(direction, ['up', 'right', 'down', 'left']) >= 0, 'bindSwipeGesture | direction is not in up/right/down/left');
+				$(this).off('touchstart'.eventNameSpace+'-'+direction+' touchend.'+eventNameSpace+'-'+direction);
+			} else {
+				$.each(['up', 'right', 'down', 'left'], function(index, direction){
+					$(_this_).off('touchstart'.eventNameSpace+'-'+direction+' touchend.'+eventNameSpace+'-'+direction);
+				});
+			}
 
 			return this;
 		},
@@ -4803,8 +4931,10 @@
 		 * Searches for and returns parameters embedded in URLs, either in the document(-url) or elements
 		 * having a src- or href-attributes.
 		 *
-		 * @param {String} paramName the name of the parameter to extract
-		 * @returns {(null|true|String|String[])} null in case the parameter doesn't exist, true in case it exists but has no value, a string in case the parameter has one value, or an array of strings
+		 * Return a single parameter if name is given, otherwise returns dict with all values
+		 *
+		 * @param {?String} [paramName] - the name of the parameter to extract
+		 * @returns {(null|true|String|String[]|Object)} null in case the parameter doesn't exist, true in case it exists but has no value, a string in case the parameter has one value, or an array of strings, or a dict/object of all available params
 		 *
 		 * @memberof Urls:$fn.urlParameter
 		 * @example
@@ -4812,15 +4942,21 @@
 		 * var hasDoggies = $('img:first').urlParameter('has_doggies');
 		 **/
 		urlParameter : function(paramName){
-			paramName = ''+paramName;
+			if( $.isSet(paramName) ){
+				paramName = ''+paramName;
+			}
 
-			var paramExists = false,
-				res = [],
+			var res = [],
+				resDict = {},
 				qString = null,
 				url = '';
 
 			if( $(this).prop('nodeName') == '#document' ){
-				if( window.location.search.search(paramName) > -1 ){
+				if( $.isSet(paramName) ){
+					if( window.location.search.indexOf(paramName) > -1 ){
+						qString = window.location.search.substr(1, window.location.search.length).split('&');
+					}
+				} else {
 					qString = window.location.search.substr(1, window.location.search.length).split('&');
 				}
 			} else if( $.isSet($(this).attr('src')) ){
@@ -4841,26 +4977,66 @@
 				return null;
 			}
 
-			var paramPair = null;
+			var paramPair = null,
+				paramVal = null;
 			for( var i = 0; i < qString.length; i++ ){
 				paramPair = qString[i].split('=');
-				if( paramPair[0] == paramName ){
-					paramExists = true;
-					if( paramPair.length > 1 ){
-						res.push(paramPair[1]);
+				if( paramPair.length > 1 ){
+					paramVal = paramPair[1];
+				} else {
+					paramVal = true;
+				}
+
+				if( $.isSet(paramName) ){
+					if( paramPair[0] === paramName ){
+						res.push(paramVal);
+					}
+				} else if( paramPair[0] !== '' ){
+					if( !$.isSet(resDict[paramPair[0]]) ){
+						resDict[paramPair[0]] = paramVal;
+					} else {
+						if( !$.isArray(resDict[paramPair[0]]) ){
+							resDict[paramPair[0]] = [resDict[paramPair[0]]];
+						}
+						resDict[paramPair[0]].push(paramVal);
 					}
 				}
 			}
 
-			if( !paramExists ){
-				return null;
-			} else if( res.length === 0 ){
-				return true;
-			} else if( res.length === 1 ){
-				return res[0];
+			if( $.isSet(paramName) ){
+				if( res.length === 0 ){
+					return null;
+				} else if( res.length === 1 ){
+					return res[0];
+				} else {
+					return res;
+				}
 			} else {
-				return res;
+				return resDict;
 			}
+		},
+
+
+
+		/**
+		 * @namespace Urls:$fn.urlParameters
+		 **/
+
+		/**
+		 * Searches for and returns parameters embedded in URLs, either in the document(-url) or elements
+		 * having a src- or href-attributes.
+		 *
+		 * Semantic shortcut version of $.fn.urlParameter(); (without parameter name, resulting in all params as dict/object)
+		 *
+		 * @returns {Object} dict/object of all params, empty if no params
+		 *
+		 * @memberof Urls:$fn.urlParameters
+		 * @example
+		 * var allParams = $(document).urlParameters();
+		 * var allImageParams = $('img:first').urlParameters();
+		 **/
+		urlParameters : function(){
+			return $(this).urlParameter();
 		},
 
 
@@ -5041,9 +5217,6 @@
 							{scrollTop: $target.offset().top - Math.round(vpHeight / 2) + offset},
 							{
 								duration : durationMs,
-								progress : function(){
-									animateScroll = true;
-								},
 								complete : function(){
 									if( !callbackFired ){
 										callback();
@@ -5593,6 +5766,81 @@
 			if( $.isSet(writeToElem) && writeToElem ){
 				$(this).html((countryPart+regionPart+' '+firstTelPart+secondTelPart).replace(/(\w{1})/g, '$1&zwnj;'));
 			}
+
+			return this;
+		},
+
+
+
+		/**
+		 * @namespace TextContent:$fn
+		 */
+
+		/**
+		 * @namespace Protocols:$fn.multiLineTextEllipsis
+		 **/
+
+		/**
+		 * Iteratively Shortens the text content of an element to a length, where the text fits into the element's size.
+		 *
+		 * This process is very CPU-heavy and should only be used very sparingly.
+		 * There are some preconditions, so that this may work:
+		 * 1. We need an area/a container which defines the space available to display text. This element must have
+		 *    realistic, readably dimensions at all times. This element may, of course, be the element itself.
+		 * 2. We need a holder/container for the text content, encompassing all text content to be checked. The
+		 *    dimensions of this holder have to reflect the real width/height of the rendered text. This element
+		 *    may not contain further markup, but has to be plain text only.
+		 *
+		 * In essence, this function saves the original text, then reduces the text content character by character,
+		 * until it fits, then removes another set of characters to fit the ellipsis characters at the end.
+		 *
+		 * Normally you'll call this function repeatedly on an element to reflect changes due to resizing.
+		 *
+		 * If you need to reset the base text for this operation call removeData('annexMultilineEllipsisOrgText') on
+		 * the element.
+		 *
+		 * @param {?String} [textContentSelector='.text-content'] - jQuery-selector to find the text content element (inside the holder) by
+		 * @param {?String} [textContentParentSelector=''] - optional selector to find closest() parent by, if empty or '', just takes parent()
+		 * @param {?String} [ellipsis='...'] - the ellipsis replacement to put at end of text in case it's too long
+		 * @returns {Object} this
+		 *
+		 * @memberof TextContent:$fn.multiLineTextEllipsis
+		 * @example
+		 * $('.tile-holder .tile').multiLineTextEllipsis('.tile-text', '.tile-text-holder');
+		 **/
+		multiLineTextEllipsis : function(textContentSelector, textContentParentSelector, ellipsis){
+			textContentSelector = $.orDefault(textContentSelector, '.text-content', 'string');
+			textContentParentSelector = $.orDefault(textContentParentSelector, '', 'string');
+			ellipsis = $.orDefault(ellipsis, '...', 'string');
+
+			var _this_ = this;
+
+			$(this).find(textContentSelector).each(function(){
+				var $parent = ($.trim(textContentParentSelector) !== '') ? $(this).closest(textContentParentSelector) : $(this).parent();
+
+				if( !$(_this_).data('annexMultilineEllipsisOrgText') ){
+					$(_this_).data('annexMultilineEllipsisOrgText', $(this).text());
+				}
+
+				var restText = $(_this_).data('annexMultilineEllipsisOrgText');
+				$(this).text(restText);
+
+				for(var i = 0; i < $(_this_).data('annexMultilineEllipsisOrgText').length; i++){
+					if(
+						($(this).outerHeight() > $parent.height() + 2)
+						|| ($(this).outerWidth() > $parent.width())
+					){
+						restText = restText.slice(0, -1);
+						$(this).text(restText);
+					} else if( restText !== $(_this_).data('annexMultilineEllipsisOrgText') ){
+						restText = restText.slice(0, -(ellipsis.length + 1))+' '+ellipsis;
+						$(this).text(restText);
+						break;
+					} else {
+						break;
+					}
+				}
+			});
 
 			return this;
 		},

@@ -4599,7 +4599,7 @@
 
 
 		/**
-		 * @namespace Events:$fn.simulateTouchEvents
+		 * @namespace Events:$fn.translateTouchToMouseEvents
 		 **/
 
 		/**
@@ -4609,11 +4609,11 @@
 		 * @param {?Boolean} [ignoreChildren=false] - defines if only the element itself should count and whether to ignore bubbling
 		 * @returns {Object} this
 		 *
-		 * @memberof Events:$fn.simulateTouchEvents
+		 * @memberof Events:$fn.translateTouchToMouseEvents
 		 * @example
-		 * $elementReactingToTouchAndClickOnlyWithMouseHandlers.simulateTouchEvents().click(function(){ alert('I got touched!'); });
+		 * $elementReactingToTouchAndClickOnlyWithMouseHandlers.translateTouchToMouseEvents().click(function(){ alert('I got touched!'); });
 		 **/
-		simulateTouchEvents : function(ignoreChildren){
+		translateTouchToMouseEvents : function(ignoreChildren){
 			$(this).on('touchstart touchmove touchend', function(e){
 				var isTarget = (e.target == this);
 
@@ -4643,7 +4643,7 @@
 
 						if( !eventNeedsReplacement &amp;&amp; ($.inArray(e.target.tagName.toLowerCase(), $.jqueryAnnexData.touch.inputs) &lt; 0) ){
 							var touch = orgEvent.changedTouches[0],
-								mouseEvent = document.createEvent("MouseEvent");
+								mouseEvent = document.createEvent('MouseEvent');
 
 							mouseEvent.initMouseEvent(
 								$.jqueryAnnexData.touch.types[e.type.toLowerCase()],
@@ -4673,6 +4673,134 @@
 					}
 				}
 			});
+
+			return this;
+		},
+
+
+
+		/**
+		 * @namespace Events:$fn.bindSwipeGesture
+		 **/
+
+		/**
+		 * Binds a callback to a swipe gesture (on touch devices).
+		 * Offers four swipe directions (up/right/down/left), where triggering the callback depends on the distance
+		 * between touchstart and touchend in relation to the element's dimensions (multiplied by a factor to
+		 * express a percentage).
+		 *
+		 * @param {String} direction - the direction to bind => up/down/left/right
+		 * @param {Function} callback - callback to call on swipe, takes event e
+		 * @param {?String} [eventNameSpace='annexSwipeGesture'] - apply an event namespace, which identifies specific events, helpful for a specific unbind later using the same namespace
+		 * @param {?Float} [dimFactor=0.2] - to determine what registers as a swipe we use a percentage of the viewport's width/height, the touch has to move, default is 20%
+		 * @param {?Boolean} [hasToBeTouchDevice=true] - if true, makes sure the handlers are only active on real touch devices, not in chrome emulation for example
+		 * @returns {Object} this
+		 *
+		 * @memberof Events:$fn.bindSwipeGesture
+		 * @see unbindSwipeGesture
+		 * @example
+		 * $slider.bindSwipeGesture('up', function(e){ $(e.currentTarget).fadeOut(); });
+		 * $slider.bindSwipeGesture('right', function(){ $('body').triggerHandler('load-previous-thing'); }, 'foobarPrev', 0.15, false);
+		 **/
+		bindSwipeGesture : function(direction, callback, eventNameSpace, dimFactor, hasToBeTouchDevice){
+			$.assert($.inArray(direction, ['up', 'right', 'down', 'left']) >= 0, 'bindSwipeGesture | direction is not in up/right/down/left');
+			$.assert($.isFunction(callback), 'bindSwipeGesture | callback is not a function');
+
+			eventNameSpace = $.orDefault(eventNameSpace, 'annexSwipeGesture', 'string');
+			dimFactor = $.orDefault(dimFactor, 0.2, 'float');
+			hasToBeTouchDevice = $.orDefault(hasToBeTouchDevice, true, 'bool');
+
+			if( !hasToBeTouchDevice || $.contextIsTouchDevice() ){
+				var $el = $(this),
+					touch = {
+						startX : 0,
+						startY : 0,
+						endX : 0,
+						endY : 0
+					}
+				;
+
+				$(this)
+					.on('touchstart.'+eventNameSpace+'-'+direction, function(e){
+						touch.startX = e.originalEvent.changedTouches[0].screenX;
+						touch.startY = e.originalEvent.changedTouches[0].screenY;
+					})
+					.on('touchend.'+eventNameSpace+'-'+direction, function(e){
+						var elWidth = $el.outerWidth(),
+							elHeight = $el.outerHeight();
+
+						touch.endX = e.originalEvent.changedTouches[0].screenX;
+						touch.endY = e.originalEvent.changedTouches[0].screenY;
+
+						switch( direction ){
+							case 'up':
+								if( touch.startY > (touch.endY + elHeight * dimFactor) ){
+									callback(e);
+								}
+							break;
+
+							case 'right':
+								if( touch.startX &lt; (touch.endX - elWidth * dimFactor) ){
+									callback(e);
+								}
+							break;
+
+							case 'down':
+								if( touch.startY &lt; (touch.endY - elHeight * dimFactor) ){
+									callback(e);
+								}
+							break;
+
+							case 'left':
+								if( touch.startX > (touch.endX + elWidth * dimFactor) ){
+									callback(e);
+								}
+							break;
+
+							default:break;
+						}
+					})
+				;
+			}
+
+			return this;
+		},
+
+
+
+		/**
+		 * @namespace Events:$fn.unbindSwipeGesture
+		 **/
+
+		/**
+		 * Unbinds a callback to a swipe gesture.
+		 *
+		 * Normally all directions unbind individually, but if you leave out the direction all directions are unbound
+		 * in a loop.
+		 *
+		 * @param {?String} [direction] - the direction to unbind => up/down/left/right, if null/undefined all directions for namespace are unbound
+		 * @param {?String} [eventNameSpace='annexSwipeGesture'] - event namespace to unbind, useful to only unbind a specific group of events
+		 * @returns {Object} this
+		 *
+		 * @memberof Events:$fn.unbindSwipeGesture
+		 * @see bindSwipeGesture
+		 * @example
+		 * $slider.unbindSwipeGesture('right', 'foobarPrev');
+		 * $slider.unbindSwipeGesture();
+		 **/
+		unbindSwipeGesture : function(direction, eventNameSpace){
+			eventNameSpace = $.orDefault(eventNameSpace, 'annexSwipeGesture', 'string');
+
+			var _this_ = this;
+
+			if( $.isSet(direction) ){
+				$.assert($.inArray(direction, ['up', 'right', 'down', 'left']) >= 0, 'bindSwipeGesture | direction is not in up/right/down/left');
+				$(this).off('touchstart'.eventNameSpace+'-'+direction+' touchend.'+eventNameSpace+'-'+direction);
+			} else {
+				$.each(['up', 'right', 'down', 'left'], function(index, direction){
+					$(_this_).off('touchstart'.eventNameSpace+'-'+direction+' touchend.'+eventNameSpace+'-'+direction);
+				});
+			}
 
 			return this;
 		},
@@ -4831,8 +4959,10 @@
 		 * Searches for and returns parameters embedded in URLs, either in the document(-url) or elements
 		 * having a src- or href-attributes.
 		 *
-		 * @param {String} paramName the name of the parameter to extract
-		 * @returns {(null|true|String|String[])} null in case the parameter doesn't exist, true in case it exists but has no value, a string in case the parameter has one value, or an array of strings
+		 * Return a single parameter if name is given, otherwise returns dict with all values
+		 *
+		 * @param {?String} [paramName] - the name of the parameter to extract
+		 * @returns {(null|true|String|String[]|Object)} null in case the parameter doesn't exist, true in case it exists but has no value, a string in case the parameter has one value, or an array of strings, or a dict/object of all available params
 		 *
 		 * @memberof Urls:$fn.urlParameter
 		 * @example
@@ -4840,15 +4970,21 @@
 		 * var hasDoggies = $('img:first').urlParameter('has_doggies');
 		 **/
 		urlParameter : function(paramName){
-			paramName = ''+paramName;
+			if( $.isSet(paramName) ){
+				paramName = ''+paramName;
+			}
 
-			var paramExists = false,
-				res = [],
+			var res = [],
+				resDict = {},
 				qString = null,
 				url = '';
 
 			if( $(this).prop('nodeName') == '#document' ){
-				if( window.location.search.search(paramName) > -1 ){
+				if( $.isSet(paramName) ){
+					if( window.location.search.indexOf(paramName) > -1 ){
+						qString = window.location.search.substr(1, window.location.search.length).split('&amp;');
+					}
+				} else {
 					qString = window.location.search.substr(1, window.location.search.length).split('&amp;');
 				}
 			} else if( $.isSet($(this).attr('src')) ){
@@ -4869,26 +5005,66 @@
 				return null;
 			}
 
-			var paramPair = null;
+			var paramPair = null,
+				paramVal = null;
 			for( var i = 0; i &lt; qString.length; i++ ){
 				paramPair = qString[i].split('=');
-				if( paramPair[0] == paramName ){
-					paramExists = true;
-					if( paramPair.length > 1 ){
-						res.push(paramPair[1]);
+				if( paramPair.length > 1 ){
+					paramVal = paramPair[1];
+				} else {
+					paramVal = true;
+				}
+
+				if( $.isSet(paramName) ){
+					if( paramPair[0] === paramName ){
+						res.push(paramVal);
+					}
+				} else if( paramPair[0] !== '' ){
+					if( !$.isSet(resDict[paramPair[0]]) ){
+						resDict[paramPair[0]] = paramVal;
+					} else {
+						if( !$.isArray(resDict[paramPair[0]]) ){
+							resDict[paramPair[0]] = [resDict[paramPair[0]]];
+						}
+						resDict[paramPair[0]].push(paramVal);
 					}
 				}
 			}
 
-			if( !paramExists ){
-				return null;
-			} else if( res.length === 0 ){
-				return true;
-			} else if( res.length === 1 ){
-				return res[0];
+			if( $.isSet(paramName) ){
+				if( res.length === 0 ){
+					return null;
+				} else if( res.length === 1 ){
+					return res[0];
+				} else {
+					return res;
+				}
 			} else {
-				return res;
+				return resDict;
 			}
+		},
+
+
+
+		/**
+		 * @namespace Urls:$fn.urlParameters
+		 **/
+
+		/**
+		 * Searches for and returns parameters embedded in URLs, either in the document(-url) or elements
+		 * having a src- or href-attributes.
+		 *
+		 * Semantic shortcut version of $.fn.urlParameter(); (without parameter name, resulting in all params as dict/object)
+		 *
+		 * @returns {Object} dict/object of all params, empty if no params
+		 *
+		 * @memberof Urls:$fn.urlParameters
+		 * @example
+		 * var allParams = $(document).urlParameters();
+		 * var allImageParams = $('img:first').urlParameters();
+		 **/
+		urlParameters : function(){
+			return $(this).urlParameter();
 		},
 
 
@@ -5069,9 +5245,6 @@
 							{scrollTop: $target.offset().top - Math.round(vpHeight / 2) + offset},
 							{
 								duration : durationMs,
-								progress : function(){
-									animateScroll = true;
-								},
 								complete : function(){
 									if( !callbackFired ){
 										callback();
@@ -5105,7 +5278,7 @@
 		 * Fixes cross-browser problems with image-loads and fires the event even in case the image is already loaded.
 		 *
 		 * Also supports &lt;imgs> inside picture elements, while handling the polyfills respimage and picturefill if
-		 * present in window. Make sure to apply this method to the &lt;img> inside the &lt;picture> and not on the &lt;picure>
+		 * present in window. Make sure to apply this method to the img inside the picture and not on the &lt;picure>
 		 * itself.
 		 *
 		 * @param {Function} callback - callback to call when all images have been loaded
@@ -5621,6 +5794,81 @@
 			if( $.isSet(writeToElem) &amp;&amp; writeToElem ){
 				$(this).html((countryPart+regionPart+' '+firstTelPart+secondTelPart).replace(/(\w{1})/g, '$1&amp;zwnj;'));
 			}
+
+			return this;
+		},
+
+
+
+		/**
+		 * @namespace TextContent:$fn
+		 */
+
+		/**
+		 * @namespace TextContent:$fn.multiLineTextEllipsis
+		 **/
+
+		/**
+		 * Iteratively Shortens the text content of an element to a length, where the text fits into the element's size.
+		 *
+		 * This process is very CPU-heavy and should only be used very sparingly.
+		 * There are some preconditions, so that this may work:
+		 * 1. We need an area/a container which defines the space available to display text. This element must have
+		 *    realistic, readably dimensions at all times. This element may, of course, be the element itself.
+		 * 2. We need a holder/container for the text content, encompassing all text content to be checked. The
+		 *    dimensions of this holder have to reflect the real width/height of the rendered text. This element
+		 *    may not contain further markup, but has to be plain text only.
+		 *
+		 * In essence, this function saves the original text, then reduces the text content character by character,
+		 * until it fits, then removes another set of characters to fit the ellipsis characters at the end.
+		 *
+		 * Normally you'll call this function repeatedly on an element to reflect changes due to resizing.
+		 *
+		 * If you need to reset the base text for this operation call removeData('annexMultilineEllipsisOrgText') on
+		 * the element.
+		 *
+		 * @param {?String} [textContentSelector='.text-content'] - jQuery-selector to find the text content element (inside the holder) by
+		 * @param {?String} [textContentParentSelector=''] - optional selector to find closest() parent by, if empty or '', just takes parent()
+		 * @param {?String} [ellipsis='...'] - the ellipsis replacement to put at end of text in case it's too long
+		 * @returns {Object} this
+		 *
+		 * @memberof TextContent:$fn.multiLineTextEllipsis
+		 * @example
+		 * $('.tile-holder .tile').multiLineTextEllipsis('.tile-text', '.tile-text-holder');
+		 **/
+		multiLineTextEllipsis : function(textContentSelector, textContentParentSelector, ellipsis){
+			textContentSelector = $.orDefault(textContentSelector, '.text-content', 'string');
+			textContentParentSelector = $.orDefault(textContentParentSelector, '', 'string');
+			ellipsis = $.orDefault(ellipsis, '...', 'string');
+
+			var _this_ = this;
+
+			$(this).find(textContentSelector).each(function(){
+				var $parent = ($.trim(textContentParentSelector) !== '') ? $(this).closest(textContentParentSelector) : $(this).parent();
+
+				if( !$(_this_).data('annexMultilineEllipsisOrgText') ){
+					$(_this_).data('annexMultilineEllipsisOrgText', $(this).text());
+				}
+
+				var restText = $(_this_).data('annexMultilineEllipsisOrgText');
+				$(this).text(restText);
+
+				for(var i = 0; i &lt; $(_this_).data('annexMultilineEllipsisOrgText').length; i++){
+					if(
+						($(this).outerHeight() > $parent.height() + 2)
+						|| ($(this).outerWidth() > $parent.width())
+					){
+						restText = restText.slice(0, -1);
+						$(this).text(restText);
+					} else if( restText !== $(_this_).data('annexMultilineEllipsisOrgText') ){
+						restText = restText.slice(0, -(ellipsis.length + 1))+' '+ellipsis;
+						$(this).text(restText);
+						break;
+					} else {
+						break;
+					}
+				}
+			});
 
 			return this;
 		},
@@ -6676,13 +6924,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Dates_$_SaneDate.SaneDate.html">SaneDate</a></li><li><a href="Inheritance_$_Class.Class.html">Class</a></li></ul><h3>Namespaces</h3><ul><li><a href="Animation_$fn.html">Animation:$fn</a></li><li><a href="Animation_$fn.loopAnimation.html">loopAnimation</a></li><li><a href="Arrays_$.html">Arrays:$</a></li><li><a href="Arrays_$.removeFromArray.html">removeFromArray</a></li><li><a href="Basic_$.html">Basic:$</a></li><li><a href="Basic_$.assert.html">assert</a></li><li><a href="Basic_$.attempt.html">attempt</a></li><li><a href="Basic_$.exists.html">exists</a></li><li><a href="Basic_$.hasMembers.html">hasMembers</a></li><li><a href="Basic_$.isA.html">isA</a></li><li><a href="Basic_$.isEmpty.html">isEmpty</a></li><li><a href="Basic_$.isFloat.html">isFloat</a></li><li><a href="Basic_$.isInt.html">isInt</a></li><li><a href="Basic_$.isNaN.html">isNaN</a></li><li><a href="Basic_$.isSet.html">isSet</a></li><li><a href="Basic_$.minMax.html">minMax</a></li><li><a href="Basic_$.orDefault.html">orDefault</a></li><li><a href="Basic_$fn.html">Basic:$fn</a></li><li><a href="Basic_$fn.dataDuo.html">dataDuo</a></li><li><a href="Basic_$fn.findTextNodes.html">findTextNodes</a></li><li><a href="Basic_$fn.isInDom.html">isInDom</a></li><li><a href="Basic_$fn.measureHidden.html">measureHidden</a></li><li><a href="Basic_$fn.oo.html">oo</a></li><li><a href="Basic_$fn.outerHtml.html">outerHtml</a></li><li><a href="Basic_$fn.rehide.html">rehide</a></li><li><a href="Basic_$fn.removeDataDuo.html">removeDataDuo</a></li><li><a href="Capabilities_$.html">Capabilities:$</a></li><li><a href="Capabilities_$.browserSupportsHistoryManipulation.html">browserSupportsHistoryManipulation</a></li><li><a href="Capabilities_$.browserSupportsLocalStorage.html">browserSupportsLocalStorage</a></li><li><a href="Capabilities_$.browserSupportsSessionStorage.html">browserSupportsSessionStorage</a></li><li><a href="Capabilities_$.contextHasHighDpi.html">contextHasHighDpi</a></li><li><a href="Capabilities_$.contextIsTouchDevice.html">contextIsTouchDevice</a></li><li><a href="Capabilities_$.contextScrollbarWidth.html">contextScrollbarWidth</a></li><li><a href="Cookies_$.html">Cookies:$</a></li><li><a href="Cookies_$.cookie.html">cookie</a></li><li><a href="Css_$.html">Css:$</a></li><li><a href="Css_$.cssToInt.html">cssToInt</a></li><li><a href="Css_$.cssUrlToSrc.html">cssUrlToSrc</a></li><li><a href="Css_$.remByPx.html">remByPx</a></li><li><a href="Css_$fn.html">Css:$fn</a></li><li><a href="Css_$fn.cssCrossBrowser.html">cssCrossBrowser</a></li><li><a href="Databases_$.html">Databases:$</a></li><li><a href="Databases_$.isolateId.html">isolateId</a></li><li><a href="Databases_$.isPossibleId.html">isPossibleId</a></li><li><a href="Dates_$.html">Dates:$</a></li><li><a href="Dates_$_SaneDate.html">SaneDate</a></li><li><a href="Dynamicloading_$.html">Dynamicloading:$</a></li><li><a href="Dynamicloading_$.getCss.html">getCss</a></li><li><a href="Dynamicloading_$.getHtmlBody.html">getHtmlBody</a></li><li><a href="Elements_$.html">Elements:$</a></li><li><a href="Elements_$.elem.html">elem</a></li><li><a href="Elements_$.textContent.html">textContent</a></li><li><a href="Events_$.html">Events:$</a></li><li><a href="Events_$.bindCursorKey.html">bindCursorKey</a></li><li><a href="Events_$.unbindCursorKey.html">unbindCursorKey</a></li><li><a href="Events_$fn.html">Events:$fn</a></li><li><a href="Events_$fn.moveEventData.html">moveEventData</a></li><li><a href="Events_$fn.pauseHandlers.html">pauseHandlers</a></li><li><a href="Events_$fn.resumeHandlers.html">resumeHandlers</a></li><li><a href="Events_$fn.simulateTouchEvents.html">simulateTouchEvents</a></li><li><a href="Fonts_$.html">Fonts:$</a></li><li><a href="Fonts_$.waitForWebfonts.html">waitForWebfonts</a></li><li><a href="Forms_$fn.html">Forms:$fn</a></li><li><a href="Forms_$fn.check.html">check</a></li><li><a href="Forms_$fn.deselect.html">deselect</a></li><li><a href="Forms_$fn.disable.html">disable</a></li><li><a href="Forms_$fn.doselect.html">doselect</a></li><li><a href="Forms_$fn.enable.html">enable</a></li><li><a href="Forms_$fn.formDataToFormData.html">formDataToFormData</a></li><li><a href="Forms_$fn.formDataToObject.html">formDataToObject</a></li><li><a href="Forms_$fn.makeStylable.html">makeStylable</a></li><li><a href="Forms_$fn.uncheck.html">uncheck</a></li><li><a href="Functions_$.html">Functions:$</a></li><li><a href="Functions_$.deferExecution.html">deferExecution</a></li><li><a href="Functions_$.holdExecution.html">holdExecution</a></li><li><a href="Functions_$.kwargs.html">kwargs</a></li><li><a href="Functions_$.throttleExecution.html">throttleExecution</a></li><li><a href="Images_$.html">Images:$</a></li><li><a href="Images_$.preloadImages.html">preloadImages</a></li><li><a href="Images_$fn.html">Images:$fn</a></li><li><a href="Images_$fn.highDpiBackgroundImage.html">highDpiBackgroundImage</a></li><li><a href="Images_$fn.imgLoad.html">imgLoad</a></li><li><a href="Inheritance_$.html">Inheritance:$</a></li><li><a href="Inheritance_$_Class.html">Class</a></li><li><a href="Interaction_$.html">Interaction:$</a></li><li><a href="Interaction_$.removeSelection.html">removeSelection</a></li><li><a href="Interaction_$fn.html">Interaction:$fn</a></li><li><a href="Interaction_$fn.createSelection.html">createSelection</a></li><li><a href="Interaction_$fn.disableSelection.html">disableSelection</a></li><li><a href="Logging_$.html">Logging:$</a></li><li><a href="Logging_$.err.html">err</a></li><li><a href="Logging_$.log.html">log</a></li><li><a href="Logging_$.warn.html">warn</a></li><li><a href="Logging_$.x.html">x</a></li><li><a href="Navigation_$.html">Navigation:$</a></li><li><a href="Navigation_$.changeUrlSilently.html">changeUrlSilently</a></li><li><a href="Navigation_$.onHistoryChange.html">onHistoryChange</a></li><li><a href="Navigation_$.openWindow.html">openWindow</a></li><li><a href="Navigation_$.redirect.html">redirect</a></li><li><a href="Navigation_$.reload.html">reload</a></li><li><a href="Navigation_$.setupHashNavHighlighting.html">setupHashNavHighlighting</a></li><li><a href="Objects_$.html">Objects:$</a></li><li><a href="Objects_$.copyObjectContent.html">copyObjectContent</a></li><li><a href="Objects_$.emptyObject.html">emptyObject</a></li><li><a href="Objects_$.objectLength.html">objectLength</a></li><li><a href="Polling_$.html">Polling:$</a></li><li><a href="Polling_$.poll.html">poll</a></li><li><a href="Polling_$.unpoll.html">unpoll</a></li><li><a href="Preparation_$fn.html">Preparation:$fn</a></li><li><a href="Preparation_$fn.prime.html">prime</a></li><li><a href="Preparation_$fn.setElementIdentity.html">setElementIdentity</a></li><li><a href="Protocols_$fn.html">Protocols:$fn</a></li><li><a href="Protocols_$fn.registerMailto.html">registerMailto</a></li><li><a href="Protocols_$fn.registerTel.html">registerTel</a></li><li><a href="Random_$.html">Random:$</a></li><li><a href="Random_$.randomInt.html">randomInt</a></li><li><a href="Random_$.randomUuid.html">randomUuid</a></li><li><a href="Sandbox_$fn.html">Sandbox:$fn</a></li><li><a href="Sandbox_$fn.removeSandbox.html">removeSandbox</a></li><li><a href="Sandbox_$fn.sandbox.html">sandbox</a></li><li><a href="Strings_$.html">Strings:$</a></li><li><a href="Strings_$.maskForRegEx.html">maskForRegEx</a></li><li><a href="Strings_$.maskForSelector.html">maskForSelector</a></li><li><a href="Strings_$.slugify.html">slugify</a></li><li><a href="Strings_$.strConcat.html">strConcat</a></li><li><a href="Strings_$.strFormat.html">strFormat</a></li><li><a href="Strings_$.strReplace.html">strReplace</a></li><li><a href="Strings_$.strTruncate.html">strTruncate</a></li><li><a href="Timers_$.html">Timers:$</a></li><li><a href="Timers_$.countermand.html">countermand</a></li><li><a href="Timers_$.loop.html">loop</a></li><li><a href="Timers_$.ploop.html">ploop</a></li><li><a href="Timers_$.pschedule.html">pschedule</a></li><li><a href="Timers_$.reschedule.html">reschedule</a></li><li><a href="Timers_$.schedule.html">schedule</a></li><li><a href="Urls_$fn.html">Urls:$fn</a></li><li><a href="Urls_$fn.urlAnchor.html">urlAnchor</a></li><li><a href="Urls_$fn.urlParameter.html">urlParameter</a></li><li><a href="Viewport_$fn.html">Viewport:$fn</a></li><li><a href="Viewport_$fn.isInViewport.html">isInViewport</a></li><li><a href="Viewport_$fn.scrollTo.html">scrollTo</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Dates_$_SaneDate.SaneDate.html">SaneDate</a></li><li><a href="Inheritance_$_Class.Class.html">Class</a></li></ul><h3>Namespaces</h3><ul><li><a href="Animation_$fn.html">Animation:$fn</a></li><li><a href="Animation_$fn.loopAnimation.html">loopAnimation</a></li><li><a href="Arrays_$.html">Arrays:$</a></li><li><a href="Arrays_$.removeFromArray.html">removeFromArray</a></li><li><a href="Basic_$.html">Basic:$</a></li><li><a href="Basic_$.assert.html">assert</a></li><li><a href="Basic_$.attempt.html">attempt</a></li><li><a href="Basic_$.exists.html">exists</a></li><li><a href="Basic_$.hasMembers.html">hasMembers</a></li><li><a href="Basic_$.isA.html">isA</a></li><li><a href="Basic_$.isEmpty.html">isEmpty</a></li><li><a href="Basic_$.isFloat.html">isFloat</a></li><li><a href="Basic_$.isInt.html">isInt</a></li><li><a href="Basic_$.isNaN.html">isNaN</a></li><li><a href="Basic_$.isSet.html">isSet</a></li><li><a href="Basic_$.minMax.html">minMax</a></li><li><a href="Basic_$.orDefault.html">orDefault</a></li><li><a href="Basic_$fn.html">Basic:$fn</a></li><li><a href="Basic_$fn.dataDuo.html">dataDuo</a></li><li><a href="Basic_$fn.findTextNodes.html">findTextNodes</a></li><li><a href="Basic_$fn.isInDom.html">isInDom</a></li><li><a href="Basic_$fn.measureHidden.html">measureHidden</a></li><li><a href="Basic_$fn.oo.html">oo</a></li><li><a href="Basic_$fn.outerHtml.html">outerHtml</a></li><li><a href="Basic_$fn.rehide.html">rehide</a></li><li><a href="Basic_$fn.removeDataDuo.html">removeDataDuo</a></li><li><a href="Capabilities_$.html">Capabilities:$</a></li><li><a href="Capabilities_$.browserSupportsHistoryManipulation.html">browserSupportsHistoryManipulation</a></li><li><a href="Capabilities_$.browserSupportsLocalStorage.html">browserSupportsLocalStorage</a></li><li><a href="Capabilities_$.browserSupportsSessionStorage.html">browserSupportsSessionStorage</a></li><li><a href="Capabilities_$.contextHasHighDpi.html">contextHasHighDpi</a></li><li><a href="Capabilities_$.contextIsTouchDevice.html">contextIsTouchDevice</a></li><li><a href="Capabilities_$.contextScrollbarWidth.html">contextScrollbarWidth</a></li><li><a href="Cookies_$.html">Cookies:$</a></li><li><a href="Cookies_$.cookie.html">cookie</a></li><li><a href="Css_$.html">Css:$</a></li><li><a href="Css_$.cssToInt.html">cssToInt</a></li><li><a href="Css_$.cssUrlToSrc.html">cssUrlToSrc</a></li><li><a href="Css_$.remByPx.html">remByPx</a></li><li><a href="Css_$fn.html">Css:$fn</a></li><li><a href="Css_$fn.cssCrossBrowser.html">cssCrossBrowser</a></li><li><a href="Databases_$.html">Databases:$</a></li><li><a href="Databases_$.isolateId.html">isolateId</a></li><li><a href="Databases_$.isPossibleId.html">isPossibleId</a></li><li><a href="Dates_$.html">Dates:$</a></li><li><a href="Dates_$_SaneDate.html">SaneDate</a></li><li><a href="Dynamicloading_$.html">Dynamicloading:$</a></li><li><a href="Dynamicloading_$.getCss.html">getCss</a></li><li><a href="Dynamicloading_$.getHtmlBody.html">getHtmlBody</a></li><li><a href="Elements_$.html">Elements:$</a></li><li><a href="Elements_$.elem.html">elem</a></li><li><a href="Elements_$.textContent.html">textContent</a></li><li><a href="Events_$.html">Events:$</a></li><li><a href="Events_$.bindCursorKey.html">bindCursorKey</a></li><li><a href="Events_$.unbindCursorKey.html">unbindCursorKey</a></li><li><a href="Events_$fn.html">Events:$fn</a></li><li><a href="Events_$fn.bindSwipeGesture.html">bindSwipeGesture</a></li><li><a href="Events_$fn.moveEventData.html">moveEventData</a></li><li><a href="Events_$fn.pauseHandlers.html">pauseHandlers</a></li><li><a href="Events_$fn.resumeHandlers.html">resumeHandlers</a></li><li><a href="Events_$fn.translateTouchToMouseEvents.html">translateTouchToMouseEvents</a></li><li><a href="Events_$fn.unbindSwipeGesture.html">unbindSwipeGesture</a></li><li><a href="Fonts_$.html">Fonts:$</a></li><li><a href="Fonts_$.waitForWebfonts.html">waitForWebfonts</a></li><li><a href="Forms_$fn.html">Forms:$fn</a></li><li><a href="Forms_$fn.check.html">check</a></li><li><a href="Forms_$fn.deselect.html">deselect</a></li><li><a href="Forms_$fn.disable.html">disable</a></li><li><a href="Forms_$fn.doselect.html">doselect</a></li><li><a href="Forms_$fn.enable.html">enable</a></li><li><a href="Forms_$fn.formDataToFormData.html">formDataToFormData</a></li><li><a href="Forms_$fn.formDataToObject.html">formDataToObject</a></li><li><a href="Forms_$fn.makeStylable.html">makeStylable</a></li><li><a href="Forms_$fn.uncheck.html">uncheck</a></li><li><a href="Functions_$.html">Functions:$</a></li><li><a href="Functions_$.deferExecution.html">deferExecution</a></li><li><a href="Functions_$.holdExecution.html">holdExecution</a></li><li><a href="Functions_$.kwargs.html">kwargs</a></li><li><a href="Functions_$.throttleExecution.html">throttleExecution</a></li><li><a href="Images_$.html">Images:$</a></li><li><a href="Images_$.preloadImages.html">preloadImages</a></li><li><a href="Images_$fn.html">Images:$fn</a></li><li><a href="Images_$fn.highDpiBackgroundImage.html">highDpiBackgroundImage</a></li><li><a href="Images_$fn.imgLoad.html">imgLoad</a></li><li><a href="Inheritance_$.html">Inheritance:$</a></li><li><a href="Inheritance_$_Class.html">Class</a></li><li><a href="Interaction_$.html">Interaction:$</a></li><li><a href="Interaction_$.removeSelection.html">removeSelection</a></li><li><a href="Interaction_$fn.html">Interaction:$fn</a></li><li><a href="Interaction_$fn.createSelection.html">createSelection</a></li><li><a href="Interaction_$fn.disableSelection.html">disableSelection</a></li><li><a href="Logging_$.html">Logging:$</a></li><li><a href="Logging_$.err.html">err</a></li><li><a href="Logging_$.log.html">log</a></li><li><a href="Logging_$.warn.html">warn</a></li><li><a href="Logging_$.x.html">x</a></li><li><a href="Navigation_$.html">Navigation:$</a></li><li><a href="Navigation_$.changeUrlSilently.html">changeUrlSilently</a></li><li><a href="Navigation_$.onHistoryChange.html">onHistoryChange</a></li><li><a href="Navigation_$.openWindow.html">openWindow</a></li><li><a href="Navigation_$.redirect.html">redirect</a></li><li><a href="Navigation_$.reload.html">reload</a></li><li><a href="Navigation_$.setupHashNavHighlighting.html">setupHashNavHighlighting</a></li><li><a href="Objects_$.html">Objects:$</a></li><li><a href="Objects_$.copyObjectContent.html">copyObjectContent</a></li><li><a href="Objects_$.emptyObject.html">emptyObject</a></li><li><a href="Objects_$.objectLength.html">objectLength</a></li><li><a href="Polling_$.html">Polling:$</a></li><li><a href="Polling_$.poll.html">poll</a></li><li><a href="Polling_$.unpoll.html">unpoll</a></li><li><a href="Preparation_$fn.html">Preparation:$fn</a></li><li><a href="Preparation_$fn.prime.html">prime</a></li><li><a href="Preparation_$fn.setElementIdentity.html">setElementIdentity</a></li><li><a href="Protocols_$fn.html">Protocols:$fn</a></li><li><a href="Protocols_$fn.registerMailto.html">registerMailto</a></li><li><a href="Protocols_$fn.registerTel.html">registerTel</a></li><li><a href="Random_$.html">Random:$</a></li><li><a href="Random_$.randomInt.html">randomInt</a></li><li><a href="Random_$.randomUuid.html">randomUuid</a></li><li><a href="Sandbox_$fn.html">Sandbox:$fn</a></li><li><a href="Sandbox_$fn.removeSandbox.html">removeSandbox</a></li><li><a href="Sandbox_$fn.sandbox.html">sandbox</a></li><li><a href="Strings_$.html">Strings:$</a></li><li><a href="Strings_$.maskForRegEx.html">maskForRegEx</a></li><li><a href="Strings_$.maskForSelector.html">maskForSelector</a></li><li><a href="Strings_$.slugify.html">slugify</a></li><li><a href="Strings_$.strConcat.html">strConcat</a></li><li><a href="Strings_$.strFormat.html">strFormat</a></li><li><a href="Strings_$.strReplace.html">strReplace</a></li><li><a href="Strings_$.strTruncate.html">strTruncate</a></li><li><a href="TextContent_$fn.html">TextContent:$fn</a></li><li><a href="TextContent_$fn.multiLineTextEllipsis.html">multiLineTextEllipsis</a></li><li><a href="Timers_$.html">Timers:$</a></li><li><a href="Timers_$.countermand.html">countermand</a></li><li><a href="Timers_$.loop.html">loop</a></li><li><a href="Timers_$.ploop.html">ploop</a></li><li><a href="Timers_$.pschedule.html">pschedule</a></li><li><a href="Timers_$.reschedule.html">reschedule</a></li><li><a href="Timers_$.schedule.html">schedule</a></li><li><a href="Urls_$fn.html">Urls:$fn</a></li><li><a href="Urls_$fn.urlAnchor.html">urlAnchor</a></li><li><a href="Urls_$fn.urlParameter.html">urlParameter</a></li><li><a href="Urls_$fn.urlParameters.html">urlParameters</a></li><li><a href="Viewport_$fn.html">Viewport:$fn</a></li><li><a href="Viewport_$fn.isInViewport.html">isInViewport</a></li><li><a href="Viewport_$fn.scrollTo.html">scrollTo</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Jul 21 2017 18:02:01 GMT+0200 (CEST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Mon Jul 24 2017 17:50:02 GMT+0200 (CEST)
 </footer>
 
 <script> prettyPrint(); </script>
