@@ -4741,7 +4741,7 @@
 
 
 		/**
-		 * @namespace Events:$fn.bindSwipeGesture
+		 * @namespace Events:$fn.unbindSwipeGesture
 		 **/
 
 		/**
@@ -5250,7 +5250,7 @@
 		 * Fixes cross-browser problems with image-loads and fires the event even in case the image is already loaded.
 		 *
 		 * Also supports <imgs> inside picture elements, while handling the polyfills respimage and picturefill if
-		 * present in window. Make sure to apply this method to the <img> inside the <picture> and not on the <picure>
+		 * present in window. Make sure to apply this method to the img inside the picture and not on the <picure>
 		 * itself.
 		 *
 		 * @param {Function} callback - callback to call when all images have been loaded
@@ -5777,7 +5777,7 @@
 		 */
 
 		/**
-		 * @namespace Protocols:$fn.multiLineTextEllipsis
+		 * @namespace TextContent:$fn.multiLineTextEllipsis
 		 **/
 
 		/**
