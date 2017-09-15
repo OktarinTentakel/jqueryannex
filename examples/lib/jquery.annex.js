@@ -2555,6 +2555,29 @@
 
 
 		/**
+		 * @namespace Navigation:$.openTab
+		 **/
+
+		/**
+		 * Opens a subwindow for the current window as _blank, which should result in a new tab in most browsers.
+		 *
+		 * This method is just a shortcut for $.redirect with a set target and reasonable parameters.
+		 *
+		 * @param {?String} [url=window.location.href] - the location to load, if null current location is reloaded
+		 * @param {?Object.<String, String>} [params={}] - GET-parameters to add to the url as key-value-pairs
+		 * @param {?String} [anchor] - site anchor to set for called url, has precedence over URL hash
+		 *
+		 * @memberof Navigation:$.openTab
+		 * @example
+		 * $.openTab('/misc/faq.html');
+		 **/
+		openTab : function(url, params, anchor){
+			this.redirect(url, params, anchor, null, '_blank');
+		},
+
+
+
+		/**
 		 * @namespace Navigation:$.setupHashNavHighlighting
 		 **/
 
@@ -2859,7 +2882,7 @@
 				height : 1
 			});
 
-			$('html, body').css('overflow', 'scroll');
+			$('html').css('overflow', 'scroll');
 
 			$('body')
 				.append($scrollbarEnforcer)
@@ -2869,7 +2892,7 @@
 
 			var scrollbarWidth = $vwChecker.outerWidth(true) - $widthChecker.outerWidth(true);
 
-			$('html, body').css('overflow', '');
+			$('html').css('overflow', '');
 
 			$scrollbarEnforcer.remove();
 			$vwChecker.remove();

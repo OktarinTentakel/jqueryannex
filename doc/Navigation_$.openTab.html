@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Namespace: emptyObject</title>
+    <title>JSDoc: Namespace: openTab</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Namespace: emptyObject</h1>
+    <h1 class="page-title">Namespace: openTab</h1>
 
     
 
@@ -29,7 +29,7 @@
 <header>
     
         <h2>
-            <span class="ancestors"><a href="Objects_$.html">Objects:$</a>.</span>emptyObject</h2>
+            <span class="ancestors"><a href="Navigation_$.html">Navigation:$</a>.</span>openTab</h2>
         
     
 </header>
@@ -71,7 +71,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line1446">line 1446</a>
+        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line2557">line 2557</a>
     </li></ul></dd>
     
 
@@ -107,18 +107,16 @@
 
     
 
-    <h4 class="name" id=".emptyObject"><span class="type-signature">(static) </span>emptyObject<span class="signature">(target)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id=".openTab"><span class="type-signature">(static) </span>openTab<span class="signature">(url<span class="signature-attributes">opt, nullable</span>, params<span class="signature-attributes">opt, nullable</span>, anchor<span class="signature-attributes">opt, nullable</span>)</span><span class="type-signature"></span></h4>
 
     
 
 
 
 <div class="description">
-    Removes all enumerable properties of an object, thereby emptying it.
+    Opens a subwindow for the current window as _blank, which should result in a new tab in most browsers.
 
-This method is especially interesting if the target object has to keep its reference for programmatic reasons.
-
-Modifies the target!
+This method is just a shortcut for $.redirect with a set target and reasonable parameters.
 </div>
 
 
@@ -142,7 +140,11 @@ Modifies the target!
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -154,23 +156,121 @@ Modifies the target!
 
         <tr>
             
-                <td class="name"><code>target</code></td>
+                <td class="name"><code>url</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">String</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
             
 
-            <td class="description last">the object to copy all properties of contentObject to</td>
+            
+                <td class="default">
+                
+                    window.location.href
+                
+                </td>
+            
+
+            <td class="description last">the location to load, if null current location is reloaded</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>params</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object.&lt;String, String></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    {}
+                
+                </td>
+            
+
+            <td class="description last">GET-parameters to add to the url as key-value-pairs</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>anchor</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+                    &lt;nullable><br>
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">site anchor to set for called url, has precedence over URL hash</td>
         </tr>
 
     
@@ -211,7 +311,7 @@ Modifies the target!
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line1464">line 1464</a>
+        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line2574">line 2574</a>
     </li></ul></dd>
     
 
@@ -234,33 +334,11 @@ Modifies the target!
 
 
 
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    emptied target
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Object</span>
-
-
-    </dd>
-</dl>
-
-    
 
 
     <h5>Example</h5>
     
-    <pre class="prettyprint"><code>$.emptyObject({removeMe : 'please'})</code></pre>
+    <pre class="prettyprint"><code>$.openTab('/misc/faq.html');</code></pre>
 
 
 
