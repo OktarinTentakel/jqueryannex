@@ -2824,7 +2824,7 @@
 		 **/
 		contextHasHighDpi : function(){
 			if( window.matchMedia ){
-				var query = '@media only screen and (-webkit-min-device-pixel-ratio: 1.5),'
+				var query = 'only screen and (-webkit-min-device-pixel-ratio: 1.5),'
 					+'only screen and (-o-min-device-pixel-ratio: 3/2),'
 					+'only screen and (min--moz-device-pixel-ratio: 1.5),'
 					+'only screen and (min-device-pixel-ratio: 1.5),'
