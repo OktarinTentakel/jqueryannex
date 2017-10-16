@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 38 developed and tested with jQuery 1.12.4 and 2.4
+ * @version Revision 39 developed and tested with jQuery 1.12.4 and 2.4
  **/
 
 
@@ -39,7 +39,7 @@
 				// do not enable until breaking changes are checked
 				// https://jquery.com/upgrade-guide/3.0/
 				//'3' : '1.0'
-			};
+			},
 			versionMayBeDeprecated = false;
 
 		if( requiredVersions[jQueryVersion[0]] ){
@@ -385,7 +385,7 @@
 					context = arguments.callee.caller.name;
 				} else {
 					var functionSourceLines = arguments.callee.caller.toString().split(/\r?\n/, 3);
-					if( functionSourceLines.length == 1 ){
+					if( functionSourceLines.length === 1 ){
 						context = functionSourceLines[0];
 					} else {
 						context = functionSourceLines.join(' ')+' ...';
@@ -472,7 +472,7 @@
 				res = $holder
 					.contents()
 					.filter(function(){
-						return this.nodeType == 3;
+						return this.nodeType === 3;
 					})
 						.text()
 					.end()
@@ -880,7 +880,7 @@
 		 **/
 		isA : function(target, typeName){
 			if( $.inArray(typeName, ['boolean', 'number', 'string', 'function', 'array', 'date', 'regexp', 'object']) >= 0 ){
-				return $.type(target) == ''+typeName;
+				return $.type(target) === ''+typeName;
 			} else {
 				this.log('isA | not asked for valid JS-type');
 				return false;
@@ -1301,7 +1301,7 @@
 		 * $('#element_'+$.maskForSelector(elementName)).remove();
 		 **/
 		maskForSelector : function(string){
-			return string.replace(/([\#\;\&\,\.\+\*\~\'\:\"\!\^\$\[\]\(\)\=\>\ß\|\/\@])/, '\\$1');
+			return string.replace(/([\#\;\&\,\.\+\*\~\'\:\"\!\^\$\[\]\(\)\=\>\|\/\@])/, '\\$1');
 		},
 
 
@@ -1381,7 +1381,7 @@
 		objectLength : function(object){
 			var count = 0;
 
-			$.each(object, function(key, value){
+			$.each(object, function(){
 				count++;
 			});
 
@@ -1502,7 +1502,7 @@
 
 			this.assert((ceiling >= floor), 'randomInt | ceiling may not be smaller than floor');
 
-			return Math.round(Math.random() * (ceiling - floor) + floor);
+			return Math.floor(Math.random() * (ceiling - floor + 1) + floor);
 		},
 
 
@@ -1637,8 +1637,7 @@
 
 				var fAdjustWait = function(){
 					if( waitMilliSecs > 0 ){
-						var timeDiff = new Date().getTime() - waitStart;
-						waitMilliSecs -= timeDiff;
+						waitMilliSecs -= (new Date().getTime() - waitStart);
 						oldTimer.id = window.setTimeout(fAdjustWait, (waitMilliSecs > 10) ? waitMilliSecs : 10);
 					} else {
 						callback();
@@ -1763,8 +1762,7 @@
 
 				var fAdjustWait = function(){
 					if( waitMilliSecs > 0 ){
-						var timeDiff = new Date().getTime() - waitStart;
-						waitMilliSecs -= timeDiff;
+						waitMilliSecs -= (new Date().getTime() - waitStart);
 						oldLoop.id = window.setTimeout(fAdjustWait, (waitMilliSecs > 10) ? waitMilliSecs : 10);
 					} else {
 						callback();
@@ -1806,7 +1804,7 @@
 		countermand : function(timer, isInterval){
 			if( this.isSet(timer) ){
 				if( $.isPlainObject(timer) && this.hasMembers(timer, ['id', 'type']) ){
-					if( timer.type == 'interval' ){
+					if( timer.type === 'interval' ){
 						window.clearInterval(timer.id);
 					} else {
 						window.clearTimeout(timer.id);
@@ -1845,11 +1843,11 @@
 	 	 *
 	 	 * @memberof Dates:$#SaneDate
 		 * @example
-		 * var date = $.SaneDate('1-2-3 4:5:6.7');
-		 * date = $.SaneDate('2016-4-7');
-		 * date = $.SaneDate('2016-04-07 13:37:00');
-		 * date = $.SaneDate(2016, 4, 7);
-		 * date = $.SaneDate(2016, 4, 7, 13, 37, 0, 999);
+		 * var date = new $.SaneDate('1-2-3 4:5:6.7');
+		 * date = new $.SaneDate('2016-4-7');
+		 * date = new $.SaneDate('2016-04-07 13:37:00');
+		 * date = new $.SaneDate(2016, 4, 7);
+		 * date = new $.SaneDate(2016, 4, 7, 13, 37, 0, 999);
 		 * date.year = 2000;
 		 * date.forward('hours', 42);
 	 	 *
@@ -2130,7 +2128,7 @@
 					if( $.isSet(trailTimer) ){
 						_this_.countermand(trailTimer);
 					}
-					trailTimer = _this_.schedule(ms, function(){ fTrigger(context, args); });
+					trailTimer = _this_.schedule(ms, function(){ fTrailTrigger(context, args); });
 				}
 			};
 		},
@@ -2316,7 +2314,7 @@
 				var presentParamArray = presentParamString.split('&');
 				for( var i = 0; i < presentParamArray.length; i++ ){
 					var paramPair = presentParamArray[i].split('=', 2);
-					if( paramPair.length == 2 ){
+					if( paramPair.length === 2 ){
 						presentParams[''+paramPair[0]] = paramPair[1];
 					} else {
 						presentParams[''+paramPair[0]] = null;
@@ -2341,7 +2339,7 @@
 			if( paramString.length > 0 ){
 				paramString = paramString.substring(0, paramString.length-1);
 
-				if( url.indexOf('?') == -1 ){
+				if( url.indexOf('?') === -1 ){
 					paramString = '?'+paramString;
 				} else {
 					paramString = '&'+paramString;
@@ -2543,7 +2541,7 @@
 				}
 
 				for( var prop in options ){
-					if( (prop != 'name') || tryAsPopup ){
+					if( (prop !== 'name') || tryAsPopup ){
 						optionArray.push(prop+'='+options[prop]);
 					}
 				}
@@ -2870,7 +2868,7 @@
 				'opacity' : 0,
 				'pointer-events' : 'none',
 				'overflow' : 'scroll'
-			})
+			}),
 			$scrollbarEnforcer = $.elem('div').css({
 				'height' : 100
 			}),
@@ -3061,7 +3059,7 @@
 				}
 
 				var expires = '';
-				if( options.expires && ($.type(options.expires) == 'number' || options.expires.toUTCString) ){
+				if( options.expires && ($.type(options.expires) === 'number' || options.expires.toUTCString) ){
 					var date;
 
 					if( $.isA(options.expires, 'number') ){
@@ -3086,7 +3084,7 @@
 					for( var i = 0; i < cookies.length; i++ ){
 						var cookie = $.trim(cookies[i]);
 
-						if( cookie.substring(0, name.length + 1) == (name+'=') ){
+						if( cookie.substring(0, name.length + 1) === (name+'=') ){
 							cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
 							break;
 						}
@@ -3215,7 +3213,8 @@
 
 			var _this_ = this,
 				res = null,
-				deferred = $.Deferred();
+				deferred = $.Deferred(),
+				image;
 
 			if( !$.isPlainObject(images) && !$.isArray(images) ){
 				image = ''+images;
@@ -3258,9 +3257,6 @@
 				imageList.push(value);
 			});
 			$.merge(imageList, this.jqueryAnnexData.preloadedImages.unnamed);
-
-			var targetCount = imageList.length,
-				blank = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
 
 			$(imageList).imgLoad(function(targets, e){
 				if( $.isFunction(callback) ){
@@ -3333,7 +3329,7 @@
 
 					var tCheckFontLoaded = null;
 					var fCheckFont = function(){
-						if( $node && ($node.width() != systemFontWidth) ){
+						if( $node && ($node.width() !== systemFontWidth) ){
 							loadedFonts++;
 							$node.remove();
 							$node = null;
@@ -3345,8 +3341,8 @@
 							}
 
 							if(
-								(loadedFonts == fonts.length)
-								&& (deferred.state() != 'resolved')
+								(loadedFonts === fonts.length)
+								&& (deferred.state() !== 'resolved')
 							){
 								if( $.isFunction(callback) ){
 									callback();
@@ -3467,7 +3463,7 @@
 			}
 
 			if( this.exists(keyName, keys) ){
-				$(document).on(eventType+'.'+keyName, function(e){ if(e.keyCode == keys[keyName]) callback(e); });
+				$(document).on(eventType+'.'+keyName, function(e){ if(e.keyCode === keys[keyName]) callback(e); });
 			}
 		},
 
@@ -3570,7 +3566,7 @@
 		 * $('body').oo().onClick('superMethod');
 		 **/
 		oo : function(){
-			if( $(this).length == 1 ){
+			if( $(this).length === 1 ){
 				return $(this).first()[0];
 			} else if( $(this).length > 1 ) {
 				var res = [];
@@ -3812,7 +3808,7 @@
 		 *
 		 * @param {String} functionName - name of the function to call on target
 		 * @param {?String} [selector] - selector to apply to element to find target
-		 * @param {?Object} [context=$('body')] - context to use as container for measurement
+		 * @param {?Object} [$context=$('body')] - context to use as container for measurement
 		 * @returns {*} result of function applied to target
 		 *
 		 * @memberof Basic:$fn.measureHidden
@@ -3866,8 +3862,8 @@
 			hiddenClass = $.orDefault(hiddenClass, 'hidden', 'string');
 
 			$(this).each(function(){
-				if( $(this).hasClass('hidden') ){
-					$(this).removeClass('hidden').hide();
+				if( $(this).hasClass(hiddenClass) ){
+					$(this).removeClass(hiddenClass).hide();
 				}
 			});
 
@@ -3909,7 +3905,7 @@
 					$res = $res.add($(this)
 						.contents()
 						.filter(function(){
-							if( (this.nodeType == 3) && ($.trim($(this).text()) !== '') ){
+							if( (this.nodeType === 3) && ($.trim($(this).text()) !== '') ){
 								return !!fFilter(this, _this_);
 							} else {
 								return false;
@@ -3986,7 +3982,7 @@
 		deselect : function(){
 			if( $(this).is(':text, textarea') ){
 				var tmpVal = $(this).val(),
-					stopperFunc = function(e){ return false; };
+					stopperFunc = function(){ return false; };
 
 				$(this)
 					.on('change.deselect', stopperFunc)
@@ -4136,7 +4132,7 @@
 
 			for( var i = 0; i < fields.length; i++ ){
 				currentFieldIsArray = false;
-				if( fields[i].name.indexOf('[]') != -1 ){
+				if( fields[i].name.indexOf('[]') !== -1 ){
 					fields[i].name = fields[i].name.slice(0, fields[i].name.indexOf('[]'));
 					currentFieldIsArray = true;
 				}
@@ -4285,8 +4281,6 @@
 		makeStylable : function(containerClass, labelText){
 			containerClass = $.orDefault(containerClass, null, 'string');
 			labelText = $.orDefault(labelText, null, 'string');
-
-			var _this_ = this;
 
 			var fGetClosestLabel = function($target){
 				var hasId = $.isSet($target.attr('id')),
@@ -4500,12 +4494,12 @@
 					$.each(eventNameArray, function(eventNameIndex, eventName){
 						$.each(events[eventName], function(eventIndex, event){
 							if(
-								(event.type == eventName)
+								(event.type === eventName)
 								&& (
 									(eventNamespace === '')
 									|| (
 										(eventNamespace !== '')
-										&& (event.namespace == eventNamespace)
+										&& (event.namespace === eventNamespace)
 									)
 								)
 							){
@@ -4607,7 +4601,7 @@
 		 **/
 		translateTouchToMouseEvents : function(ignoreChildren){
 			$(this).on('touchstart touchmove touchend', function(e){
-				var isTarget = (e.target == this);
+				var isTarget = (e.target === this);
 
 				if( isTarget || !$.isSet(ignoreChildren) || !ignoreChildren ){
 					var alreadyTested = (!isTarget && e.target.__ajqmeclk),
@@ -4684,7 +4678,7 @@
 		 * @param {String} direction - the direction to bind => up/down/left/right
 		 * @param {Function} callback - callback to call on swipe, takes event e
 		 * @param {?String} [eventNameSpace='annexSwipeGesture'] - apply an event namespace, which identifies specific events, helpful for a specific unbind later using the same namespace
-		 * @param {?Float} [dimFactor=0.2] - to determine what registers as a swipe we use a percentage of the viewport's width/height, the touch has to move, default is 20%
+		 * @param {?Number.Float} [dimFactor=0.2] - to determine what registers as a swipe we use a percentage of the viewport's width/height, the touch has to move, default is 20%
 		 * @param {?Boolean} [hasToBeTouchDevice=true] - if true, makes sure the handlers are only active on real touch devices, not in chrome emulation for example
 		 * @returns {Object} this
 		 *
@@ -4830,7 +4824,7 @@
 
 			if( $.isSet($inheritFrom) && $.isA($inheritFrom, 'object') ){
 				$.each($inheritFrom[0].attributes, function(index, attribute){
-					if( $.inArray(attribute.name, copyAttrs) != -1 ){
+					if( $.inArray(attribute.name, copyAttrs) !== -1 ){
 						$(_this_).attr(attribute.name, attribute.value);
 					} else if( attribute.name.indexOf('data-') === 0 ){
 						$(_this_).dataDuo(attribute.name, attribute.value);
@@ -4971,7 +4965,7 @@
 				qString = null,
 				url = '';
 
-			if( $(this).prop('nodeName') == '#document' ){
+			if( $(this).prop('nodeName') === '#document' ){
 				if( $.isSet(paramName) ){
 					if( window.location.search.indexOf(paramName) > -1 ){
 						qString = window.location.search.substr(1, window.location.search.length).split('&');
@@ -5080,7 +5074,7 @@
 			var anchor = null,
 				anchorParts = [];
 
-			if( $(this).prop('nodeName') == '#document' ){
+			if( $(this).prop('nodeName') === '#document' ){
 				anchor = window.location.hash;
 			} else if( $.isSet($(this).attr('src')) ){
 				anchorParts = $(this).attr('src').split('#');
@@ -5225,7 +5219,7 @@
 
 				if( scrollEvenIfFullyInViewport || !isInViewport ){
 					if( cancelOnUserScroll ){
-						$(window).on('DOMMouseScroll.scrollTo mousewheel.scrollTo', function(e){
+						$(window).on('DOMMouseScroll.scrollTo mousewheel.scrollTo', function(){
 							$('html, body').stop(true);
 							$(window).off('DOMMouseScroll.scrollTo mousewheel.scrollTo');
 						});
@@ -5497,7 +5491,7 @@
 		 * The animationClosure needs to take a parameter, which is filled with the jQuery-element, this method is called upon.
 		 *
 		 * @param {Function} animationClosure - closure in which all animation is included, takes the jQuery-Element as first parameter, needs to do something queue-building
-		 * @param {Function} [killAnimations=false] - defines if all current animation should be immediately finished before proceeding
+		 * @param {Function} [killAnimations=true] - defines if all current animation should be immediately finished before proceeding
 		 * @returns {Object} this
 		 *
 		 * @memberof Animation:$fn.loopAnimation
@@ -5505,7 +5499,7 @@
 		 * $('a').loopAnimation(function($this){ $this.animate('top', '+=10'); }, true);
 		 **/
 		loopAnimation : function(animationClosure, killAnimations){
-			killAnimations = !$.isSet(killAnimations) || ($.isSet(killAnimations) && killAnimations);
+			killAnimations = !$.isSet(killAnimations) || !!killAnimations;
 
 			if( $.isFunction(animationClosure) ){
 				if( killAnimations ){
@@ -5551,7 +5545,7 @@
 				var orgCssObj = $.extend({}, cssObj);
 				$.each(orgCssObj, function(cssKey, cssValue){
 					$.each(['-moz-', '-webkit-', '-o-', '-ms-', '-khtml-'], function(variantIndex, variantValue){
-						if(cssKey == 'transition'){
+						if(cssKey === 'transition'){
 							cssObj[variantValue+cssKey] = $.strReplace('transform', variantValue+'transform', cssValue);
 						} else {
 							cssObj[variantValue+cssKey] = cssValue;
@@ -5941,8 +5935,8 @@
 		for( var name in child ){
 			prototype[name] =
 				(
-					(typeof child[name] == 'function')
-					&& (typeof _super[name] == 'function')
+					(typeof child[name] === 'function')
+					&& (typeof _super[name] === 'function')
 					&& $.jqueryAnnexData.inheritance.fnTest.test(child[name])
 				)
 				? (
@@ -6000,9 +5994,7 @@
 					dateOrIsoStringOrYear = $.orDefault(dateOrIsoStringOrYear, null, 'string');
 				}
 
-				var _this_ = this,
-					valid = true,
-					year = null,
+				var valid = true,
 					parts = {
 						type : 'date',
 						year : null,
@@ -6069,7 +6061,7 @@
 
 				// documented as property in signature above
 				Object.defineProperty(this, 'valid', $.extend({}, propertyConfig, {
-					set : function(year){
+					set : function(){
 						throw 'SaneDate set valid | valid is not settable';
 					},
 					get : function(){
@@ -6307,7 +6299,7 @@
 					date = (date < 10) ? '0'+date : ''+date;
 
 					if( year < 1000 ){
-						year = '0'+year;
+						year = this._padValueWithZero(year, 4);
 					}
 
 					return $.strFormat('{year}-{month}-{date}', {year : year, month : month, date : date});
@@ -6416,7 +6408,7 @@
 							compareGetters = [];
 
 						$.merge(compareGetters, dateCompareGetters);
-						if( type == 'datetime' ){
+						if( type === 'datetime' ){
 							$.merge(compareGetters, timeCompareGetters);
 
 							if( withMilliseconds ){
@@ -6615,8 +6607,6 @@
 				}
 				absolute = $.orDefault(absolute, true, 'bool');
 
-				var _this_ = this;
-
 				if( $.isSet(this._date) && this._valid ){
 					var saneDate = null,
 						delta = null,
@@ -6718,15 +6708,17 @@
 
 
 
-			_partsToDate : function(parts){
+			_partsToDate : function(parts, localTime){
+				localTime = $.orDefault(localTime, false, 'bool');
+
 				var dateParts = $.extend({}, parts);
 				dateParts.year = this._padValueWithZero(dateParts.year, 4);
 				dateParts.month = this._padValueWithZero(dateParts.month);
 				dateParts.date = this._padValueWithZero(dateParts.date);
 
-				if( dateParts.type == 'date' ){
-					return new Date($.strFormat('{year}-{month}-{date}', dateParts));
-				} else if( dateParts.type == 'datetime' ){
+				if( dateParts.type === 'date' ){
+					return new Date($.strFormat('{year}-{month}-{date}T00:00:00.0', dateParts));
+				} else if( dateParts.type === 'datetime' ){
 					dateParts.hours = this._padValueWithZero(dateParts.hours);
 					dateParts.minutes = this._padValueWithZero(dateParts.minutes);
 					dateParts.seconds = this._padValueWithZero(dateParts.seconds);
@@ -6737,7 +6729,11 @@
 
 					var dateWithoutOffset = new Date($.strFormat('{year}-{month}-{date}T{hours}:{minutes}:{seconds}', dateParts));
 
-					return new Date(dateWithoutOffset.getTime() + (dateWithoutOffset.getTimezoneOffset() * 60000));
+					if( !localTime ){
+						return dateWithoutOffset;
+					} else {
+						return new Date(dateWithoutOffset.getTime() - (dateWithoutOffset.getTimezoneOffset() * 60000));
+					}
 				} else {
 					throw '_partsToDate | unknown type';
 				}
@@ -6747,19 +6743,18 @@
 
 			_verifyDateParts : function(parts){
 				var date = this._partsToDate(parts);
-
-				if( parts.type == 'date' ){
-					return (parseInt(parts.year, 10) == date.getFullYear())
-						&& (parseInt(parts.month, 10) == date.getMonth() + 1)
-						&& (parseInt(parts.date, 10) == date.getDate());
-				} else if( parts.type == 'datetime' ){
-					return (parseInt(parts.year, 10) == date.getFullYear())
-						&& (parseInt(parts.month, 10) == date.getMonth() + 1)
-						&& (parseInt(parts.date, 10) == date.getDate())
-						&& (parseInt(parts.hours, 10) == date.getHours())
-						&& (parseInt(parts.minutes, 10) == date.getMinutes())
-						&& (parseInt(parts.seconds, 10) == date.getSeconds())
-						&& ($.isSet(parts.milliseconds) ? (parseInt(parts.milliseconds, 10) == date.getMilliseconds()) : true);
+				if( parts.type === 'date' ){
+					return (parseInt(parts.year, 10) === (this._utc ? date.getUTCFullYear() : date.getFullYear()))
+						&& (parseInt(parts.month, 10) === (this._utc ? date.getUTCMonth() + 1 : date.getMonth() + 1))
+						&& (parseInt(parts.date, 10) === (this._utc ? date.getUTCDate() : date.getDate()));
+				} else if( parts.type === 'datetime' ){
+					return (parseInt(parts.year, 10) === (this._utc ? date.getUTCFullYear() : date.getFullYear()))
+						&& (parseInt(parts.month, 10) === (this._utc ? date.getUTCMonth() + 1 : date.getMonth() + 1))
+						&& (parseInt(parts.date, 10) === (this._utc ? date.getUTCDate() : date.getDate()))
+						&& (parseInt(parts.hours, 10) === (this._utc ? date.getUTCHours() : date.getHours()))
+						&& (parseInt(parts.minutes, 10) === (this._utc ? date.getUTCMinutes() : date.getMinutes()))
+						&& (parseInt(parts.seconds, 10) === (this._utc ? date.getUTCSeconds() : date.getSeconds()))
+						&& $.isSet(parts.milliseconds) ? (parseInt(parts.milliseconds, 10) === (this._utc ? date.getUTCMilliseconds() : date.getMilliseconds())) : true;
 				} else {
 					throw '_verifyDateParts | unknown type';
 				}
@@ -6783,7 +6778,7 @@
 
 				var isoStringParts = isoString.split('T');
 
-				if( isoStringParts.length == 1 ){
+				if( isoStringParts.length === 1 ){
 					isoStringParts = isoStringParts[0].split(' ');
 				}
 
@@ -6791,11 +6786,11 @@
 					var isoStringTimeParts = isoStringParts[1].split(':');
 
 					if( isoStringTimeParts.length >= 3 ){
-						hours = parseInt(isoStringTimeParts[0], 10);
+						var hours = parseInt(isoStringTimeParts[0], 10);
 						$.assert(!$.isNaN(hours), 'SaneDate _parseIsoString | hours not usable as int');
 						parts.hours = this._padValueWithZero(hours);
 
-						minutes = parseInt(isoStringTimeParts[1], 10);
+						var minutes = parseInt(isoStringTimeParts[1], 10);
 						$.assert(!$.isNaN(minutes), 'SaneDate _parseIsoString | minutes not usable as int');
 						parts.minutes = this._padValueWithZero(minutes);
 
@@ -6806,19 +6801,19 @@
 						isoStringSecondsParts = isoStringSecondsParts.split('.');
 
 						if( isoStringSecondsParts.length >= 2 ){
-							milliseconds = parseInt(isoStringSecondsParts[1], 10);
+							var milliseconds = parseInt(isoStringSecondsParts[1], 10);
 							$.assert(!$.isNaN(milliseconds), 'SaneDate _parseIsoString | milliseconds not usable as int');
 							parts.milliseconds = ''+milliseconds;
 
 							if( parts.milliseconds.length > 3 ){
 								parts.milliseconds = parts.milliseconds.substr(0, 3);
-							} else if( parts.milliseconds.length == 2 ){
+							} else if( parts.milliseconds.length === 2 ){
 								parts.milliseconds = ''+(milliseconds * 10);
-							} else if( parts.milliseconds.length == 1 ){
+							} else if( parts.milliseconds.length === 1 ){
 								parts.milliseconds = ''+(milliseconds * 100);
 							}
 						}
-						seconds = parseInt(isoStringSecondsParts[0], 10);
+						var seconds = parseInt(isoStringSecondsParts[0], 10);
 						$.assert(!$.isNaN(seconds), 'SaneDate _parseIsoString | seconds not usable as int');
 						parts.seconds = this._padValueWithZero(seconds);
 					} else {
@@ -6830,16 +6825,16 @@
 
 				var isoStringDateParts = isoStringParts[0].split('-');
 				if( isoStringDateParts.length >= 3 ){
-					year = parseInt(isoStringDateParts[0], 10);
+					var year = parseInt(isoStringDateParts[0], 10);
 					$.assert(!$.isNaN(year), 'SaneDate _parseIsoString | year not usable as int');
 					$.assert((year >= 0 && year <= 9999), 'SaneDate _parseIsoString | this implementation works with years between 0 and 9999');
 					parts.year = this._padValueWithZero(year, 4);
 
-					month = parseInt(isoStringDateParts[1], 10);
+					var month = parseInt(isoStringDateParts[1], 10);
 					$.assert(!$.isNaN(month), 'SaneDate _parseIsoString | month not usable as int');
 					parts.month = this._padValueWithZero(month);
 
-					date = parseInt(isoStringDateParts[2], 10);
+					var date = parseInt(isoStringDateParts[2], 10);
 					$.assert(!$.isNaN(date), 'SaneDate _parseIsoString | date not usable as int');
 					parts.date = this._padValueWithZero(date);
 				} else {
