@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "jqueryannex",
-  "version": "0.39.0",
+  "version": "0.40.0",
   "homepage": "https://github.com/OktarinTentakel/jqueryannex",
   "description": "Lots and lots of nice to have jQuery-additions and everyday helpers. And validation as well!",
   "main": "jquery-annex",
@@ -27,6 +27,7 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^1.4.2",
     "jsdoc": "^3.4.0",
-    "run-sequence": "^1.1.4"
+    "run-sequence": "^1.1.4",
+    "st": "^1.2.2"
   }
 }

@@ -1,6 +1,6 @@
 {
     "opts": {
-        "//template": "./node_modules/jsdoc/templates/default",
+        "template": "doc-templates/default",
         "encoding": "utf8",
         "destination": "./doc/",
         "recurse": true,

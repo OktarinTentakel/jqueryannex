@@ -1,5 +1,6 @@
 var BUILD_DEST = 'dist',
-    EXAMPLES_DEST = 'examples';
+    EXAMPLES_DEST = 'examples',
+	DOC_DEST = 'doc';
 
 var gulp = require('gulp'),
 	sequence = require('run-sequence'),
@@ -7,7 +8,8 @@ var gulp = require('gulp'),
 	sourcemaps = require('gulp-sourcemaps'),
 	uglify = require('gulp-uglify'),
     connect = require('gulp-connect'),
-    shell = require('gulp-shell');
+    shell = require('gulp-shell'),
+	st = require('st');
 
 
 
@@ -42,8 +44,16 @@ gulp.task('server', function(){
 	connect.server({
 		host : '0.0.0.0',
 		root : EXAMPLES_DEST,
-		port : 8888
-	  });
+		port : 8888,
+		middleware: function (connect, opt) {
+			return [
+				st({
+					path: 'doc',
+					url: '/doc'
+				})
+			];
+		}
+	});
 });
 
 
@@ -67,5 +77,5 @@ gulp.task('doc', shell.task([
 
 
 gulp.task('default', function(){
-	sequence('build');
+	sequence('build', 'doc');
 });

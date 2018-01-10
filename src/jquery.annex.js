@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 39 developed and tested with jQuery 1.12.4 and 2.4
+ * @version Revision 40 developed and tested with jQuery 1.12.4 and 2.4
  **/
 
 
@@ -3377,17 +3377,21 @@
 		 * Tries to isolate a supposed (DB-)Id from a given String
 		 *
 		 * @param {String} baseString - the string to isolate an id from
-		 * @returns {(String|null)} either the isolated id or null
+		 * @param {?String} [idRex='[0-9]+'] - the regex string to use to identify the id part of the baseString
+		 * @returns {(String|null)} either the isolated id or null, in case of multiple hits/groups, returns the last hit
 		 *
 		 * @memberof Databases:$.isolateId
 		 * @example
 		 * var id = $.isolateId($('#element').attr('id'));
+		 * var id = $.isolateId('test_(123)', '\\_\\(([0-9]+)\\)');
 		 **/
-		isolateId : function(baseString){
-			var occurrences = String(baseString).match(/[0-9]+/);
+		isolateId : function(baseString, idRex){
+			idRex = this.orDefault(idRex, '[0-9]+', 'string');
+
+			var occurrences = String(baseString).match(new RegExp(idRex));
 
 			if( this.isSet(occurrences) && occurrences.length > 0 ){
-				return occurrences[0];
+				return occurrences[occurrences.length-1];
 			} else {
 				return null;
 			}
@@ -3403,26 +3407,28 @@
 		 * Determines if a given value could be a valid id, being digits with or without given pre- and postfix.
 		 *
 		 * @param {(String|Number.Integer)} testVal - the value to test
-		 * @param {?String} [prefix] - a prefix for the id
-		 * @param {?String} [postfix] - a postfix for the id
+		 * @param {?String} [prefix=''] - a prefix for the id
+		 * @param {?String} [idRex='[0-9]+'] - the regex string to use to identify the id part of the value
+		 * @param {?String} [postfix=''] - a postfix for the id
 		 * @param {?Boolean} [dontMaskFixes=false] - if you want to use regexs as fixes, set this true
 		 * @returns {Boolean} true if value may be id
 		 *
 		 * @memberof Databases:$.isPossibleId
 		 * @example
-		 * if( $.isPossibleId(id, 'test_(', ')') ){
+		 * if( $.isPossibleId(id, 'test_(', '[0-9]+', ')') ){
 	     *   $.getJSON('/backend/'+id, function(){ alert('done'); });
 		 * }
 		 **/
-		isPossibleId : function(testVal, prefix, postfix, dontMaskFixes){
+		isPossibleId : function(testVal, prefix, idRex, postfix, dontMaskFixes){
 			prefix = this.orDefault(prefix, '', 'string');
+			idRex = this.orDefault(idRex, '[0-9]+', 'string');
 			postfix = this.orDefault(postfix, '', 'string');
 
 			var rex = null;
 			if( !dontMaskFixes ){
-				rex = new RegExp('^'+this.maskForRegEx(prefix)+'[0-9]+'+this.maskForRegEx(postfix)+'$');
+				rex = new RegExp('^'+this.maskForRegEx(prefix)+idRex+this.maskForRegEx(postfix)+'$');
 			} else {
-				rex = new RegExp('^'+prefix+'[0-9]+'+postfix+'$');
+				rex = new RegExp('^'+prefix+idRex+postfix+'$');
 			}
 
 			return rex.test(''+testVal);
@@ -5516,6 +5522,216 @@
 			}
 
 			return this;
+		},
+
+
+
+		/**
+		 * @namespace Animation:$fn.cssTransition
+		 **/
+
+		/**
+		 * todo: WARNING: EXPRIMENTAL FUNCTIONALITY (this method is not yet production proven, tests look good, but use
+		 * with extra caution, especially on older browsers, this comment will be removed, when I deem this stable :)
+		 *
+		 * This method offers the possibility to apply a css transition via classes or styles and wait for the transition
+		 * to finish, which results in the timed execution of a callback or the resolving of a promise. In general, this
+		 * method remedies the pain of having to manage transitions manually in JS, entering precise ms for timers waiting
+		 * on conclusion of transitions.
+		 *
+		 * The general principle of this is the parsing of transition css attributes, which may contain transition
+		 * timings (transition and transition-duration) and looks for the currently longest running transition. Values
+		 * are excepted as millisecond ints or second floats.
+		 *
+		 * Calling this method successively on the same element replaces the currently running transition, normally
+		 * resulting in premature execution of the callback or resolution of the promise and application of the newly
+		 * provided cssChanges.
+		 *
+		 * @param {Object} cssChanges - PlainObject containing the css changes to apply (including transitions), either {addClass : ''}, {removeClass : ''} or {css : {}}, where addClass, removeClass and css follow jQuery's function definitions
+		 * @param {Function} [callback=undefined] - the function to call on completion of the transition, will be called with 10ms offset, to prevent unfinished style application before switching to next steps, the callback receives the elements as first parameter
+		 * @param {Boolean} [fireRunningTimer=true] - if a new cssTransition is applied while a transition is still running the callback would normally be executed (or the promise resolved) before continuing, to suppress this, set this to false
+		 * @return {Object|Promise} in case a callback is defined as parameter the elements will be returned in classic jQuery manner, if no callback is defined, a promise is returned instead, the promise id being rejected if a transition gets interrupted by a successive call and callback are set to not fire
+		 *
+		 * @memberof Animation:$fn.cssTransition
+		 * @example
+		 * $target.cssTransition({addClass : 'foobar'}, function($element){ $target.cssTransition({removeClass : 'foobar'}, function($element){ $.log('finished'); }); });
+		 * $target.cssTransition({css : {top : 0, left : 0,  background : 'pink', transition : 'all 1500ms'}}, function($element){ $.log('finished'); });
+		 * $target.cssTransition({addClass : 'foobar'}).done(function($element){ $.log('finished'); }).fail(function($element){ $.log('cancelled') });
+		 */
+		cssTransition : function(cssChanges, callback, fireRunningTimer){
+			fireRunningTimer = $.orDefault(fireRunningTimer, true, 'bool');
+
+			var deferred = $.Deferred(),
+				runningTimer = $(this).data('jqueryAnnexCssTransitionTimer'),
+				runningCallback = $(this).data('jqueryAnnexCssTransitionCallback');
+
+			// check if timer of older transition is still running and stop it, in case we want to fire the callback, do that
+			if( $.isSet(runningTimer) ){
+				$.countermand(runningTimer);
+				if( $.isFunction(runningCallback) ){
+					runningCallback(fireRunningTimer);
+				}
+			}
+			$(this)
+				.removeData('jqueryAnnexCssTransitionTimer')
+				.removeData('jqueryAnnexCssTransitionCallback')
+			;
+
+			// some sanity checks for params
+			$.assert($.isPlainObject(cssChanges), 'cssTransition | cssChanges is not a plain object');
+			if( !$.isSet(cssChanges.css) && !$.isSet(cssChanges.addClass) && !$.isSet(cssChanges.removeClass) ){
+				$.err('cssTransition | cssChanges lacks "css", "addClass" or "removeClass"');
+			}
+			if( $.isSet(cssChanges.css, cssChanges.addClass) || $.isSet(cssChanges.css, cssChanges.removeClass) ){
+				$.err('cssTransition | cssChanges may not contain "css" and "addClass"/"removeClass" together');
+			}
+			if( $.isSet(cssChanges.css) && !$.isPlainObject(cssChanges.css) ){
+				$.err('cssTransition | cssChanges.css must be a plain object of css attributes compatible to .css()');
+			}
+			if( $.isSet(callback) ){
+				$.assert($.isFunction(callback), 'cssTransition | callback is not a function');
+			}
+
+			// definition of css attributes to comb through in correct order, first hit wins, used value gets put
+			// into transitionValue for further parsing
+			var _this_ = this,
+				transitionAttributes = [
+					'transition-duration',
+					'-webkit-transition-duration',
+					'-moz-transition-duration',
+					'-o-transition-duration',
+					'transition',
+					'-webkit-transition',
+					'-moz-transition',
+					'-o-transition'
+				],
+				transitionValue = null;
+
+			// if single css attributes were provided
+			if( $.isSet(cssChanges.css) ){
+				// evaluate transition value to use from provided css attrs
+				$.each(transitionAttributes, function(transitionAttributeIndex, transitionAttribute){
+					var cssValue = cssChanges.css[transitionAttribute]
+
+					if( $.isSet(cssValue) ){
+						$.each(transitionAttributes, function(replacementTransitionAttributeIndex, replacementTransitionAttribute){
+							cssChanges.css[replacementTransitionAttribute] = cssChanges.css[transitionAttribute];
+						});
+
+						transitionValue = cssValue;
+
+						return false;
+					}
+				});
+
+				// if css set does not contain a transition try to fall back to general definitions of element
+				if( !$.isSet(transitionValue) ){
+					$.each(transitionAttributes, function(transitionAttributeIndex, transitionAttribute){
+						var cssValue = $(_this_).css(transitionAttribute);
+
+						if( $.isSet(cssValue) ){
+							transitionValue = cssValue;
+							return false;
+						}
+					});
+				}
+
+				if( !$.isSet(transitionValue) ){
+					$.warn('cssTransition | transition value does not contain a transition and element has no base transition defined');
+
+					if( $.isFunction(callback) ){
+						$.proxy(callback, this)(this);
+						return this;
+					} else {
+						deferred.resolve(this, [this]);
+						return deferred.promise();
+					}
+				} else {
+					$(this).css(cssChanges.css);
+				}
+			// if addClass or removeClass were provided
+			} else {
+				if( $.isSet(cssChanges.removeClass) ){
+					$(this).removeClass(''+cssChanges.removeClass);
+				}
+
+				if( $.isSet(cssChanges.addClass) ){
+					$(this).addClass(''+cssChanges.addClass);
+				}
+			}
+
+			// wait for next free execution slot after rendering css changes
+			$.deferExecution(function(){
+				// if we used addClass or remoteClass we do not have a value yet and we had to wait for application of style changes
+				if( !$.isSet(transitionValue) ){
+					$.each(transitionAttributes, function(transitionAttributeIndex, transitionAttribute){
+						var cssValue = $(_this_).css(transitionAttribute);
+
+						if( $.isSet(cssValue) ){
+							transitionValue = cssValue;
+							return false;
+						}
+					});
+				}
+
+				// parse transition timings in millisecond or second format and search for longest running one
+				var sTimings = transitionValue.match(/(^|\s)(\d+(\.\d+)?)s(\s|\,|$)/g),
+					msTimings = transitionValue.match(/(^|\s)(\d+)ms(\s|\,|$)/g),
+					currentTiming = 0,
+					longestTiming = 0;
+
+				$.each(sTimings, function(timingIndex, timing){
+					currentTiming = parseFloat(timing);
+
+					if( !$.isNaN(currentTiming) ){
+						currentTiming = Math.floor(currentTiming * 1000);
+
+						if( currentTiming > longestTiming ){
+							longestTiming = currentTiming;
+						}
+					}
+				});
+
+				$.each(msTimings, function(timingIndex, timing){
+					currentTiming = parseInt(timing, 10);
+
+					if( !$.isNaN(currentTiming) && (currentTiming > longestTiming) ){
+						longestTiming = currentTiming;
+					}
+				});
+
+				// setup timer to wait for completion of transition according to found longest timing, add 10ms for render safety
+				// this function needs to cancel and rejection handling, since it's always the success case, where the timer itself fires
+				$(_this_).data('jqueryAnnexCssTransitionTimer', $.schedule(longestTiming + 10, function(){
+					$(_this_).removeData('jqueryAnnexCssTransitionTimer');
+					if( $.isFunction(callback) ){
+						$.proxy(callback, _this_)(_this_);
+					} else {
+						deferred.resolve(_this_, [_this_]);
+					}
+				}));
+
+				// provide a callback to execute on premature setting of a new transition on the element, receives the
+				// info if callback should be fired or cancelled from the calling run of cssTransition, cancellation
+				// results in only case where promise gets rejected
+				$(_this_).data('jqueryAnnexCssTransitionCallback', function(fireRunningTimer){
+					if( fireRunningTimer ){
+						if( $.isFunction(callback) ){
+							$.proxy(callback, _this_)(_this_);
+						} else {
+							deferred.resolve(_this_, [_this_]);
+						}
+					} else if( !fireRunningTimer && !$.isFunction(callback) ){
+						deferred.reject(_this_, [_this_]);
+					}
+				});
+			})();
+
+			if( $.isFunction(callback) ){
+				return this;
+			} else {
+				return deferred.promise();
+			}
 		},
 
 
