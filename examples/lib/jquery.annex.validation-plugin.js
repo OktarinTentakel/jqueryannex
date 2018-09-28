@@ -14,22 +14,43 @@
  * Have a look at the plugin-validation-example.html in the repository for example usage and test it locally in
  * your browser.
  *
- * @author Sebastian Schlapkohl
- * @version Revision 40 developed and tested with jQuery 1.12.4 and 2.4
+ * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
+ * @version Revision 41 developed and tested with jQuery 3.3.1, 2.2.4 and 1.12.4
  **/
 
 
 
-// automatically determine if plugin should be loaded traditionally or as AMD-module, if included before anything that
-// exposes "define" (require.js e.g.), it will load normally, extending jQuery and Annex directly and globally
-// if loaded as AMD-module it expects Annex to be available as "jquery-annex"
-(function(factory){
+// automatically determine if annex should be loaded traditionally, as an AMD-module or via commonjs, if included before anything that
+// exposes "define" (require.js e.g.), it will load normally, extending jQuery directly and globally
+// if loaded as AMD-module it expects Annex to be available as "jqueryannex"
+(function(global, factory){
+	var jQuery = global.jQuery || global.$;
+
 	if( (typeof define === 'function') && define.amd ){
-		define(['jquery', 'jquery-annex'], factory);
+		define(['jqueryannex'], factory);
+	} else if( (typeof module === 'object') && module.exports ){
+		if( !global.__AVA_ENV__ ){
+			try {
+				if( !jQuery ){
+					jQuery = require('jquery');
+				}
+
+				if( !jQuery.jqueryAnnexData ){
+					jQuery = require('jqueryannex');
+				}
+			} catch(ex){}
+		}
+
+		module.exports = jQuery
+			? factory(jQuery)
+			: function(jQuery){
+				return factory(jQuery);
+			}
+		;
 	} else {
 		factory(jQuery);
 	}
-}(function($){
+}((typeof window !== 'undefined') ? window : this, function($){
 
 	//--|CHECK-AND-PREPARE-JQUERY----------
 
@@ -45,7 +66,7 @@
 
 
 
-	//--|VALIDATION-EXTENSION----------
+	//--|JQUERYANNEXDATA----------
 
 	$.extend($.jqueryAnnexData, {
 
@@ -141,7 +162,7 @@
 
 										if( validationData.status.isOptional ){
 											$.each(validationData.status.values, function(index, value){
-												if( $.inArray(value, validationData.status.optionalValues) == -1 ){
+												if( $.inArray(value, validationData.status.optionalValues) === -1 ){
 													validationData.status.hasNonOptionalValue = true;
 													return false;
 												}
@@ -303,7 +324,6 @@
 			// rule methods to apply validation to values
 			validators : {
 				customcase : function(msg, customRes){
-					var that = this;
 					var res = true;
 					var context = $(this).data('validationdata').status;
 					var dynamicMessage = null;
@@ -353,7 +373,7 @@
 					var res = true;
 					var context = $(this).data('validationdata').status;
 
-					if( context.values.length == 1 ){
+					if( context.values.length === 1 ){
 						res = context.values[0] !== '';
 					} else {
 						res = context.values.length > 0;
@@ -377,8 +397,8 @@
 					var emptyValues = [''];
 					$.merge(emptyValues, additionalEmptyValues);
 
-					if( context.values.length == 1 ){
-						res = ($.inArray($.trim(context.values[0]), emptyValues) == -1);
+					if( context.values.length === 1 ){
+						res = ($.inArray($.trim(context.values[0]), emptyValues) === -1);
 					} else {
 						res = context.values.length !== 0;
 					}
@@ -404,7 +424,7 @@
 					var res = true;
 					var context = $(this).data('validationdata').status;
 
-					if( context.values.length == 1 ){
+					if( context.values.length === 1 ){
 						res = context.values[0].length >= minlength;
 					} else {
 						res = (context.values.length >= minlength);
@@ -425,7 +445,7 @@
 					var res = true;
 					var context = $(this).data('validationdata').status;
 
-					if( context.values.length == 1 ){
+					if( context.values.length === 1 ){
 						res = context.values[0].length <= maxlength;
 					} else {
 						res = (context.values.length <= maxlength);
@@ -586,7 +606,7 @@
 					var context = $(this).data('validationdata').status;
 
 					$.each(context.values, function(index, value){
-						if( $.isSet(__internal__) && (__internal__ == '__internal__') ){
+						if( $.isSet(__internal__) && (__internal__ === '__internal__') ){
 							var datetimeParts = value.split(' ');
 							if( datetimeParts.length >= 2 ){
 								value = $.trim(datetimeParts[0]);
@@ -611,9 +631,9 @@
 							((date !== null) && (splitValue !== null))
 							? (
 								!/Invalid|NaN/.test(date)
-								&& (parseInt(splitValue[0], 10) == (date.getMonth() + 1))
-								&& (parseInt(splitValue[1], 10) == (date.getDate()))
-								&& (parseInt(splitValue[2], 10) == (date.getFullYear()))
+								&& (parseInt(splitValue[0], 10) === (date.getMonth() + 1))
+								&& (parseInt(splitValue[1], 10) === (date.getDate()))
+								&& (parseInt(splitValue[2], 10) === (date.getFullYear()))
 							)
 							: false
 						;
@@ -637,7 +657,7 @@
 					var context = $(this).data('validationdata').status;
 
 					$.each(context.values, function(index, value){
-						if( $.isSet(__internal__) && (__internal__ == '__internal__') ){
+						if( $.isSet(__internal__) && (__internal__ === '__internal__') ){
 							var datetimeParts = value.split(' ');
 							if( datetimeParts.length >= 2 ){
 								value = $.trim(datetimeParts[1]);
@@ -686,7 +706,7 @@
 					var context = $(this).data('validationdata').status;
 
 					$.each(context.values, function(index, value){
-						if( $.isSet(__internal__) && (__internal__ == '__internal__') ){
+						if( $.isSet(__internal__) && (__internal__ === '__internal__') ){
 							var datetimeParts = value.replace(/T/, ' ').split(' ');
 							if( datetimeParts.length >= 2 ){
 								value = $.trim(datetimeParts[0]);
@@ -711,9 +731,9 @@
 							((date !== null) && (splitValue !== null))
 							? (
 								!/Invalid|NaN/.test(date)
-								&& (parseInt(splitValue[0], 10) == (date.getFullYear()))
-								&& (parseInt(splitValue[1], 10) == (date.getMonth() + 1))
-								&& (parseInt(splitValue[2], 10) == (date.getDate()))
+								&& (parseInt(splitValue[0], 10) === (date.getFullYear()))
+								&& (parseInt(splitValue[1], 10) === (date.getMonth() + 1))
+								&& (parseInt(splitValue[2], 10) === (date.getDate()))
 							)
 							: false
 						;
@@ -736,7 +756,7 @@
 					var context = $(this).data('validationdata').status;
 
 					$.each(context.values, function(index, value){
-						if( $.isSet(__internal__) && (__internal__ == '__internal__') ){
+						if( $.isSet(__internal__) && (__internal__ === '__internal__') ){
 							var datetimeParts = value.replace(/T/, ' ').split(' ');
 							if( datetimeParts.length >= 2 ){
 								value = $.trim(datetimeParts[1]);
@@ -782,7 +802,7 @@
 					var context = $(this).data('validationdata').status;
 
 					$.each(context.values, function(index, value){
-						if( $.isSet(__internal__) && (__internal__ == '__internal__') ){
+						if( $.isSet(__internal__) && (__internal__ === '__internal__') ){
 							var datetimeParts = value.split(' ');
 							if( datetimeParts.length >= 2 ){
 								value = $.trim(datetimeParts[0]);
@@ -807,9 +827,9 @@
 							((date !== null) && (splitValue !== null))
 							? (
 								!/Invalid|NaN/.test(date)
-								&& (parseInt(splitValue[0], 10) == (date.getDate()))
-								&& (parseInt(splitValue[1], 10) == (date.getMonth() + 1))
-								&& (parseInt(splitValue[2], 10) == (date.getFullYear()))
+								&& (parseInt(splitValue[0], 10) === (date.getDate()))
+								&& (parseInt(splitValue[1], 10) === (date.getMonth() + 1))
+								&& (parseInt(splitValue[2], 10) === (date.getFullYear()))
 							)
 							: false
 						;
@@ -832,7 +852,7 @@
 					var context = $(this).data('validationdata').status;
 
 					$.each(context.values, function(index, value){
-						if( $.isSet(__internal__) && (__internal__ == '__internal__') ){
+						if( $.isSet(__internal__) && (__internal__ === '__internal__') ){
 							var datetimeParts = value.split(' ');
 							if( datetimeParts.length >= 2 ){
 								value = $.trim(datetimeParts[1]);
@@ -878,7 +898,7 @@
 					var context = $(this).data('validationdata').status;
 
 					$.each(context.values, function(index, value){
-						res = res && ((value == ''+parseInt(value, 10)) || (value == ''+parseFloat(value)));
+						res = res && ((value === ''+parseInt(value, 10)) || (value === ''+parseFloat(value)));
 						if( !res ) return false;
 					});
 
@@ -900,7 +920,7 @@
 
 						if( ruleRes ){
 							value = value.replace(/\,/g, '.');
-							ruleRes = ((value == ''+parseInt(value, 10)) || (value == ''+parseFloat(value)));
+							ruleRes = ((value === ''+parseInt(value, 10)) || (value === ''+parseFloat(value)));
 						}
 
 						res = res && ruleRes;
@@ -996,7 +1016,7 @@
 
 
 		validationIsTriggeredByWidgetEvents : function(doValidate){
-			doValidate = doValidate ? true : false;
+			doValidate = !!doValidate;
 			$.jqueryAnnexData.validation.config.validateOnWidgetEvents = doValidate;
 		},
 
@@ -1023,7 +1043,7 @@
 					var errorContainer = ($.isSet($(this).data('validation-errorcontainer')) && $.exists($(this).data('validation-errorcontainer'))) ? $(this).data('validation-errorcontainer') : null;
 					var container = ($.isSet($(this).data('validation-container')) && $.exists($(this).data('validation-container'))) ? $(this).data('validation-container') : null;
 					var targetGroup = ($.isSet($(this).data('validation-targetgroup'))) ? $(this).data('validation-targetgroup') : null;
-					var suppressSubmit = ($.isSet($(this).data('validation-suppresssubmit'))) ? ($(this).data('validation-suppresssubmit') == 'true') : false;
+					var suppressSubmit = ($.isSet($(this).data('validation-suppresssubmit'))) ? ($(this).data('validation-suppresssubmit') === 'true') : false;
 					$(this).setValidation($(this).data('validation'), callback, errorContainer, container, targetGroup, suppressSubmit);
 				}
 			});
@@ -1086,7 +1106,7 @@
 				$.each(validators, function(index, rule){
 					var ruleLength = $.objectLength(rule);
 					if( $.isPlainObject(rule) && (ruleLength >= 1) && (ruleLength <= 2) ){
-						if( ruleLength == 2 ){
+						if( ruleLength === 2 ){
 							$.assert($.exists('args', rule));
 						}
 
@@ -1094,7 +1114,7 @@
 						var ruleMessage = null;
 						var ruleArgs = $.exists('args', rule) ? ($.isArray(rule.args) ? rule.args : [rule.args]) : [];
 						$.each(rule, function(rulePartKey, rulePartValue){
-							if( rulePartKey != 'args' ){
+							if( rulePartKey !== 'args' ){
 								ruleName = rulePartKey;
 								ruleMessage = rulePartValue;
 								return false;
@@ -1106,7 +1126,7 @@
 							var hasAsyncMarker = (ruleName.length > 1);
 							ruleName = ruleName[0];
 
-							if( ruleName == 'optional' ){
+							if( ruleName === 'optional' ){
 								validationData.status.isOptional = true;
 								$.merge(validationData.status.optionalValues, ruleArgs);
 							}
@@ -1124,7 +1144,7 @@
 				validationData.status.asyncCount = asyncRulesCount;
 
 				$.jqueryAnnexData.validation.config.registeredTargets.all.push($(this));
-				if( targetGroup != 'all' ){
+				if( targetGroup !== 'all' ){
 					if( !$.isSet($.jqueryAnnexData.validation.config.registeredTargets[targetGroup]) ){
 						$.jqueryAnnexData.validation.config.registeredTargets[targetGroup] = [];
 					}
@@ -1195,7 +1215,7 @@
 						if( $.isSet(targetGroup) ){
 							var elementIndex = -1;
 							for( var i = 0; i < targetGroup.length; i++ ){
-								if( $(_this_).attr('name') == targetGroup[i].attr('name') ){
+								if( $(_this_).attr('name') === targetGroup[i].attr('name') ){
 									elementIndex = i;
 									break;
 								}
@@ -1208,7 +1228,7 @@
 							if( $.jqueryAnnexData.validation.config.registeredTargets[key].length === 0 ){
 								$(this).closest('form').off('submit.validation');
 
-								if( key != 'all' ){
+								if( key !== 'all' ){
 									delete $.jqueryAnnexData.validation.config.registeredTargets[key];
 								}
 							}

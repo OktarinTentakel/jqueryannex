@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>jQuery Annex Capabilities Package Testcase Scenario</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+		</style>
+
+		<script>
+			function jqueryAddedCallback(){
+				$(function(){
+					var $capabilities = $('#capabilities');
+
+					var fUpdateCapabilities = function(){
+						$capabilities.empty();
+						$capabilities.append($('<tr></tr>')).append($('<td>Supports LocalStorage</td><td>'+($.browserSupportsLocalStorage() ? 'yes' : 'no')+'</td>'));
+						$capabilities.append($('<tr></tr>')).append($('<td>Supports SessionStorage</td><td>'+($.browserSupportsSessionStorage() ? 'yes' : 'no')+'</td>'));
+						$capabilities.append($('<tr></tr>')).append($('<td>Is touch device by UA and touch event</td><td>'+($.contextIsTouchDevice() ? 'yes' : 'no')+'</td>'));
+						$capabilities.append($('<tr></tr>')).append($('<td>Is touch device by touch event alone</td><td>'+($.contextIsTouchDevice(false) ? 'yes' : 'no')+'</td>'));
+						$capabilities.append($('<tr></tr>')).append($('<td>Context has high DPI</td><td>'+($.contextIsTouchDevice(false) ? 'yes' : 'no')+'</td>'));
+						$capabilities.append($('<tr></tr>')).append($('<td>Pixel width of context scrollbar</td><td>'+($.contextScrollbarWidth()+'px')+'</td>'));
+					};
+
+					fUpdateCapabilities();
+					$.loop(1000, fUpdateCapabilities);
+				});
+			}
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<h1>jQuery Annex Capabilites Package Testcase Scenario</h1>
+		</header>
+		<main>
+			<p>This table should update itself automatically every second, so feel free to play with the dev tools to change capabilities on the fly.</p>
+			<table>
+				<thead>
+					<tr>
+						<th>Capability</th>
+						<th>Support</th>
+					</tr>
+					<tbody id="capabilities"></tbody>
+				</thead>
+			</table>
+		</main>
+	</body>
+</html>

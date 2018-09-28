@@ -2,22 +2,75 @@
 
 <html>
 	<head>
-		<title>jQuery Annex Playground</title>
+		<title>jQuery Annex Example Page</title>
 
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+
+			p em {
+				font-weight: bold;
+				font-style: normal;
+			}
+		</style>
+		<!-- add your stuff here -->
 		<style type="text/css"></style>
 
-		<script src="lib/jquery-1.12.4.min.js"></script>
-		<script src="lib/jquery.annex.js"></script>
-		<script src="lib/jquery.annex.validation-plugin.js"></script>
-		<script>$(function(){});</script>
+		<!-- add your stuff here -->
+		<script>
+			function jqueryAddedCallback(){
+				$(function(){});
+			}
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
 	</head>
 
 	<body>
-		<p>You can play around with jQueryAnnex here in your JavaScript console.</p>
-		<p>Have look at the documentation in <a href="/doc/index.html">/doc</a> to find out more about available functionality.</p>
-		<p>To test the validation plugin, click <a href="plugin-validation-example.html">here</a></p>
-		<p>To have a look at the experimental cssTransition method in action, click <a href="csstransition-test.html">here</a></p>
+		<header>
+			<h1>jQuery Annex Example Page</h1>
+		</header>
+		<main>
+			<section>You can play around with jQueryAnnex here in your JavaScript console.</section>
+
+			<h4>Documentation</h4>
+			<section>
+				<p>Have look at the <em>documentation</em> in <a href="/doc/index.html">/doc</a> to find out more about available functionality.</p>
+			</section>
+
+			<h4>Testing</h4>
+			<section>
+				Whenever possible Annex functionality is unit tested via <a href="https://github.com/avajs/ava" target="_blank">Ava</a>
+				(source for tests can be found in /test) on every build,
+				have look at those files for reference. Cases in which interaction is needed or we depend on a true browser window are reflected
+				on the test pages below, where every page represents another semantic package. You can click through those tests and verify
+				functions for different jQuery versions by changing the version in the top nav. Keep an eye on your browser's dev console while doing so.
+			</section>
+			<section>
+				<p>To test the <em>animation helpers</em>, click <a href="animation-test.html">here</a></p>
+				<p>To test the <em>basic helpers</em>, click <a href="basic-test.html">here</a></p>
+				<p>To test the <em>css helpers</em>, click <a href="css-test.html">here</a></p>
+				<p>To test the <em>capability helpers</em>, click <a href="capabilities-test.html">here</a></p>
+				<p>To test the <em>dynamic loading helpers</em>, click <a href="dynamicloading-test.html">here</a></p>
+				<p>To test the <em>event helpers</em>, click <a href="events-test.html">here</a></p>
+				<p>To test the <em>font helpers</em>, click <a href="fonts-test.html">here</a></p>
+				<p>To test the <em>form helpers</em>, click <a href="form-test.html">here</a></p>
+				<p>To test the <em>image helpers</em>, click <a href="images-test.html">here</a></p>
+				<p>To test the <em>interaction helpers</em>, click <a href="interaction-test.html">here</a></p>
+				<p>To test the <em>navigation helpers</em>, click <a href="navigation-test.html">here</a></p>
+				<p>To test the <em>protocol helpers</em>, click <a href="protocols-test.html">here</a></p>
+				<p>To test the <em>text content helpers</em>, click <a href="textcontent-test.html">here</a></p>
+				<p>To test the <em>viewport helpers</em>, click <a href="viewport-test.html">here</a></p>
+			</section>
+
+			<h4>Plugins</h4>
+			<section>
+				<p>To test the <em>solutions plugin</em>, click <a href="plugin-solutions-example.html">here</a></p>
+				<p>To test the <em>validation plugin</em>, click <a href="plugin-validation-example.html">here</a></p>
+			</section>
+		</main>
 	</body>
 </html>

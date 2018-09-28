@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>jQuery Annex Events Package Testcase Scenario</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+
+			#cursorkey-test {
+				position: relative;
+
+				width: 100%;
+				height: 20vh;
+
+				background: #ddd;
+			}
+
+			#cursorkey-test.active {
+				background: #eee;
+			}
+
+			#cursorkey-test > * {
+				position: absolute;
+				top: calc(50% - 25px);
+				left: calc(50% - 25px);
+
+				width: 50px;
+				height: 50px;
+				
+				background: #ccc;				
+
+				transition: top 100ms, left 100ms;
+			}
+
+			#toucheventtranslate-test {
+				position: relative;
+
+				cursor: pointer;
+
+				width: 100%;
+				height: 20vh;
+
+				background: #ddd;
+			}
+
+			#toucheventtranslate-test:hover,
+			#toucheventtranslate-test:focus {
+				background: #eee;
+			}
+
+			#toucheventtranslate-test > p {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+
+				transform: translate(-50%, -50%);
+			}
+
+			#bindswipegesture-test {
+				position: relative;
+
+				cursor: pointer;
+
+				width: 100%;
+				height: 20vh;
+
+				background: #ddd;
+			}
+
+			#bindswipegesture-test.active {
+				background: #eee;
+			}
+
+			#bindswipegesture-test > p {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+
+				transform: translate(-50%, -50%);
+			}
+		</style>
+
+		<script>
+			function jqueryAddedCallback(){
+
+				$(function(){
+					$('#cursorkey-bind-btn').on('click', function(e){
+						e.preventDefault();
+
+						var $holder = $('#cursorkey-test'),
+							$target = $holder.children().first();
+
+						$.unbindCursorKey('up');
+						$.bindCursorKey('up', function(){
+							if( $target.position().top > 25 ){
+								$target.css('top', '-=25');
+							} else {
+								$target.css('top', 0);
+							}
+						});
+
+						$.unbindCursorKey('right');
+						$.bindCursorKey('right', function(){
+							if( $target.position().left < ($holder.width() - 75) ){
+								$target.css('left', '+=25');
+							} else {
+								$target.css('left', $holder.width() - 50);
+							}
+						});
+
+						$.unbindCursorKey('down');
+						$.bindCursorKey('down', function(){
+							if( $target.position().top < ($holder.height() - 75) ){
+								$target.css('top', '+=25');
+							} else {
+								$target.css('top', $holder.height() - 50);
+							}
+						});
+
+						$.unbindCursorKey('left');
+						$.bindCursorKey('left', function(){
+							if( $target.position().left > 25 ){
+								$target.css('left', '-=25');
+							} else {
+								$target.css('left', 0);
+							}
+						});
+
+						$holder.addClass('active');
+					});
+
+					$('#cursorkey-unbind-btn').on('click', function(e){
+						e.preventDefault();
+
+						var $holder = $('#cursorkey-test');
+
+						$.unbindCursorKey('up');
+						$.unbindCursorKey('right');
+						$.unbindCursorKey('down');
+						$.unbindCursorKey('left');
+
+						$holder.removeClass('active');
+					});
+
+					$('#toucheventtranslate-test')
+						.translateTouchToMouseEvents()
+						.on('click mousedown mouseup mousemove', function(e){
+							$(this).children('p').first().text($.strFormat('{type} @ screen {screenX}x{screenY} / client {clientX}x{clientY} / offset {offsetX}x{offsetY}', e));
+						})
+					;
+
+					$('#toucheventtranslate-test')
+						.translateTouchToMouseEvents()
+						.on('click mousedown mouseup mousemove', function(e){
+							$(this).children('p').first().text($.strFormat('{type} @ screen {screenX}x{screenY} / client {clientX}x{clientY} / offset {offsetX}x{offsetY}', e));
+						})
+					;
+
+					$('#swipegesture-bind-btn').on('click', function(e){
+						e.preventDefault();
+
+						var $holder = $('#bindswipegesture-test'),
+							$msg = $holder.children('p').first();
+
+						$holder
+							.unbindSwipeGesture('up')
+							.bindSwipeGesture('up', function(e){
+								e.stopPropagation();
+
+								$(this).css('background-color', 'red');
+								$msg.text('swipe up');
+							}, 'foo', 0.15, false)
+						;
+
+						$holder
+							.unbindSwipeGesture('right')
+							.bindSwipeGesture('right', function(e){
+								e.stopPropagation();
+
+								$(this).css('background-color', 'green');
+								$msg.text('swipe right');
+							}, 'foo', 0.15, false)
+						;
+
+						$holder
+							.unbindSwipeGesture('down')
+							.bindSwipeGesture('down', function(e){
+								e.stopPropagation();
+
+								$(this).css('background-color', 'blue');
+								$msg.text('swipe down');
+							}, 'foo', 0.15, false)
+						;
+
+						$holder
+							.unbindSwipeGesture('left')
+							.bindSwipeGesture('left', function(e){
+								e.stopPropagation();
+
+								$(this).css('background-color', 'yellow');
+								$msg.text('swipe left');
+							}, 'foo', 0.15, false)
+						;
+
+						$holder.on('touchstart.suppress', function(){
+							$(this).on('touchmove.suppress', function(e){
+								e.stopPropagation();
+								return false;
+							})
+						});
+
+						$holder.addClass('active');
+					});
+
+					$('#swipegesture-unbind-btn').on('click', function(e){
+						e.preventDefault();
+
+						var $holder = $('#bindswipegesture-test');
+
+						$holder.off('touchstart.suppress touchmove.suppress');
+
+						$holder.unbindSwipeGesture('up', 'foo');
+						$holder.unbindSwipeGesture('right', 'foo');
+						$holder.unbindSwipeGesture('down', 'foo');
+						$holder.unbindSwipeGesture('left', 'foo');
+
+						$holder
+							.removeClass('active')
+							.css('background-color', '')
+							.children('p').first()
+								.text('')
+						;
+					});
+				});
+			}
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<h1>jQuery Annex Events Package Testcase Scenario</h1>
+		</header>
+		<main>
+			<h3>$.bindCursorKey</h3>
+			<section>
+				<p>Click the button to bind your keyboards cursor keys to move the square below.</p>
+
+				<p><button id="cursorkey-bind-btn">Bind cursor keys</button></p>
+				
+				<div id="cursorkey-test">
+					<div></div>
+				</div>
+			</section>
+			
+			<h3>$.unbindCursorKey</h3>
+			<section>
+				<p>Click the button to unbind your keyboards cursor keys again from set functionality above.</p>
+				
+				<p><button id="cursorkey-unbind-btn">Unbind cursor keys</button></p>
+			</section>
+
+			<h3>$.fn.translateTouchToMouseEvents</h3>
+			<section>
+				<p>Use touch events in the area below to receive native mouse events with correct event coordinates.</p>
+				
+				<div id="toucheventtranslate-test">
+					<p></p>
+				</div>
+			</section>
+
+			<h3>$.fn.bindSwipeGesture</h3>
+			<section>
+				<p>
+					Add callbacks to top/right/bottom/left swipe gestures with the buttons and test the handlers in the below area to trigger
+					a callback to the swipe gesture.
+				</p>
+
+				<p>
+					<button id="swipegesture-bind-btn">Bind swipes</button>
+				</p>
+				
+				<div id="bindswipegesture-test">
+					<p></p>
+				</div>
+			</section>
+
+			<h3>$.fn.unbindSwipeGesture</h3>
+			<section>
+				<p>
+					Remove callbacks to top/right/bottom/left swipe gestures with the button and test the handlers in the above area to
+					see callbacks have been removed again.
+				</p>
+
+				<p>
+					<button id="swipegesture-unbind-btn">Unbind swipes</button>
+				</p>
+			</section>
+		</main>
+	</body>
+</html>

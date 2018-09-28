@@ -2,179 +2,303 @@
 
 <html>
 	<head>
-		<title>jQuery Annex Testcase Scenario</title>
+		<title>jQuery Annex Validation Plugin Testcase Scenario</title>
 
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
 		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+
+			header h1 {
+				overflow: hidden;
+
+				max-height: 70px;
+
+				text-overflow: ellipsis;
+			}
+
+			#messages,
+			.messages {
+				padding: 0.5rem 1rem;
+				border: 1px dotted red;
+			}
+
+			#messages {
+				position: absolute;
+				z-index: 100;
+				top: 220px;
+				right: 4rem;
+				left: 4rem;
+
+				background: white;
+			}
+
+			fieldset:first-of-type {
+				margin-top: 10rem;
+			}
+
 			.validationerror {
-				border: 3px solid red;
+				border-bottom-color: red !important;
+			}
+
+			fieldset + fieldset {
+				margin-top: 1rem;
 			}
 		</style>
 
-		<script type="text/javascript" src="lib/jquery-1.12.4.min.js"></script>
-		<script type="text/javascript" src="lib/jquery.annex.js"></script>
-		<script type="text/javascript" src="lib/jquery.annex.validation-plugin.js"></script>
-		<script type="text/javascript">
-			$(document).ready(function(){
+		<script>
+			function jqueryAddedCallback(){
 
-				// defines if validation is triggered by widget events such as change and blur or only manually/by form submit
-				$.validationIsTriggeredByWidgetEvents(true);
+				// VALIDATION STUFF
 
-				// adds additional widget events to all widgets, default events are change and blur, must be called before setting validators
-				$.setAdditionalValidationWidgetEvents(['keyup']);
+				$(document).ready(function(){
 
-				// callback to execute when all validations have finished (global callback)
-				$.executeOnValidation(function(success, messages){
-					$('#messages').empty();
+					// defines if validation is triggered by widget events such as change and blur or only manually/by form submit
+					$.validationIsTriggeredByWidgetEvents(true);
 
-					if( !success){
-						$.each(messages, function(index, value){
-							$('#messages').append($.elem('p').text(value));
-						});
-					}
-				});
+					// adds additional widget events to all widgets, default events are change and blur, must be called before setting validators
+					$.setAdditionalValidationWidgetEvents(['keyup']);
 
-				// trigger collection of validation from data-validation-attributes
-				$.setValidationFromTags();
-
-				// set validation on form element through js-hooks
-				// validation is always an array of plain objects, representing rules
-				// the first key is the rule name, referencing the error message
-				// optionally a rule takes an array of args through second attribute args
-
-				// is required, has to have a length between 3 and 8, has a customcase based on value length,
-				// has a asynchronous customcase based on a ajax-request on a remote file,
-				// has a validation success handler especially for this element,
-				// defines body as form-element holder instead of closest form
-				$('#test').setValidation(
-					[
-						{required : 'needs a value'},
-						{rangelength : 'too short or too long', args : [3, 8]},
-						{customcase : 'shorter 4 needs to be "test"', args : function($target){ return (($target.val().length <= 4) && ($target.val() == 'test')) || ($target.val().length > 4); }},
-						// to test and activate this, serve this file not via file://
-						/*{customcase_async : 'remote file missing', args : function($target, callback, errorCallback){
-							$.get('plugin-validation-example.html')
-								.done(function(data){ callback(($('#test').val().length <= 10) ? true : 'too short'); })
-								.fail(errorCallback)
-							;
-						}}*/
-					],
-					function(success, messages, $target){
-						$target.next('.messages').remove();
+					// callback to execute when all validations have finished (global callback)
+					$.executeOnValidation(function(success, messages){
+						$('#messages').empty();
 
 						if( !success){
-							$target.after($.elem('div').addClass('messages'));
+							$('#messages').fadeIn();
 
 							$.each(messages, function(index, value){
-								$target.next('.messages').append($.elem('p').text(value));
+								$('#messages').append($.elem('p').text(value));
+							});
+						} else {
+							$('#messages').fadeOut();
+						}
+					});
+
+					// trigger collection of validation from data-validation-attributes
+					$.setValidationFromTags();
+
+					// set validation on form element through js-hooks
+					// validation is always an array of plain objects, representing rules
+					// the first key is the rule name, referencing the error message
+					// optionally a rule takes an array of args through second attribute args
+
+					// is required, has to have a length between 3 and 8, has a customcase based on value length,
+					// has a asynchronous customcase based on a ajax-request on a remote file,
+					// has a validation success handler especially for this element,
+					// defines body as form-element holder instead of closest form
+					$('#test').setValidation(
+						[
+							{required : 'needs a value'},
+							{rangelength : 'too short or too long', args : [3, 8]},
+							{customcase : 'shorter 5 needs to be "test"', args : function($target){ return (($target.val().length <= 4) && ($target.val() == 'test')) || ($target.val().length > 4); }},
+							// to test and activate this, serve this file not via file://
+							/*{customcase_async : 'remote file missing', args : function($target, callback, errorCallback){
+								$.get('plugin-validation-example.html')
+									.done(function(data){ callback(($('#test').val().length <= 10) ? true : 'too short'); })
+									.fail(errorCallback)
+								;
+							}}*/
+						],
+						function(success, messages, $target){
+							$target.next('.messages').remove();
+
+							if( !success){
+								$target.after($.elem('div').addClass('messages'));
+
+								$.each(messages, function(index, value){
+									$target.next('.messages').append($.elem('p').text(value));
+								});
+							}
+						},
+						null,
+						$('body')
+					);
+
+					// is required to have a non empty value, with "---" defined as empty,
+					// has to be at least 2 characters long,
+					// has to have a value between 5 and 42
+					$('#test2').setValidation(
+						[
+							{notempty : 'has to have a value', args : ['---']},
+							{minlength : 'too short', args : 2},
+							{range : 'out of range', args : [5, 42]}
+						],
+						function(success, messages, $target){
+							$target.siblings('.select-dropdown').toggleClass('validationerror', !success);
+							$target.parent('.select-wrapper').removeClass('validationerror');
+						}
+					);
+
+
+					// needs to be an email address,
+					// sets the closest fieldset as errorcontainer, to mark errors correctly
+					$(':radio[name=test3]').first().setValidation(
+						[
+							{email : 'this is no email address'}
+						],
+						null,
+						$(':radio[name=test3]').first().closest('fieldset'),
+						$(':radio[name=test3]').first().closest('fieldset')
+					);
+
+					// needs to be an url,
+					// is set optional, so doesn't need a value,
+					// sets the closest fieldset as errorcontainer, to mark errors correctly
+					$(':checkbox[name=test4]').first().setValidation(
+						[
+							{url : 'this is no url'},
+							{optional : null}
+						],
+						null,
+						$(':checkbox[name=test4]').first().closest('fieldset'),
+						$(':checkbox[name=test4]').first().closest('fieldset')
+					);
+
+					// possible removal of validation added beforehand, uncomment to use
+					// $(':checkbox[name=test4]').unsetValidation();
+
+					// trigger all validations manually once everything is in place
+					$.triggerValidation();
+				});
+
+
+
+				// MATERIALIZE STUFF
+
+				$(document).ready(function(){
+					var inputIndex = 0;
+					$(':radio, :checkbox').each(function(){
+						var $label = $(this).parent('label'),
+							$input = $(this).detach();
+
+						$label.before($input);
+						$input.attr('id', 'input-'+inputIndex);
+						$label.attr('for', 'input-'+inputIndex);
+
+						inputIndex++;
+					});
+
+					$('select').material_select();
+					$('select.validationerror').siblings('.select-dropdown').addClass('validationerror');
+
+					$(window).on('scroll', function(){
+						if( $(window).scrollTop() > 220 - 25 ){
+							$('#messages').css({
+								'position': 'fixed',
+								'top' : 25
+							});
+						} else {
+							$('#messages').css({
+								'position': 'absolute',
+								'top' : 220
 							});
 						}
-					},
-					null,
-					$('body')
-				);
-
-				// is required to have a non empty value, with "---" defined as empty,
-				// has to be at least 2 characters long,
-				// has to have a value between 5 and 42
-				$('#test2').setValidation(
-					[
-						{notempty : 'has to have a value', args : ['---']},
-						{minlength : 'too short', args : 2},
-						{range : 'out of range', args : [5, 42]}
-					]
-				);
-
-
-				// needs to be an email address,
-				// sets the closest fieldset as errorcontainer, to mark errors correctly
-				$(':radio[name=test3]').first().setValidation(
-					[
-						{email : 'this is no email address'}
-					],
-					null,
-					$(':radio[name=test3]').first().closest('fieldset'),
-					$(':radio[name=test3]').first().closest('fieldset')
-				);
-
-				// needs to be an url,
-				// is set optional, so doesn't need a value,
-				// sets the closest fieldset as errorcontainer, to mark errors correctly
-				$(':checkbox[name=test4]').first().setValidation(
-					[
-						{url : 'this is no url'},
-						{optional : null}
-					],
-					null,
-					$(':checkbox[name=test4]').first().closest('fieldset'),
-					$(':checkbox[name=test4]').first().closest('fieldset')
-				);
-
-				// possible removal of validation added beforehand, uncomment to use
-				// $(':checkbox[name=test4]').unsetValidation();
-
-				// trigger all validations manually once everything is in place
-				$.triggerValidation();
-			});
+					});
+				});
+			}
 		</script>
+		<script>
+			var HANDLE_JQUERY_PLUGINS = [
+				'lib/jquery.annex.validation-plugin.js',
+				'https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js'
+			];
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
 	</head>
 
 	<body>
-		<div id="messages"></div>
+		<header>
+			<h1>jQuery Annex Validation Plugin Testcase Scenario</h1>
+		</header>
+		<main>
+			<div id="messages"></div>
 
-		<fieldset>
-			<input id="test" name="test" type="text" value="test"/>
-		</fieldset>
+			<fieldset>
+				<legend>Text Input</legend>
+				<div class="input-field">
+					<input id="test" name="test" type="text" value="test"/>
+				</div>
+			</fieldset>
 
-		<fieldset>
-			<select id="test2" name="test2">
-				<option>---</option>
-				<option>1</option>
-				<option>13</option>
-				<option>aaa</option>
-			</select>
-		</fieldset>
+			<fieldset>
+				<legend>Select</legend>
+				<div class="input-field">
+					<select id="test2" name="test2">
+						<option>---</option>
+						<option>1</option>
+						<option>13</option>
+						<option>aaa</option>
+					</select>
+				</div>
+			</fieldset>
 
-		<fieldset>
-			<label><input type="radio" name="test3" value="abc"/>abc</label>
-			<label><input type="radio" name="test3" value="elefant@toast.de"/>elefant@toast.de</label>
-			<label><input type="radio" name="test3" value="fischer@fru"/>fischer@fru</label>
-		</fieldset>
+			<fieldset>
+				<p><label><input type="radio" name="test3" value="abc"/>abc</label></p>
+				<p><label><input type="radio" name="test3" value="elefant@toast.de"/>elefant@toast.de</label></p>
+				<p><label><input type="radio" name="test3" value="fischer@fru"/>fischer@fru</label></p>
+			</fieldset>
 
-		<fieldset>
-			<label><input type="checkbox" name="test4" value="tatutata"/>tatutata</label>
-			<label><input type="checkbox" name="test4" value="http://www.google.com"/>http://www.google.com</label>
-			<label><input type="checkbox" name="test4" value="https://lustiger.augu.st"/>https://lustiger.augu.st</label>
-		</fieldset>
+			<fieldset>
+				<p><label><input type="checkbox" name="test4" value="tatutata"/>tatutata</label></p>
+				<p><label><input type="checkbox" name="test4" value="http://www.google.com"/>http://www.google.com</label></p>
+				<p><label><input type="checkbox" name="test4" value="https://lustiger.augu.st"/>https://lustiger.augu.st</label></p>
+			</fieldset>
 
-		<fieldset>
-			<input name="test5" type="text" value="01/13/2013" data-validation='{"date" : "needs to be an american date"}'/>
-			<input name="test6" type="text" value="01:30am" data-validation='{"time" : "needs to be an american time"}'/>
-			<input name="test7" type="text" value="12/1/2012 12:30:59 pm" data-validation='{"datetime" : "needs to be an american datetime"}'/>
-		</fieldset>
+			<fieldset>
+				<div class="input-field">
+					<input name="test5" type="text" value="01/13/2013" data-validation='{"date" : "needs to be an american date"}'/>
+				</div>
+				<div class="input-field">
+					<input name="test6" type="text" value="01:30am" data-validation='{"time" : "needs to be an american time"}'/>
+				</div>
+				<div class="input-field">
+					<input name="test7" type="text" value="12/1/2012 12:30:59 pm" data-validation='{"datetime" : "needs to be an american datetime"}'/>
+				</div>
+			</fieldset>
 
-		<fieldset>
-			<input name="test8" type="text" value="2002-12-01" data-validation='{"dateISO" : "needs to be an ISO-date"}'/>
-			<input name="test9" type="text" value="23:59:59" data-validation='{"timeISO" : "needs to be an ISO-time"}'/>
-			<input name="test10" type="text" value="2012-12-13T13:13:13" data-validation='{"datetimeISO" : "needs to be an ISO-datetime"}'/>
-		</fieldset>
+			<fieldset>
+				<div class="input-field">
+					<input name="test8" type="text" value="2002-12-01" data-validation='{"dateISO" : "needs to be an ISO-date"}'/>
+				</div>
+				<div class="input-field">
+					<input name="test9" type="text" value="23:59:59" data-validation='{"timeISO" : "needs to be an ISO-time"}'/>
+				</div>
+				<div class="input-field">
+					<input name="test10" type="text" value="2012-12-13T13:13:13" data-validation='{"datetimeISO" : "needs to be an ISO-datetime"}'/>
+				</div>
+			</fieldset>
 
-		<fieldset>
-			<input name="test11" type="text" value="01.12.2002" data-validation='{"dateDE" : "needs to be a german date"}'/>
-			<input name="test12" type="text" value="13:13h" data-validation='{"timeDE" : "needs to be a german time"}'/>
-			<input name="test13" type="text" value="13.12.2012 12:30:59" data-validation='{"datetimeDE" : "needs to be a german datetime"}'/>
-		</fieldset>
+			<fieldset>
+				<div class="input-field">
+					<input name="test11" type="text" value="01.12.2002" data-validation='{"dateDE" : "needs to be a german date"}'/>
+					<input name="test12" type="text" value="13:13h" data-validation='{"timeDE" : "needs to be a german time"}'/>
+					<input name="test13" type="text" value="13.12.2012 12:30:59" data-validation='{"datetimeDE" : "needs to be a german datetime"}'/>
+				</div>
+			</fieldset>
 
-		<fieldset>
-			<input name="test14" type="text" value="100.1" data-validation='{"number" : "needs to be an american number"}'/>
-			<input name="test15" type="text" value="100,1" data-validation='{"numberDE" : "needs to be a german number"}'/>
-			<input name="test16" type="text" value="100" data-validation='{"digits" : "needs to be only digits"}'/>
-		</fieldset>
+			<fieldset>
+				<div class="input-field">
+					<input name="test14" type="text" value="100.1" data-validation='{"number" : "needs to be an american number"}'/>
+				</div>
+				<div class="input-field">
+					<input name="test15" type="text" value="100,1" data-validation='{"numberDE" : "needs to be a german number"}'/>
+				</div>
+				<div class="input-field"></div>
+					<input name="test16" type="text" value="100" data-validation='{"digits" : "needs to be only digits"}'/>
+				</div>
+			</fieldset>
 
-		<fieldset>
-			<input name="test17" type="text" value="123-1234-1234-1234" data-validation='{"creditcard" : "needs to be a creditcard number"}'/>
-			<input name="test18" type="text" value="abcdefg" data-validation='{"characterclass" : "has to be of regex characterclass", "args" : "a-z"}'/>
-		</fieldset>
+			<fieldset>
+				<div class="input-field">
+					<input name="test17" type="text" value="123-1234-1234-1234" data-validation='{"creditcard" : "needs to be a creditcard number"}'/>
+				</div>
+				<div class="input-field">
+					<input name="test18" type="text" value="abcdefg" data-validation='{"characterclass" : "has to be of regex characterclass", "args" : "a-z"}'/>
+				</div>
+			</fieldset>
+		</main>
 	</body>
 </html>

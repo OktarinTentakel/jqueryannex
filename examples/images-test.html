@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>jQuery Annex Images Package Testcase Scenario</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+
+			#image-holder-preload,
+			#image-holder-imgload {
+				min-height: 50px;
+
+				margin-top: 1rem;
+
+				background-color: rgba(0, 0, 0, 0.05);
+			}
+
+			#image-holder-preload img {
+				width: 20%;
+			}
+
+			#image-holder-imgload img {
+				width: 16.666%;
+			}
+
+			#image-holder-imgload img {
+				opacity: 0.5;
+
+				border: 3px solid transparent;
+
+				transition: opacity 1000ms, border-color 1000ms;
+			}
+
+			#image-holder-imgload img.loaded,
+			#image-holder-imgload picture.loaded img {
+				opacity: 1;
+
+				border-color: lightgreen;
+			}
+		</style>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/picturefill/3.0.3/picturefill.min.js"></script>
+		<script>
+			function jqueryAddedCallback(){
+				$(function(){
+
+					var readyCount = 0,
+						collection = $.preloadImages('/files/images/01.jpg', function(){
+							readyCount++;
+							if( readyCount >= 3 ){
+								fAddImages();
+							}
+						}, true)
+					;
+					
+					var fAddImages = function(){
+						$.schedule(2000, function(){
+							$.each(collection, function(index, image){
+								$('#image-holder-preload').append(
+									$('<img src="'+image.src+'"/>')
+								);
+							});
+
+							$('#image-holder-preload').append(
+								$('<img src="'+$.preloadImages('img04').src+'"/>')
+							);
+
+							$('#image-holder-preload').append(
+								$('<img src="'+$.preloadImages('img05').src+'"/>')
+							);
+						});
+					};
+
+					$.when(
+						$.preloadImages(['/files/images/02.png', '/files/images/03.png']),
+						$.preloadImages({
+							img04 : '/files/images/04.jpg',
+							img05 : '/files/images/05.gif'
+						})
+					).done(function(){
+						readyCount = readyCount + 2;
+						if( readyCount >= 3 ){
+							fAddImages();
+						}
+					});
+
+					var $img1 = $('<img src="/files/images/07.gif" alt="img1" />'),
+						img1Promise = $.Deferred(),
+						$picture1 = $('<picture><source srcset="/files/images/08.jpg" media="(min-width: 1px)"><img src="/files/images/06.jpg" alt="img1" /></picture>'),
+						picture1Promise = $.Deferred();
+
+					$('#image-holder-imgload')
+						.append($img1)
+						.append($picture1)
+					;
+
+					picturefill({elements : [$picture1.find('img').first().get(0)]});
+
+					$img1.imgLoad(function(){
+						$(this).addClass('loaded');
+						$.log('imgLoad for image1');
+						img1Promise.resolve();
+					});
+					$picture1.find('img').first().imgLoad(function(){
+						$(this).addClass('loaded');
+						$.log('imgLoad for picture1');
+						picture1Promise.resolve();
+					}, true);
+
+					$.when(img1Promise, picture1Promise).done(function(){
+						var $img2 = $('<img src="/files/images/07.gif" alt="img1" />'),
+							img2Promise = $.Deferred(),
+							$picture2 = $('<picture><source srcset="/files/images/08.jpg" media="(min-width: 1px)"><img src="/files/images/06.jpg" alt="img1" /></picture>'),
+							picture2Promise = $.Deferred();
+
+						$('#image-holder-imgload')
+							.append($img2)
+							.append($picture2)
+						;
+
+						picturefill({elements : [$picture2.find('img').first().get(0)]});
+
+						$img2.imgLoad(function(){
+							$(this).addClass('loaded');
+							$.log('imgLoad for image2');
+							img2Promise.resolve();
+						}, true);
+						$picture2.find('img').first().imgLoad(function(){
+							$(this).addClass('loaded');
+							$.log('imgLoad for picture2');
+							picture2Promise.resolve();
+						});
+
+						$.when(img2Promise, picture2Promise).done(function(){
+							var $img3 = $('<img src="/files/images/07.gif" alt="img1" />'),
+								$picture3 = $('<picture><source srcset="/files/images/08.jpg" media="(min-width: 1px)"><img src="/files/images/06.jpg" alt="img1" /></picture>');
+	
+							$('#image-holder-imgload')
+								.append($img3)
+								.append($picture3)
+							;
+	
+							picturefill({elements : [$picture3.find('img').first().get(0)]});
+	
+							$.schedule(2000, function(){
+								$img3.imgLoad(function(){
+									$(this).addClass('loaded');
+									$.log('imgLoad for image3');
+								}, true);
+								$picture3.find('img').first().imgLoad(function(){
+									$(this).addClass('loaded');
+									$.log('imgLoad for picture3');
+								}, true);
+							});
+						});
+					});
+
+				});
+			}
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<h1>jQuery Annex Images Package Testcase Scenario</h1>
+		</header>
+		<main>
+			<h3>$.preloadImages</h3>
+			<section>
+				This section should contain 5 images of different file formats being preloaded on document ready.
+				After all images are preloaded, they should dynamically be placed here without triggering another
+				request, but getting the corresponding image directly from cache. Between load and display there is a
+				two second pause, so you can track the network activity in your dev tools showing, that the images are not loaded
+				the moment they are displayed, but way before.
+				<div id="image-holder-preload"></div>
+			</section>
+
+			<h3>$.fn.imgLoad</h3>
+			<section>
+				On reload this section should load six images. The first two are normal image loads
+				of a standard image and an HTML5 picture element (with picturefill). For the first images it would be best to empty your browser
+				cache before testing. The following two images are the same images again, which should now be delivered from cache, but should
+				fire their callbacks nonetheless. Additionally, at last we add the same images again, wait until they are definitvely loaded and
+				ready on the page and then set the load handler to see if it still fires if the image is already completely ready.
+				So, in essence you should see six images (two different images), all being opaque after aroung two seconds and having a green
+				border to indicate the load event has fired (also see console logs).
+				<div id="image-holder-imgload"></div>
+			</section>
+		</main>
+	</body>
+</html>

@@ -1,31 +1,31 @@
 {
-  "name": "jqueryannex",
-  "version": "0.40.0",
-  "homepage": "https://github.com/OktarinTentakel/jqueryannex",
-  "description": "Lots and lots of nice to have jQuery-additions and everyday helpers. And validation as well!",
-  "main": "jquery.annex.js",
-  "keywords": [
-    "jquery",
-    "additions",
-    "polling",
-    "lazy-loading",
-    "inheritance",
-    "preloading",
-    "string-manipulation",
-    "sane dates"
-  ],
-  "authors": [
-    "Sebastian Schlapkohl"
-  ],
-  "license": "MIT",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ],
-  "dependencies": {
-    "jquery": "^1.12.4 || ^2.2.4"
-  }
+	"name": "jqueryannex",
+	"version": "0.41.0",
+	"homepage": "https://github.com/OktarinTentakel/jqueryannex",
+	"description": "A mixed bag of jQuery extensions to generally streamline development, make code more semantic and provide solutions to everyday problems and tedious standard constructs.",
+	"main": "src/jquery.annex.js",
+	"keywords": [
+		"jquery",
+		"additions",
+		"polling",
+		"lazy loading",
+		"inheritance",
+		"preloading",
+		"string manipulation",
+		"sane dates"
+	],
+	"authors": [
+		"Sebastian Schlapkohl"
+	],
+	"license": "MIT",
+	"ignore": [
+		"**/.*",
+		"node_modules",
+		"bower_components",
+		"test",
+		"tests"
+	],
+	"dependencies": {
+		"jquery": "^3.3.1 || ^2.2.4 || ^1.12.4"
+	}
 }

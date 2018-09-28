@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>jQuery Annex Dynamic Loading Package Testcase Scenario</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+		</style>
+
+		<script>
+			function jqueryAddedCallback(){
+				$(function(){
+					$.getCss('/files/css/getcss.css', {styletag : false, id : 'styleasref'}, function($element){
+						$.log($element);
+					}).done(function(){
+						$.log().info('$.getCss Promise resolved');
+					});
+
+					$.getCSS('/files/css/getcss.css', {styletag : true, id : 'styleasinline'}, function($element){
+						$.log($element);
+					}).done(function(){
+						$.log().info('$.getCSS Promise resolved');
+					});
+
+					$.getHtmlBody('/index.html', function($body){
+						var $container = $('#loaded-body-stuff > .nav-wrapper > ul');
+
+						$body.find('main').first().find('a[href]').each(function(){
+							$container.append(
+								$('<li><a href="'+$(this).attr('href')+'" target="_blank">'+$(this).text()+'</a></li>')
+							);
+						});
+					});
+				});
+			}
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<h1>jQuery Annex Dynamic Loading Package Testcase Scenario</h1>
+		</header>
+		<main>
+			<h3>$.getCss / $.getCSS</h3>
+			<section>
+				The body background should rotate colors between red, green and blue through a dynamically loaded CSS, which should be included
+				in the header twice. Once as a reference to the file and one inline. Both should have data-ids to identify them by and the browser
+				console should print a link and a style on pageload referencing these two elements in the head as well as info that both promises were resolved.
+			</section>
+
+			<h3>$.getHtmlBody</h3>
+			<section>
+				This element should contain a selection of remotely loaded elements from the index page, which were extracted from the returned html body
+				element of the site getHtmlBody requested.
+				<nav id="loaded-body-stuff">
+					<div class="nav-wrapper">
+						<ul></ul>
+					</div>
+				</nav>
+			</section>
+		</main>
+	</body>
+</html>

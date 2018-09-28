@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>jQuery Annex Validation Plugin Testcase Scenario</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<style type="text/css">
+			body {
+				padding: calc(2rem + 64px) 4rem 2rem 4rem;
+			}
+
+
+
+			#subnav {
+				position: fixed;
+				top: 0;
+				right: 0;
+				left: 0;
+
+				height: 64px;
+			}
+
+			#subnav a.highlight {
+				color: black;
+			}
+			
+
+
+			section:first-of-type {
+				margin-top: 0vh;
+			}
+
+			section:nth-child(even){
+				margin-top: 33vh;
+			}
+
+			section:nth-child(odd){
+				margin-top: 66vh;
+			}
+
+			section:last-of-type {
+				margin-top: 100vh;
+			}
+
+			#section2 {
+				padding-bottom: 100vh;
+
+				color: white;
+				text-shadow: 1px 1px 5px black, -1px -1px 5px black;
+
+				background-size: cover !important;
+				background-position: center;
+			}
+		</style>
+
+		<script>
+			function jqueryAddedCallback(){
+				$(function(){
+
+					var $navLinks = $('#subnav a[href^="#"]'),
+						$sections = $('main section');
+
+					$.setupHashNavHighlighting($navLinks, $sections, 'h3', 'first-visible-headline', 400, 'highlight');
+					$navLinks.on('click', function(e){
+						e.preventDefault();
+
+						$($(this).attr('href')).first().find('h3').first().scrollTo($.noop, 1000, window.innerHeight/4);
+					});
+
+					$('#section2').highDpiBackgroundImage(
+						{
+							standard : {
+								url : '/files/images/03.png',
+								width : 1200,
+								height : 865
+							},
+							highdpi : {
+								url : '/files/images/04.jpg',
+								width : 736,
+								height : 982
+							}
+						},
+						1200,
+						true,
+						1000);
+				});
+			}
+		</script>
+		<script>
+			var HANDLE_JQUERY_PLUGINS = [
+				'lib/jquery.annex.solutions-plugin.js'
+			];
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<h1>jQuery Annex Solutions Plugin Testcase Scenario</h1>
+		</header>
+		<main>
+			<nav id="subnav">
+				<div class="nav-wrapper">
+					<ul>
+						<li><a href="#section1">Section 1</a></li>
+						<li><a href="#section2">Section 2</a></li>
+						<li><a href="#section3">Section 3</a></li>
+						<li><a href="#section4">Section 4</a></li>
+						<li><a href="#section5">Section 5</a></li>
+					</ul>
+				</div>
+			</nav>
+
+			<section id="section1">
+				<h3>Section 1</h3>
+				<p><em>Scroll the page to see highlighting in the subnav above.</em></p>
+				<p><em>See Section 2 for highDpiBackgroundImage example, move window to high dpi screen and reload to see alternative image. On a high dpi screen, the section should automatically show the low dpi image if the viewport is narrower than 600px.</em></p>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin laoreet sollicitudin nulla. Duis sit amet molestie turpis. Nunc elementum, risus eget congue vestibulum, ante tortor tempus velit, ut consectetur lectus mauris vel mauris. Proin eget purus lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Pellentesque sed justo leo. Sed gravida viverra mauris. Aliquam hendrerit tincidunt eros quis semper. Vivamus pulvinar a ante vitae blandit. Mauris lectus mauris, scelerisque at diam ut, posuere aliquam enim. Nulla id molestie neque. Curabitur est lectus, venenatis id nunc sed, dignissim lobortis enim.</p>
+				<p></p>Nam pellentesque aliquam dui sit amet feugiat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium, libero hendrerit aliquet hendrerit, arcu ligula porta ipsum, ut iaculis tellus libero nec mauris. Aenean mi purus, tincidunt quis lorem at, aliquet dapibus nibh. Donec imperdiet ante non velit scelerisque, quis tempor erat viverra. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus eu ullamcorper erat. Ut rhoncus ante ante, non faucibus sem varius ac. Aliquam sit amet nisi volutpat, fringilla neque sit amet, viverra tellus. Duis a dui sed sem suscipit auctor in at turpis. Cras nisi mi, volutpat non luctus molestie, volutpat vel odio.</p>
+			</section>
+
+			<section id="section2">
+				<h3>Section 2</h3>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin laoreet sollicitudin nulla. Duis sit amet molestie turpis. Nunc elementum, risus eget congue vestibulum, ante tortor tempus velit, ut consectetur lectus mauris vel mauris. Proin eget purus lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Pellentesque sed justo leo. Sed gravida viverra mauris. Aliquam hendrerit tincidunt eros quis semper. Vivamus pulvinar a ante vitae blandit. Mauris lectus mauris, scelerisque at diam ut, posuere aliquam enim. Nulla id molestie neque. Curabitur est lectus, venenatis id nunc sed, dignissim lobortis enim.</p>
+				<p></p>Nam pellentesque aliquam dui sit amet feugiat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium, libero hendrerit aliquet hendrerit, arcu ligula porta ipsum, ut iaculis tellus libero nec mauris. Aenean mi purus, tincidunt quis lorem at, aliquet dapibus nibh. Donec imperdiet ante non velit scelerisque, quis tempor erat viverra. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus eu ullamcorper erat. Ut rhoncus ante ante, non faucibus sem varius ac. Aliquam sit amet nisi volutpat, fringilla neque sit amet, viverra tellus. Duis a dui sed sem suscipit auctor in at turpis. Cras nisi mi, volutpat non luctus molestie, volutpat vel odio.</p>
+			</section>
+
+			<section id="section3">
+				<h3>Section 3</h3>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin laoreet sollicitudin nulla. Duis sit amet molestie turpis. Nunc elementum, risus eget congue vestibulum, ante tortor tempus velit, ut consectetur lectus mauris vel mauris. Proin eget purus lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Pellentesque sed justo leo. Sed gravida viverra mauris. Aliquam hendrerit tincidunt eros quis semper. Vivamus pulvinar a ante vitae blandit. Mauris lectus mauris, scelerisque at diam ut, posuere aliquam enim. Nulla id molestie neque. Curabitur est lectus, venenatis id nunc sed, dignissim lobortis enim.</p>
+				<p></p>Nam pellentesque aliquam dui sit amet feugiat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium, libero hendrerit aliquet hendrerit, arcu ligula porta ipsum, ut iaculis tellus libero nec mauris. Aenean mi purus, tincidunt quis lorem at, aliquet dapibus nibh. Donec imperdiet ante non velit scelerisque, quis tempor erat viverra. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus eu ullamcorper erat. Ut rhoncus ante ante, non faucibus sem varius ac. Aliquam sit amet nisi volutpat, fringilla neque sit amet, viverra tellus. Duis a dui sed sem suscipit auctor in at turpis. Cras nisi mi, volutpat non luctus molestie, volutpat vel odio.</p>
+			</section>
+
+			<section id="section4">
+				<h3>Section 4</h3>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin laoreet sollicitudin nulla. Duis sit amet molestie turpis. Nunc elementum, risus eget congue vestibulum, ante tortor tempus velit, ut consectetur lectus mauris vel mauris. Proin eget purus lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Pellentesque sed justo leo. Sed gravida viverra mauris. Aliquam hendrerit tincidunt eros quis semper. Vivamus pulvinar a ante vitae blandit. Mauris lectus mauris, scelerisque at diam ut, posuere aliquam enim. Nulla id molestie neque. Curabitur est lectus, venenatis id nunc sed, dignissim lobortis enim.</p>
+				<p></p>Nam pellentesque aliquam dui sit amet feugiat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium, libero hendrerit aliquet hendrerit, arcu ligula porta ipsum, ut iaculis tellus libero nec mauris. Aenean mi purus, tincidunt quis lorem at, aliquet dapibus nibh. Donec imperdiet ante non velit scelerisque, quis tempor erat viverra. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus eu ullamcorper erat. Ut rhoncus ante ante, non faucibus sem varius ac. Aliquam sit amet nisi volutpat, fringilla neque sit amet, viverra tellus. Duis a dui sed sem suscipit auctor in at turpis. Cras nisi mi, volutpat non luctus molestie, volutpat vel odio.</p>
+			</section>
+
+			<section id="section5">
+				<h3>Section 5</h3>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin laoreet sollicitudin nulla. Duis sit amet molestie turpis. Nunc elementum, risus eget congue vestibulum, ante tortor tempus velit, ut consectetur lectus mauris vel mauris. Proin eget purus lacus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Pellentesque sed justo leo. Sed gravida viverra mauris. Aliquam hendrerit tincidunt eros quis semper. Vivamus pulvinar a ante vitae blandit. Mauris lectus mauris, scelerisque at diam ut, posuere aliquam enim. Nulla id molestie neque. Curabitur est lectus, venenatis id nunc sed, dignissim lobortis enim.</p>
+				<p></p>Nam pellentesque aliquam dui sit amet feugiat. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus pretium, libero hendrerit aliquet hendrerit, arcu ligula porta ipsum, ut iaculis tellus libero nec mauris. Aenean mi purus, tincidunt quis lorem at, aliquet dapibus nibh. Donec imperdiet ante non velit scelerisque, quis tempor erat viverra. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Phasellus eu ullamcorper erat. Ut rhoncus ante ante, non faucibus sem varius ac. Aliquam sit amet nisi volutpat, fringilla neque sit amet, viverra tellus. Duis a dui sed sem suscipit auctor in at turpis. Cras nisi mi, volutpat non luctus molestie, volutpat vel odio.</p>
+			</section>
+		</main>
+	</body>
+</html>

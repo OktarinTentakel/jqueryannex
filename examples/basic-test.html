@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>jQuery Annex Basic Package Testcase Scenario</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+
+			#measurehidden #measurehidden-element {
+				width: 50vw;
+			}
+			
+			#measurehidden-element {
+				padding: 16px 20px;
+				margin: 40px 30px 20px 0;
+
+				background-color: #eee;
+			}
+
+			#measurehidden-dimensions th:first-child,
+			#measurehidden-dimensions td:first-child {
+				width: 25%;
+				min-width: 250px;
+			}
+		</style>
+
+		<script>
+			function jqueryAddedCallback(){
+				var measureHiddenVisible = false,
+					$measureHidden = $('<div id="measurehidden-element"><span>Now you see me.</span> Now you dont\'t!</div>');
+
+				var fUpdateMeasureHiddenDimensions = function(){
+					var $container = $('#measurehidden');
+
+					$('#measurehidden-dimensions')
+						.find('.width')
+							.text($measureHidden.width())
+						.end()
+						.find('.measuredwidth')
+							.text($measureHidden.measureHidden('width', null, $container))
+						.end()
+						.find('.outerwidth')
+							.text($measureHidden.outerWidth())
+						.end()
+						.find('.measuredouterwidth')
+							.text($measureHidden.measureHidden('outerWidth', null, $container))
+						.end()
+						.find('.outerwidthmargins')
+							.text($measureHidden.outerWidth(true))
+						.end()
+						.find('.measuredouterwidthmargins')
+							.text($measureHidden.measureHidden('outerWidth', null, $container, true))
+						.end()
+						.find('.height')
+							.text($measureHidden.height())
+						.end()
+						.find('.measuredheight')
+							.text($measureHidden.measureHidden('height'))
+						.end()
+						.find('.heightinner')
+							.text($measureHidden.find('span').height())
+						.end()
+						.find('.measuredheightinner')
+							.text($measureHidden.measureHidden('height', 'span', $container))
+						.end()
+						.find('.outerheight')
+							.text($measureHidden.outerHeight())
+						.end()
+						.find('.measuredouterheight')
+							.text($measureHidden.measureHidden('outerHeight'))
+						.end()
+						.find('.outerheightmargins')
+							.text($measureHidden.outerHeight(true))
+						.end()
+						.find('.measuredouterheightmargins')
+							.text($measureHidden.measureHidden('outerHeight', null, $container, true))
+						.end()
+				};
+
+
+
+				$(function(){
+					$('#measurehidden-toggle-btn').on('click', function(e){
+						e.preventDefault();
+
+						if( !measureHiddenVisible ){
+							$(this).after($measureHidden);
+						} else {
+							$measureHidden.detach();
+						}
+
+						fUpdateMeasureHiddenDimensions();
+
+						measureHiddenVisible = !measureHiddenVisible;
+					});
+					fUpdateMeasureHiddenDimensions();
+				});
+
+			}
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<h1>jQuery Annex Basic Package Testcase Scenario</h1>
+		</header>
+		<main>
+			<h3>$.measureHidden</h3>
+			<section id="measurehidden">
+				<p>
+					The following text should contain dimension information about an element, which, initially, is not part of the DOM.
+					Use the button below to trigger insertion/removal of the element, also updating the measurements. The measured values should not
+					change, no matter if hidden or visible. If the element is visible the values should be identical in pairs of two.
+				</p>
+				<table id="measurehidden-dimensions">
+					<thead>
+						<tr><th>Dimension</th><th>Value</th></tr>
+					</thead>
+					<tbody>
+						<tr><td>Width</td><td class="width"></td></tr>
+						<tr><td>Measured Width</td><td class="measuredwidth"></td></tr>
+						<tr><td>OuterWidth</td><td class="outerwidth"></td></tr>
+						<tr><td>Measured OuterWidth</td><td class="measuredouterwidth"></td></tr>
+						<tr><td>OuterWidth (with margins)</td><td class="outerwidthmargins"></td></tr>
+						<tr><td>Measured OuterWidth (with margins)</td><td class="measuredouterwidthmargins"></td></tr>
+						<tr><td>Height</td><td class="height"></td></tr>
+						<tr><td>Measured Height</td><td class="measuredheight"></td></tr>
+						<tr><td>Height of Inner Span</td><td class="heightinner"></td></tr>
+						<tr><td>Measured Height of Inner Span</td><td class="measuredheightinner"></td></tr>
+						<tr><td>OuterHeight</td><td class="outerheight"></td></tr>
+						<tr><td>Measured OuterHeight</td><td class="measuredouterheight"></td></tr>
+						<tr><td>OuterHeight (with margins)</td><td class="outerheightmargins"></td></tr>
+						<tr><td>Measured OuterHeight (with margins)</td><td class="measuredouterheightmargins"></td></tr>
+					</tbody>
+				</dl>
+				<button id="measurehidden-toggle-btn">Toggle Element</button>
+			</section>
+		</main>
+	</body>
+</html>

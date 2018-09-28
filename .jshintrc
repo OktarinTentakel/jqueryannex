@@ -1,5 +1,5 @@
 {
-    "laxbreak" : true,
-    "loopfunc" : true,
-    "evil" : true
+	"laxbreak" : true,
+	"loopfunc" : true,
+	"evil" : true
 }

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>jQuery Annex Forms Package Testcase Scenario</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+
+			select[multiple]{
+				height: auto;
+			}
+
+			form.has-stylable-elements label {
+				display: block;
+
+				margin-bottom: 1rem;
+			}
+
+			.stylable-checkbox {
+				display: block;
+				cursor: pointer;
+
+				position: relative;
+
+				padding-left: 20px;
+			}
+
+			.stylable-checkbox:before {
+				content: '';
+
+				position: absolute;
+				top: 0;
+				left: 0;
+
+				width: 15px;
+				height: 15px;
+
+				border: 1px solid grey;
+			}
+
+			.stylable-checkbox.checked:before {
+				border: 1px solid black;
+
+				background: black;
+			}
+
+			.stylable-radio {
+				display: block;
+				cursor: pointer;
+
+				position: relative;
+
+				padding-left: 20px;
+			}
+
+			.stylable-radio:before {
+				content: '';
+
+				position: absolute;
+				top: 0;
+				left: 0;
+
+				width: 15px;
+				height: 15px;
+
+				border: 1px solid grey;
+				border-radius: 50%;
+			}
+
+			.stylable-radio.checked:before {
+				border: 1px solid black;
+
+				background: black;
+			}
+
+			.stylable-select,
+			.stylable-select select {
+				cursor: pointer;
+
+				width: 250px;
+			}
+
+			.stylable-select .selectlabel {
+				padding: 5px 30px 5px 10px;
+				border: 1px solid black;
+
+				font-size: 14px;
+				color: black;
+			}
+
+			.stylable-select .selectlabel:after {
+				content: '+';
+
+				position: absolute;
+				top: 3px;
+				right: 0;
+
+				width: 20px;
+
+				text-align: center;
+			}
+
+			.stylable-file {
+				display: inline-block;
+				cursor: pointer;
+
+				width: 250px;
+				min-height: 40px;
+
+				padding: 5px 10px;
+				border: 1px dotted black;
+
+				font-size: 14px;
+				color: black;
+			}
+		</style>
+
+		<script>
+			function jqueryAddedCallback(){
+
+				$(function(){
+					$('select').material_select();
+
+					$('#inputtexttest-doselect').on('click', function(){
+						$('#inputtexttest').doselect();
+					});
+
+					$('#inputtexttest-deselect').on('click', function(){
+						$('#inputtexttest').deselect();
+					});
+
+					$('#singleselecttest-doselect').on('click', function(){
+						var index = $.randomInt(1, 5);
+						$('#singleselecttest').children('option').eq(index - 1).doselect();
+					});
+
+					$('#singleselecttest-deselect').on('click', function(){
+						$('#singleselecttest').children('option').deselect();
+					});
+
+					$('#multiselecttest-doselect').on('click', function(){
+						var index = $.randomInt(1, 5);
+						$('#multiselecttest').children('option').eq(index - 1).doselect();
+					});
+
+					$('#multiselecttest-deselect').on('click', function(){
+						$('#multiselecttest').children('option').deselect();
+					});
+
+					$('#checkboxtest-check').on('click', function(){
+						var index = $.randomInt(1, 5);
+						$('#checkboxtest'+index).check();
+					});
+
+					$('#checkboxtest-uncheck').on('click', function(){
+						for(var i = 1; i <= 5; i++){
+							$('#checkboxtest'+i).uncheck();
+						}
+					});
+
+					$('#radiobuttontest-check').on('click', function(){
+						var index = $.randomInt(1, 5);
+						$('#radiobuttontest'+index).check();
+					});
+
+					$('#radiobuttontest-uncheck').on('click', function(){
+						for(var i = 1; i <= 5; i++){
+							$('#radiobuttontest'+i).uncheck();
+						}
+					});
+
+					$('button.disable').on('click', function(){
+						$(this).prevAll(':input:not(button)').disable();
+					});
+
+					$('button.enable').on('click', function(){
+						$(this).prevAll(':input:not(button)').enable();
+					});
+
+					$('form.has-stylable-elements')
+						.find(':checkbox')
+							.makeStylable('stylable-checkbox')
+						.end()
+						.find(':radio')
+							.makeStylable('stylable-radio')
+						.end()
+						.find('select')
+							.makeStylable('stylable-select')
+						.end()
+						.find(':file')
+							.makeStylable('stylable-file')
+						.end()
+					;
+
+					$('.stylable-file :file').on('change', function(){
+						var _this_ = this;
+
+						$(this).nextAll('.file').remove();
+						$.each($(this).oo().files, function(fileIndex, file){
+							$(_this_).after($('<p class="file">'+file.name+'</p>'));
+						});
+					});
+				});
+
+			}
+		</script>
+		<script>
+			var HANDLE_JQUERY_PLUGINS = [
+				'https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js'
+			];
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<h1>jQuery Annex Forms Package Testcase Scenario</h1>
+		</header>
+		<main>
+			<h3>$.fn.disable / $.fn.enable</h3>
+			<section>
+				<p>
+					Use the buttons below, next to the inputs to test disabling and enabling different form elements.
+				</p>
+			</section>
+
+			<h3>$.fn.doselect / $.fn.deselect</h3>
+			<section>
+				<p>
+					Below you see a text input as well as two different selects. Use the buttons next to them to test
+					the doselect/deselect behavious on the elements.
+				</p>
+				<p>
+					For the text field the contents should become selected and the element should
+					become focused on doselect and the selection should be removed and the element blurred on deselect.
+				</p>
+				<p>
+					In case of the selects a random option should become selected on doselect and all elements should
+					become unselected on deleselect.
+				</p>
+
+				<fieldset>
+					<legend>Input Text Test</legend>
+					<input type="text" value="foo bar" id="inputtexttest" name="inputtexttest"/>
+					<button id="inputtexttest-doselect">doselect</button>
+					<button id="inputtexttest-deselect">deselect</button>
+					<button class="disable">disable</button>
+					<button class="enable">enable</button>
+				</fieldset>
+
+				<fieldset>
+					<legend>Single Select Test</legend>
+
+					<select id="singleselecttest" class="browser-default">
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+					</select>
+					
+					<button id="singleselecttest-doselect">doselect</button>
+					<button id="singleselecttest-deselect">deselect</button>
+					<button class="disable">disable</button>
+					<button class="enable">enable</button>
+				</fieldset>
+
+				<fieldset>
+					<legend>Multi Select Test</legend>
+
+					<select multiple size="5" id="multiselecttest" class="browser-default">
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+					</select>
+					
+					<button id="multiselecttest-doselect">doselect</button>
+					<button id="multiselecttest-deselect">deselect</button>
+					<button class="disable">disable</button>
+					<button class="enable">enable</button>
+				</fieldset>
+			</section>
+
+			<h3>$.fn.check / $.fn.uncheck</h3>
+			<section>
+				<p>
+					Below you see two groups of checkboxes and radio buttons. Use the buttons next to them to test
+					the doselect/deselect behavious on the elements.
+				</p>
+				<p>
+					A random input should become selected on check and all elements should become unselected on uncheck.
+				</p>
+
+				<fieldset>
+					<legend>Checkbox Test</legend>
+
+					<input type="checkbox" value="1" id="checkboxtest1" name="checkboxtest[]"/>
+					<label for="checkboxtest1">1</label>
+					<br/>
+
+					<input type="checkbox" value="2" id="checkboxtest2" name="checkboxtest[]"/>
+					<label for="checkboxtest2">2</label>
+					<br/>
+
+					<input type="checkbox" value="3" id="checkboxtest3" name="checkboxtest[]"/>
+					<label for="checkboxtest3">3</label>
+					<br/>
+
+					<input type="checkbox" value="4" id="checkboxtest4" name="checkboxtest[]"/>
+					<label for="checkboxtest4">4</label>
+					<br/>
+					
+					<input type="checkbox" value="5" id="checkboxtest5" name="checkboxtest[]"/>
+					<label for="checkboxtest5">5</label>
+					<br/><br/>
+					
+					<button id="checkboxtest-check">check</button>
+					<button id="checkboxtest-uncheck">uncheck</button>
+					<button class="disable">disable</button>
+					<button class="enable">enable</button>
+				</fieldset>
+
+				<fieldset>
+						<legend>Radiobutton Test</legend>
+	
+						<input type="radio" value="1" id="radiobuttontest1" name="radiobuttontest"/>
+						<label for="radiobuttontest1">1</label>
+						<br/>
+	
+						<input type="radio" value="2" id="radiobuttontest2" name="radiobuttontest"/>
+						<label for="radiobuttontest2">2</label>
+						<br/>
+	
+						<input type="radio" value="3" id="radiobuttontest3" name="radiobuttontest"/>
+						<label for="radiobuttontest3">3</label>
+						<br/>
+	
+						<input type="radio" value="4" id="radiobuttontest4" name="radiobuttontest"/>
+						<label for="radiobuttontest4">4</label>
+						<br/>
+						
+						<input type="radio" value="5" id="radiobuttontest5" name="radiobuttontest"/>
+						<label for="radiobuttontest5">5</label>
+						<br/><br/>
+						
+						<button id="radiobuttontest-check">check</button>
+						<button id="radiobuttontest-uncheck">uncheck</button>
+						<button class="disable">disable</button>
+						<button class="enable">enable</button>
+					</fieldset>
+			</section>
+
+			<h3>$.fn.makeStylable</h3>
+			<section>
+				<p>
+					Below you should see form elements whose representations have been replaced with stylable HTML elements, while keeping
+					the original behaviour. Since elements like selects and file inputs are notoriously unstylable in most browsers, but
+					this fact is never reflected in layouts we are often challenged with building elaborate replacements.
+				</p>
+				<p>
+					This method gathers several best practices for automatically replacing checkboxes, radios, selects and files.
+				</p>
+
+				<form class="has-stylable-elements">
+					<fieldset>
+						<legend>Stylable Elements Test</legend>
+						<label>
+							Label
+							<input type="checkbox" name="boo" value="1" checked />
+						</label>
+						<label>
+							<input type="checkbox" name="boo" value="2" />
+							Label
+						</label>
+						<label>
+							<input type="checkbox" name="boo" value="3" />
+							Label
+						</label>
+						<label>
+							<select class="browser-default" name="bar">
+								<option value="">select a number</option>
+								<option value="7">Seven</option>
+								<option value="8">Eight</option>
+								<option value="9">Nine</option>
+							</select>
+						</label>
+						<label>
+							<input type="radio" name="fooboo" value="10" />
+							Label
+						</label>
+						<label>
+							<input type="radio" name="fooboo" value="11" />
+							Label
+						</label>
+						<label>
+							Label
+							<input type="radio" name="fooboo" value="12" checked />
+						</label>
+						<label>
+							<input type="file" name="testfile1" />
+							Please select or drop a file
+						</label>
+						<label>
+							<input type="file" name="testfile2" multiple />
+							Please select or drop multiple files
+						</label>
+					</fieldset>
+				</form>
+			</section>
+		</main>
+	</body>
+</html>

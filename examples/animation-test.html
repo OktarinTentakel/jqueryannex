@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>jQuery Annex Animation Package Testcase Scenario</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+
+			section#csstransition {
+				height: 50vh;
+			}
+
+			#csstransition-test {
+				cursor: pointer;
+
+				position: absolute;
+				top: 50vh;
+				left: 30vw;
+				width: 150px;
+				height: 150px;
+
+				background: blue;
+
+				transition: top 2s, left 1500ms, background-color 2.2s;
+			}
+
+			#csstransition-test.test {
+				top: 65vh;
+				left: 50vw;
+
+				background: red;
+			}
+
+			#csstransition-test.test2 {
+				top: 80vh;
+				left: 80vw;
+
+				background: green;
+
+				transition: top 3100ms, left 1s, background-color 2.2s;
+			}
+		</style>
+
+		<script>
+			function jqueryAddedCallback(){
+				$(function(){
+
+					$('#csstransition-test').on('click', function(){
+						var $target = $(this);
+
+						$.log().time();
+
+						$target.cssTransition({addClass : 'test'}, function($element){
+							$.log(1);
+							$.log().timeEnd().time();
+							$.log($element.attr('id'));
+
+							$target.cssTransition({removeClass : 'test'}, function($element){
+								$.log(2);
+								$.log().timeEnd().time();
+								$.log($element.attr('id'));
+							});
+						});
+
+						$.schedule(3000, function(){
+							$target.cssTransition({
+								css : {
+									top : 0,
+									left : 0,
+									background : 'pink',
+									'-moz-transition' : 'all 1500ms'
+								}
+							}, function($element){
+								$.log(3);
+								$.log().timeEnd().time();
+								$.log($element.attr('id'));
+
+								$element
+									.removeAttr('style')
+									.cssTransition({
+										css : {
+											top : 'calc(100vh - 150px)',
+											left : 'calc(100vw - 150px)',
+											background : 'yellow'
+										}
+									}, function($element){
+										$.log(4);
+										$.log().timeEnd().time();
+										$.log($element.attr('id'));
+
+										$element.removeAttr('style');
+									})
+								;
+							});
+						});
+
+						$.schedule(3000 + 3000, function(){
+							$target.cssTransition({addClass : 'test2'}).done(function($element){
+								$.log(5);
+								$.log().timeEnd().time();
+								$.log($element.attr('id'));
+							}).fail(function($element){
+								$.log('5 cancelled');
+								$.log($element.attr('id'));
+							});
+						});
+
+						$.schedule(3000 + 3000 + 1000, function(){
+							$target.cssTransition({removeClass : 'test2'}, null, false).done(function($element){
+								$.log(6);
+								$.log().timeEnd();
+								$.log($element.attr('id'));
+							});
+						});
+					});
+
+				});
+			}
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<h1>jQuery Annex cssTransition Testcase Scenario</h1>
+		</header>
+		<main>
+				<h3>$.cssTransition</h3>
+				<section id="csstransition">
+					<p>Click on the element to trigger a chain of transitions. Keep an eye on the console for callback logging.</p>
+					<div id="csstransition-test"></div>
+				</section>
+		</main>
+	</body>
+</html>

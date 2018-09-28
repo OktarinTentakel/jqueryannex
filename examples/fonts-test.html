@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>jQuery Annex Fonts Package Testcase Scenario</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<link href="https://fonts.googleapis.com/css?family=Pacifico|Poor+Story" rel="stylesheet">
+		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+
+			#webfont-text1,
+			#webfont-text2 {
+				display: inline-block;
+
+				padding: 0.5rem;
+				margin: 1rem 0;
+
+				font-size: 5rem;
+
+				background: #eee;
+			}
+
+			#webfont-text-dims1,
+			#webfont-text-dims2 {
+				overflow: hidden;
+			}
+
+			#webfont-text-dims1 dt,
+			#webfont-text-dims2 dt {
+				float: left;
+				clear: left;
+
+				min-width: 25%;
+
+				font-weight: bold;
+			}
+
+			#webfont-text-dims1 dd,
+			#webfont-text-dims2 dd {
+				float: left;
+			}
+		</style>
+
+		<script>
+			function jqueryAddedCallback(){
+
+				$(function(){
+					$('#webfont-text-dims1').find('dd').first().text(Math.round($('#webfont-text1').width())+'x'+Math.round($('#webfont-text1').height()));
+					$('#webfont-text-dims2').find('dd').first().text(Math.round($('#webfont-text2').width())+'x'+Math.round($('#webfont-text2').height()));
+					$('#webfont-text1').css('font-family', "'Poor Story', cursive");
+					$('#webfont-text2').css('font-family', "'Pacifico', cursive");
+
+					$.waitForWebfonts(['Poor Story', 'Pacifico'], function(){
+						$('#webfont-text-dims1').find('dd').last().text(Math.round($('#webfont-text1').width())+'x'+Math.round($('#webfont-text1').height()));
+						$('#webfont-text-dims2').find('dd').last().text(Math.round($('#webfont-text2').width())+'x'+Math.round($('#webfont-text2').height()));
+					});
+				});
+				
+			}
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<h1>jQuery Annex Fonts Package Testcase Scenario</h1>
+		</header>
+		<main>
+			<h3>$.waitForWebfonts</h3>
+			<section>
+				This section should contain texts with an applied webfont as well as dimension information before and after application of the webfont.
+				The information after application should be updated via callback.<br/>
+				<span id="webfont-text1">Lorem ipsum dolor sit webfont!</span>
+				<dl id="webfont-text-dims1">
+					<dt>Dimensions before webfont</dt><dd></dd>
+					<dt>Dimentsions after webfont</dt><dd></dd>
+				</dl>
+				<span id="webfont-text2">Foobar webfont!</span>
+				<dl id="webfont-text-dims2">
+					<dt>Dimensions before webfont</dt><dd></dd>
+					<dt>Dimentsions after webfont</dt><dd></dd>
+				</dl>
+			</section>
+		</main>
+	</body>
+</html>

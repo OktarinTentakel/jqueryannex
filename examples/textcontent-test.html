@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>jQuery Annex Text Content Package Testcase Scenario</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+
+			#multilinetextellipsis-test {
+				overflow: hidden;
+
+				position: relative;
+
+				width: 66.666%;
+				height: 120px;
+
+				margin-top: 2rem;
+				padding: 25px;
+
+				background: lightgrey;
+			}
+
+			#multilinetextellipsis-test p {
+				opacity: 0;
+
+				margin: 0;
+
+				transition: opacity 250ms;
+			}
+
+			#multilinetextellipsis-test p.ready {
+				opacity: 1;
+			}
+		</style>
+
+		<script>
+			function jqueryAddedCallback(){
+				$(function(){
+
+						$('#multilinetextellipsis-test').multiLineTextEllipsis('p', 'div', '..').children('p').addClass('ready');
+						$(window)
+							.on('resize', function(){
+								$('#multilinetextellipsis-test p').removeClass('ready');
+							})
+							.on('resize', $.holdExecution(500, function(){
+								$('#multilinetextellipsis-test').multiLineTextEllipsis('p').children('p').addClass('ready');
+							}))
+						;
+
+				});
+			}
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<h1>jQuery Annex Images Package Testcase Scenario</h1>
+		</header>
+		<main>
+			<h3>$.fn.multiLineTextEllipsis</h3>
+			<section>
+				Text ellipsis has become a standard feature, but multiline text ellipsis stays a glaring omission in CSS.
+				The problem is solvable via JS, but very CPU heavy, so beware of dragons. The text below however, should
+				behave as a multiline text ellipsis should. So, resize the browser to watch the text get newly cut off according
+				to the current container dimensions.
+				<div id="multilinetextellipsis-test">
+					<p>
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin laoreet sollicitudin nulla.
+						Duis sit amet molestie turpis. Nunc elementum, risus eget congue vestibulum, ante tortor tempus velit,
+						ut consectetur lectus mauris vel mauris. Proin eget purus lacus. Cum sociis natoque penatibus et magnis
+						dis parturient montes, nascetur ridiculus mus. Pellentesque sed justo leo. Sed gravida viverra mauris.
+						Aliquam hendrerit tincidunt eros quis semper. Vivamus pulvinar a ante vitae blandit. Mauris lectus mauris,
+						scelerisque at diam ut, posuere aliquam enim. Nulla id molestie neque. Curabitur est lectus, venenatis id nunc sed,
+						dignissim lobortis enim.
+					</p>
+				</div>
+			</section>
+		</main>
+	</body>
+</html>

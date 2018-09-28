@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>jQuery Annex CSS Package Testcase Scenario</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+
+			#csscrossbrowser-test {
+				width: 66.666%;
+
+				padding-bottom: 33.333%;
+				margin-top: 2rem;
+
+				background: lightgrey;
+			}
+		</style>
+
+		<script>
+			function jqueryAddedCallback(){
+				$(function(){
+			
+					$('#csscrossbrowser-test')
+						.cssCrossBrowser({
+							'border-radius' : '50%',
+							'margin-top' : '5rem'
+						})
+						.cssCrossBrowser({
+							transition : 'opacity 500ms',
+							transition : 'opacity 500ms, transform, 1000ms, margin-top 2s'
+						})
+						.cssCrossBrowser({
+							transform : 'translate(5%, 5%)'
+						})
+					;
+
+				});
+			}
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<h1>jQuery Annex Images Package Testcase Scenario</h1>
+		</header>
+		<main>
+			<h3>$.fn.cssCrossBrowser</h3>
+			<section>
+				Normally this is a case for unit testing, but since browsers have gotten very specific and picky about css attribute settings,
+				the phantom browser will not suffice. So, in this test we'll apply some css rules to the div below, which should lead to
+				changed appearance and added attributes in all browsers capable. Now it depends on the browser wether you'll see all
+				browser prefixed attributes or only those currently accepted by this browser. But in any case, you should see something happening.
+				<div id="csscrossbrowser-test"></div>
+			</section>
+		</main>
+	</body>
+</html>

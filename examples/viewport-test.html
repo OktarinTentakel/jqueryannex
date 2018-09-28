@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>jQuery Annex Interaction Package Testcase Scenario</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+
+
+
+			header h1 {
+				padding-right: 25rem;
+			}
+
+
+
+			main {
+				padding-right: 25rem;
+			}
+
+
+
+			#in-viewport-info {
+				opacity: 0.5;
+
+				position: fixed;
+				top: 8rem;
+				right: 4rem;
+
+				width: 20rem;
+
+				padding: 0.5rem 1rem;
+
+				background: white;
+				box-shadow: 1px 1px 20px 0 rgba(0, 0, 0, 0.5);
+			}
+
+
+
+			#scroll-to-elements {
+				background: rgba(0, 0, 0, 0.1);
+
+				color: white;
+				font-size: 5rem;
+				line-height: 3.8;
+				text-align: center;
+			}
+
+			#scroll-to-elements .element-1 {
+				width: 20rem;
+				height: 20rem;
+
+				background: blue;
+			}
+			#scroll-to-elements .element-1:before {
+				content: '1';
+			}
+
+			#scroll-to-elements .element-2 {
+				width: 20rem;
+				height: 20rem;
+
+				margin-top: 300vh;
+
+				background: red;
+			}
+			#scroll-to-elements .element-2:before {
+				content: '2';
+			}
+
+			#scroll-to-elements .element-3 {
+				width: 20rem;
+				height: 20rem;
+
+				margin-top: 5rem;
+
+				background: green;
+			}
+			#scroll-to-elements .element-3:before {
+				content: '3';
+			}
+
+			#scroll-to-elements .element-4 {
+				width: 20rem;
+				height: 20rem;
+
+				margin-top: 5rem;
+
+				background: yellow;
+			}
+			#scroll-to-elements .element-4:before {
+				content: '4';
+			}
+
+			#scroll-to-elements .element-5 {
+				width: 20rem;
+				height: 20rem;
+
+				margin-top: 300vh;
+
+				background: teal;
+			}
+			#scroll-to-elements .element-5:before {
+				content: '5';
+			}
+
+			#scroll-to-top {
+				position: fixed;
+				bottom: 2rem;
+				right: 4rem;
+			}
+		</style>
+
+		<script>
+			function jqueryAddedCallback(){
+
+				$(function(){
+					$.loop(250, function(){
+						$('#in-viewport-info').html(
+							'<p><b>Element 1</b><br/>in viewport: <i>'+$('#scroll-to-elements .element-1').isInViewport()+'</i>, fully in viewport: <i>'+$('#scroll-to-elements .element-1').isInViewport(true)+'</i></p>'
+							+'<p><b>Element 2</b><br/>in viewport: <i>'+$('#scroll-to-elements .element-2').isInViewport()+'</i>, fully in viewport: <i>'+$('#scroll-to-elements .element-2').isInViewport(true)+'</i></p>'
+							+'<p><b>Element 3</b><br/>in viewport: <i>'+$('#scroll-to-elements .element-3').isInViewport()+'</i>, fully in viewport: <i>'+$('#scroll-to-elements .element-3').isInViewport(true)+'</i></p>'
+							+'<p><b>Element 4</b><br/>in viewport: <i>'+$('#scroll-to-elements .element-4').isInViewport()+'</i>, fully in viewport: <i>'+$('#scroll-to-elements .element-4').isInViewport(true)+'</i></p>'
+							+'<p><b>Element 5</b><br/>in viewport: <i>'+$('#scroll-to-elements .element-5').isInViewport()+'</i>, fully in viewport: <i>'+$('#scroll-to-elements .element-5').isInViewport(true)+'</i></p>'
+						);
+					});
+
+					$('#scroll-to-1').on('click', function(e){
+						e.preventDefault();
+
+						$('#scroll-to-elements .element-1').scrollTo($.noop, 1000, $('#scroll-to-elements .element-1').outerHeight() / 2, true, false);
+					});
+
+					$('#scroll-to-2').on('click', function(e){
+						e.preventDefault();
+
+						$('#scroll-to-elements .element-2').scrollTo($.noop, 2000, window.innerHeight / 2, false, true);
+					});
+
+					$('#scroll-to-3').on('click', function(e){
+						e.preventDefault();
+
+						$('#scroll-to-elements .element-3').scrollTo($.noop, 1500, $('#scroll-to-elements .element-3').outerHeight() / 2, false, true);
+					});
+
+					$('#scroll-to-4').on('click', function(e){
+						e.preventDefault();
+
+						$('#scroll-to-elements .element-4').scrollTo($.noop, 500, -(window.innerHeight / 2 - $('#scroll-to-elements .element-4').outerHeight()), false, true);
+					});
+
+					$('#scroll-to-5').on('click', function(e){
+						e.preventDefault();
+
+						$('#scroll-to-elements .element-5').scrollTo(function(){ alert('Scrolled all the way down! My hero.'); }, 5000, -250, false, false);
+					});
+
+					$('#scroll-to-top').on('click', function(e){
+						e.preventDefault();
+
+						$(window).scrollTo($.noop, 1000, 0, true, true);
+					});
+				});
+
+			}
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<h1>jQuery Annex Viewport Package Testcase Scenario</h1>
+		</header>
+		<main>
+			<h3>$.fn.isInViewport</h3>
+			<section>
+				<p>
+				In the upper right corner you should see specific information if certain elements further below currently are in the
+				viewport or not. Additionally, we differentiate between the element being fully in the viewport or at least partly.
+				</p>
+				<div id="in-viewport-info"></div>
+			</section>
+
+			<h3>$.fn.scrollTo</h3>
+				<section>
+				<p>
+					If you click on the buttons below, you should programmatically scroll down, to several elements below.
+					The end points of the scroll should differ in position relative to the element, speed and the fact that you can or
+					cannot cancel the ongoing scroll by scrolling yourself with your mouse or touch.
+				</p>
+				<p>
+					<button id="scroll-to-1">Scroll to 1 (1s, centered, not cancellable, scroll if already in viewport)</button><br/>
+					<button id="scroll-to-2">Scroll to 2 (2s, exactly at top, cancellable)</button><br/>
+					<button id="scroll-to-3">Scroll to 3 (1.5s, centered, cancellable)</button><br/>
+					<button id="scroll-to-4">Scroll to 4 (0.5s, at bottom, cancellable)</button><br/>
+					<button id="scroll-to-5">Scroll to 5 (5s, 250px offset, not cancellable, with callback)</button>
+					<button id="scroll-to-top">To Top</button>
+				</p>
+				<div id="scroll-to-elements">
+					<p class="element-1"></p>
+					<p class="element-2"></p>
+					<p class="element-3"></p>
+					<p class="element-4"></p>
+					<p class="element-5"></p>
+				</div>
+			</section>
+		</main>
+	</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>jQuery Annex Navigation Package Testcase Scenario</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+
+			h3 {
+				margin-top: 5rem;
+			}
+
+			section a {
+				display: block;
+				cursor: pointer;
+			}
+		</style>
+
+		<script>
+			function jqueryAddedCallback(){
+				$(function(){
+
+					$('#redirect-1').on('click', function(e){
+						e.preventDefault();
+
+						$.redirect('//www.google.com?q=test', {search : 'kittens', ordering : 'asc'}, 'fluffykittens', null, 'google');
+					});
+
+					$('#redirect-2').on('click', function(e){
+						e.preventDefault();
+
+						$.redirect(null, {order : 'desc'}, 'fluffykittens', {test : 'test', param : 'param'});
+					});
+
+					$('#redirect-3').on('click', function(e){
+						e.preventDefault();
+
+						$.redirect(null, null, 'fluffykittens');
+					});
+
+
+
+					$('#changeurlsilently-1').on('click', function(e){
+						e.preventDefault();
+
+						$.changeUrlSilently('/article/important-stuff', {some : 'information'}, 'important');
+					});
+
+					$('#changeurlsilently-2').on('click', function(e){
+						e.preventDefault();
+
+						$.changeUrlSilently('/article/more-important-stuff', {more : 'information'}, 'more important', true);
+					});
+
+					
+
+					$.onHistoryChange(function(){
+						alert('I should never be called!');
+					}, 'test');
+
+					$.onHistoryChange(function(oldState, newState){
+						$.log('old state:', oldState);
+						$.log('new state:', newState);
+					}, 'test', true);
+
+
+
+					$('#reload-1').on('click', function(e){
+						e.preventDefault();
+
+						$.reload();
+					});
+
+					$('#reload-2').on('click', function(e){
+						e.preventDefault();
+
+						$.reload(true);
+					});
+
+
+
+					$('#openwindow-1').on('click', function(e){
+						e.preventDefault();
+
+						googleWindow = $.openWindow('about:blank', {name : 'blanka'});
+					});
+
+					$('#openwindow-2').on('click', function(e){
+						e.preventDefault();
+
+						$.openWindow('//www.google.com', {name : 'google', width : 666, height : 666}, null, true);
+					});
+
+
+
+					$('#opentab-1').on('click', function(e){
+						e.preventDefault();
+
+						$.openTab('//www.google.com?q=test', {search : 'kittens', ordering : 'asc'}, 'fluffykitten');
+					});
+
+				});
+			}
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<h1>jQuery Annex Navigation Package Testcase Scenario</h1>
+		</header>
+		<main>
+			<h3>$.redirect</h3>
+			<section>
+				<a id="redirect-1">Should open google.com with get-parameters and a hash in a new window, repeated clicks should target the same window</a>
+				<a id="redirect-2">Should open this URL with a get and several post-params (may fail due to request method, but post data should be visible in network)</a>
+				<a id="redirect-3">Should only change the current hash, without loading anything</a>
+			</section>
+
+			<h3>$.changeUrlSilently</h3>
+			<section>
+				<a id="changeurlsilently-1">Should replace the current URL without reload, not changing history</a>
+				<a id="changeurlsilently-2">Should replace the current URL without reload, back navigation being the old URL</a>
+			</section>
+
+			<h3>$.onHistoryChange</h3>
+			<section>
+				Using the second link from $.changeUrlSilently and hitting browser back should result in console output
+				with state information about the state being left and the state being switched to.
+			</section>
+
+			<h3>$.reload</h3>
+			<section>
+				<a id="reload-1">Should reload the current URL</a>
+				<a id="reload-2">Should reload the current URL quickly from cache</a>
+			</section>
+
+			<h3>$.openWindow</h3>
+			<section>
+				<a id="openwindow-1">Should open a new window with empty site</a>
+				<a id="openwindow-2">Should open a new window with google.com with window options as popup</a>
+			</section>
+
+			<h3>$.openTab</h3>
+			<section>
+				<a id="opentab-1">Should open google.com with get-parameters and a hash in a new tab</a>
+			</section>
+		</main>
+	</body>
+</html>

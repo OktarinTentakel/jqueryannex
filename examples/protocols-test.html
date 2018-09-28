@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>jQuery Annex Capabilities Package Testcase Scenario</title>
+
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+		<style type="text/css">
+			body {
+				padding: 2rem 4rem;
+			}
+
+			a {
+				cursor: pointer;
+			}
+		</style>
+
+		<script>
+			function jqueryAddedCallback(){
+				$(function(){
+					
+					$('#mailto-1').registerMailTo('com', 'no', 'spam', 'Hello there!', 'Dear Mr. Foobar,');
+					$('#mailto-2').registerMailTo('com', 'no', 'spam', 'Hello there!', 'Dear Mr. Foobar,', true);
+					$('#mailto-3').registerMailTo(
+						$('#mailto-3').data('tld'),
+						$('#mailto-3').data('before-at'),
+						$('#mailto-3').data('after-at'),
+						$('#mailto-3').data('subject'),
+						$('#mailto-3').data('body')
+					);
+
+					$('#tel-1').registerTel('176', '123', '+49', '321');
+					$('#tel-2').registerTel('176', '123', '+49', '321', true);
+					$('#tel-3').registerTel(
+						$('#tel-3').data('region'),
+						$('#tel-3').data('firstpart'),
+						$('#tel-3').data('country'),
+						$('#tel-3').data('secondpart')
+					);
+
+				});
+			}
+		</script>
+		<script type="text/javascript" src="lib/handle-jquery-versions.js"></script>
+	</head>
+
+	<body>
+		<header>
+			<h1>jQuery Annex Protocols Package Testcase Scenario</h1>
+		</header>
+		<main>
+			<h3>$.registerMailto</h3>
+			<section>
+				<p>
+					This section should contain two mailto links with indecipherable email notations to protect the recipients from spam and maximize
+					bot confusion. The first one should contain a server-set text, while the second contains no text initially (or a replacable dummy),
+					but receives the text automatically on invocation of registerMailto, which inserts the mail address in plain text via JS.
+					The second one is, of cource, weaker against bot that execute JS.
+					I also added a third call to demonstrate how to get all needed data directly from the element, without having to hard-code user data
+					to a function call (which you could well do inline, but would be ugly).
+				</p>
+				<p>
+					Write a mail to <a id="mailto-1">this person</a> or this person <a id="mailto-2"></a> and maybe even to
+					<a
+						id="mailto-3"
+						data-tld="com"
+						data-before-at="no"
+						data-after-at="spam"
+						data-subject="Hello there!"
+						data-body="Dear Mr. Foobar,"
+					>this person</a>.
+				</p>
+			</section>
+
+			<h3>$.registerTel</h3>
+			<section>
+					<p>
+						This section should contain two tel links with indecipherable phone number notations to protect the recipients from spam calls
+						and maximize bot confusion. The first one should contain a server-set text, while the second contains no text initially (or a replacable dummy),
+						but receives the text automatically on invocation of registerTel, which inserts the phone number in plain text via JS.
+						The second one is, of cource, weaker against bot that execute JS.
+						I also added a third call to demonstrate how to get all needed data directly from the element, without having to hard-code user data
+						to a function call (which you could well do inline, but would be ugly).
+					</p>
+					<p>
+						Let's call <a id="tel-1">this person</a> or this person <a id="tel-2"></a> and maybe even
+						<a
+							id="tel-3"
+							data-region="176"
+							data-firstpart="123"
+							data-country="+49"
+							data-secondpart="321"
+						>this person</a>.
+					</p>
+			</section>
+		</main>
+	</body>
+</html>

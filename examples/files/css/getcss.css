@@ -1,0 +1,26 @@
+@keyframes body-pulse {
+	0% {
+		background-color: rgba(255, 0, 0, 0.05);
+	}
+
+	33% {
+		background-color: rgba(0, 255, 0, 0.05);
+	}
+
+	66% {
+		background-color: rgba(0, 0, 255, 0.05);
+	}
+
+	100% {
+		background-color: rgba(255, 0, 0, 0.05);
+	}
+}
+
+body {
+	animation: body-pulse;
+	animation-duration: 2500ms;
+	animation-fill-mode: forwards;
+	animation-iteration-count: infinite;
+	animation-timing-function: ease;
+	animation-play-state: running;
+}
