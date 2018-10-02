@@ -33,6 +33,24 @@
 						$.removeSelection();
 					});
 
+					$('#toggle-scrolling').on('click', function(e){
+						e.preventDefault();
+
+						if( !$(this).hasClass('disabled') ){
+							$.disableScrolling(true);
+							$(this)
+								.text('Enable Scrolling')
+								.addClass('disabled')
+							;
+						} else {
+							$.enableScrolling();
+							$(this)
+								.text('Disable Scrolling')
+								.removeClass('disabled')
+							;
+						}
+					});
+
 					$('#toggle-selectability').on('click', function(e){
 						e.preventDefault();
 
@@ -106,6 +124,14 @@
 			<h1>jQuery Annex Interaction Package Testcase Scenario</h1>
 		</header>
 		<main>
+			<h3>$.disableScrolling/$.enableScrolling</h3>
+			<section>
+				<p>
+					Use this button to disable and reenable scrolling for this window as well for mousewheel as for touch scollls.
+				</p>
+				<button id="toggle-scrolling">Disable Scrolling</button>
+			</section>
+
 			<h3>$.removeSelection</h3>
 			<section id="selectable-content">
 				<p>

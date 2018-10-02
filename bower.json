@@ -1,6 +1,6 @@
 {
 	"name": "jqueryannex",
-	"version": "0.41.0",
+	"version": "0.42.0",
 	"homepage": "https://github.com/OktarinTentakel/jqueryannex",
 	"description": "A mixed bag of jQuery extensions to generally streamline development, make code more semantic and provide solutions to everyday problems and tedious standard constructs.",
 	"main": "src/jquery.annex.js",

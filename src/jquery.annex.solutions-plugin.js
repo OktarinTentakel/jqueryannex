@@ -2,7 +2,7 @@
  * jQueryAnnex - Solution Plugin
  * Provides complex interface solutions too specific, big and/or complicated to be included in the base lib, since
  * they are too special and complex to be relevant for most projects.
- * 
+ *
  * Think about complete generic solutions for common problems like building a dynamic hash navigation or initializing
  * responsive background images for an element. There's also a good chance these solutions might be too generic for your
  * purpose and do not offer enough flexibility. So you may either include them if needed or at least use them as a reference
@@ -12,7 +12,7 @@
  * your browser.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 41 developed and tested with jQuery 3.3.1, 2.2.4 and 1.12.4
+ * @version Revision 42 developed and tested with jQuery 3.3.1, 2.2.4 and 1.12.4
  **/
 
 

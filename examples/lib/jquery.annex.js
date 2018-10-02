@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 41 developed and tested with jQuery 3.3.1, 2.2.4 and 1.12.4
+ * @version Revision 42 developed and tested with jQuery 3.3.1, 2.2.4 and 1.12.4
  **/
 
 
@@ -227,6 +227,22 @@
 			uuid : {
 				usedSinceReload : {
 					'none' : null
+				}
+			},
+			scrolling : {
+				cursorKeys : {37 : 1, 38 : 1, 39 : 1, 40 : 1},
+				preventDefault : function(e){
+					e = e || window.event;
+					if( e.preventDefault ){
+						e.preventDefault();
+					}
+					e.returnValue = false;
+				},
+				preventDefaultForScrollKeys : function(e){
+					if( $.jqueryAnnexData.scrolling.cursorKeys[e.keyCode] ){
+						$.jqueryAnnexData.scrolling.preventDefault(e);
+						return false;
+					}
 				}
 			}
 		},
@@ -1346,6 +1362,60 @@
 		 **/
 		maskForRegEx : function(string){
 			return string.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+		},
+
+
+
+		/**
+		 * @namespace Strings:$.maskForHtml
+		 **/
+
+		/**
+		 * Masks a string possibly containing reserved HTML chars for HTML output as is
+		 * (so a < actually reads on the page).
+		 *
+		 * Only replaces critical chars like <>& with entities, but
+		 * keeps non-critical unicode chars like »/.
+		 *
+		 * @param {String} text - the string to mask for use in HTML
+		 * @returns {String} the masked string
+		 *
+		 * @memberof Strings:$.maskForHtml
+		 * @see unmaskFromHtml
+		 * @example
+		 * $.maskForHtml('</>&;üäöÜÄÖß– »')
+		 * => '&lt;/&gt;&amp;;üäöÜÄÖß– »'
+		 **/
+		maskForHtml : function(text){
+			var escape = document.createElement('textarea');
+			escape.textContent = text;
+			return escape.innerHTML;
+		},
+
+
+
+		/**
+		 * @namespace Strings:$.unmaskFromHtml
+		 **/
+
+		/**
+		 * Replaces entities in a html-masked string with the vanilla characters
+		 * thereby returning a real HTML string, which could, for example, be used
+		 * to construct new elements with tag markup.
+		 *
+		 * @param {String} html - the string to unmask entities in
+		 * @returns {String} the unmasked string
+		 *
+		 * @memberof Strings:$.unmaskFromHtml
+		 * @see maskForHtml
+		 * @example
+		 * $.unmaskFromHtml('&lt;/&gt;&amp;;üäöÜÄÖß&ndash;&nbsp;&raquo;')
+		 * => '</>&;üäöÜÄÖß– »'
+		 **/
+		unmaskFromHtml : function(html){
+			var escape = document.createElement('textarea');
+			escape.innerHTML = html;
+			return escape.textContent;
 		},
 
 
@@ -3619,6 +3689,87 @@
 
 
 		/**
+		 * @namespace Interaction:$.disableScrolling
+		 **/
+
+		/**
+		 * Tries to suppress all scrolling (via wheel and touch) on the current window.
+		 *
+		 * The idea here is to disable scrolling only for very short amounts of time, to,
+		 * for example, do a pagewide animation the user should not disturb with a scroll.
+		 *
+		 * This method does _not_ suppress the manual use of a window scrollbar handle.
+		 *
+		 * Do not disable scrolling generally or for longer amounts of time, that is very
+		 * bad style!
+		 *
+		 * @param {?Boolean} [tryToHideScrollbars=false] - if true, sets overflow hidden on body to hide scrollbars as well and therefore remove possibility to use scrollbar handle manually
+		 *
+		 * @memberof Interaction:$.disableScrolling
+		 * @see enableScrolling
+		 * @example
+		 * $.disableScrolling();
+		 **/
+		disableScrolling : function(tryToHideScrollbars){
+			tryToHideScrollbars = this.orDefault(tryToHideScrollbars, false, 'bool');
+
+			var $body = $('body').first();
+
+			$body.cssCrossBrowser({'touch-action' : 'none'});
+
+			if( tryToHideScrollbars ){
+				$body.css({'overflow' : 'hidden'}).addClass('hidden-scrollbars');
+			}
+
+			if (window.addEventListener){
+				window.addEventListener('DOMMouseScroll', $.jqueryAnnexData.scrolling.preventDefault, false);
+			}
+
+			window.onwheel = $.jqueryAnnexData.scrolling.preventDefault;
+			window.onmousewheel = document.onmousewheel = $.jqueryAnnexData.scrolling.preventDefault;
+			window.ontouchmove  = $.jqueryAnnexData.scrolling.preventDefault;
+			document.onkeydown  = $.jqueryAnnexData.scrolling.preventDefaultForScrollKeys;
+		},
+
+
+
+		/**
+		 * @namespace Interaction:$.enableScrolling
+		 **/
+
+		/**
+		 * Reenables window scrolling formerly suppressed with $.disableScrolling().
+		 *
+		 * @memberof Interaction:$.enableScrolling
+		 * @see disableScrolling
+		 * @example
+		 * $.enableScrolling();
+		 **/
+		enableScrolling : function(){
+			var $body = $('body').first();
+
+			$body.cssCrossBrowser({
+				'touch-action' : ''
+			});
+
+			if( $body.hasClass('hidden-scrollbars') ){
+				$body.css({'overflow' : ''}).removeClass('hidden-scrollbars');
+			}
+
+			if (window.removeEventListener){
+				window.removeEventListener('DOMMouseScroll', $.jqueryAnnexData.scrolling.preventDefault, false);
+			}
+
+			window.onmousewheel = document.onmousewheel = null;
+			window.onwheel = null;
+			window.ontouchmove = null;
+			document.onkeydown = null;
+		},
+
+
+
+
+		/**
 		 * @namespace Urls:$
 		 **/
 
@@ -3919,7 +4070,7 @@
 		dataDuo : function(attrName, attrValue){
 			attrName = $.orDefault(attrName, null, 'string');
 
-			var res = undefined,
+			var res,
 				attrValueString = '';
 
 			if( $.isFunction(attrValue) ){
@@ -5457,7 +5608,7 @@
 		 * Scrolls the viewport to the first matched element's position (first pixel at half viewport height).
 		 * Does not do anything if target element is already fully in viewport, unless scrollEvenIfFullyInViewport is set to
 		 * true. Uses getBoundingClientRect to measure viewport check, scrolls always if missing.
-		 * 
+		 *
 		 * If you use this function on a window, the offset is directly used as scrollTop, so this function may also be used for
 		 * things like back to top buttons.
 		 *
@@ -5893,7 +6044,7 @@
 		 * Programmatically create a text selection inside a node, possibly reaching across several child nodes,
 		 * but virtually working the only the raw text content. Can also be used to create a selection in text
 		 * inputs for example.
-		 * 
+		 *
 		 * Be aware that the endOffset is neither the length to select nor the last index, but the offset starting
 		 * from the last character in the node counting backwards (like a reverse startOffset). The reason for this wonkiness
 		 * is the fact that we have to implement three different ways of creating selections in this function, this

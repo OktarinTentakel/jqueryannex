@@ -132,4 +132,16 @@ $versions.forEach($ => {
 			'stringWithRegexChars'
 		);
 	});
+
+
+
+	test('$.maskForHtml'+jqueryVersionString, (assert) => {
+		assert.is($.maskForHtml('</>&;üäöÜÄÖß– »'), '&lt;/&gt;&amp;;üäöÜÄÖß– »');
+	});
+
+
+
+	test('$.unmaskFromHtml'+jqueryVersionString, (assert) => {
+		assert.is($.unmaskFromHtml('&lt;/&gt;&amp;;üäöÜÄÖß&ndash;&nbsp;&raquo;'), '</>&;üäöÜÄÖß– »');
+	});
 });

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Class</title>
+    <title>JSDoc: Namespace: maskForHtml</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Class</h1>
+    <h1 class="page-title">Namespace: maskForHtml</h1>
 
     
 
@@ -29,28 +29,7 @@
 <header>
     
         <h2>
-            <span class="ancestors"><a href="Inheritance_$.html">Inheritance:$</a><a href="Inheritance_$_Class.html">#Class</a>.</span>Class</h2>
-        
-            <div class="class-description">Simple Base function for inheritance-capable JS-objects.
-Adapted from: Simple JavaScript Inheritance By John Resig http://ejohn.org/ MIT Licensed. Inspired by base2 and Prototype.
-
-To create an object from which you may further inherit, instantiate an object by extending $.Class.
-
-var SuperPoweredFoobar = $.Class.extend({
-    init : function(){}
-});
-
-After this you can create a new SuperPoweredFoobar by simply instantiating
-
-var foobar1 = new SuperPoweredFoobar();
-
-.init() is the default constructor and will automatically be called with the given parameters.
-
-Inherit from SuperPoweredFoobar by using SuperPoweredFoobar.extend() the same way.
-
-Use _super to reference the parent class or call the parent constructor via this._super();
-this._super() always calls the super method of the one you are in, so in the constructor it calls the constructor
-in foobar() it calls super.foobar() automatically.</div>
+            <span class="ancestors"><a href="Strings_$.html">Strings:$</a>.</span>maskForHtml</h2>
         
     
 </header>
@@ -60,14 +39,87 @@ in foobar() it calls super.foobar() automatically.</div>
     
         
 
+        
+
+
+<dl class="details">
+
     
-    <h2>Constructor</h2>
-    
-
-    <h4 class="name" id="Class"><span class="type-signature"></span>new Class<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line1369">line 1369</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id=".maskForHtml"><span class="type-signature">(static) </span>maskForHtml<span class="signature">(text)</span><span class="type-signature"> &rarr; {String}</span></h4>
+
+    
+
+
+
+<div class="description">
+    Masks a string possibly containing reserved HTML chars for HTML output as is
+(so a < actually reads on the page).
+
+Only replaces critical chars like <>& with entities, but
+keeps non-critical unicode chars like »/.
+</div>
 
 
 
@@ -76,6 +128,54 @@ in foobar() it calls super.foobar() automatically.</div>
 
 
 
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>text</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the string to mask for use in HTML</td>
+        </tr>
+
+    
+    </tbody>
+</table>
 
 
 
@@ -111,12 +211,19 @@ in foobar() it calls super.foobar() automatically.</div>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line548">line 548</a>
+        <a href="jquery.annex.js.html">jquery.annex.js</a>, <a href="jquery.annex.js.html#line1389">line 1389</a>
     </li></ul></dd>
     
 
     
 
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li>unmaskFromHtml</li>
+        </ul>
+    </dd>
     
 
     
@@ -134,35 +241,38 @@ in foobar() it calls super.foobar() automatically.</div>
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    the masked string
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">String</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
     <h5>Example</h5>
     
-    <pre class="prettyprint"><code>var SuperPoweredFoobar = $.Class.extend({
-    init : function(){}
-});
-
-var UltraPoweredFoobar = SuperPoweredFoobar.extend({
-  init : function(){ this._super(); }
-});</code></pre>
+    <pre class="prettyprint"><code>$.maskForHtml('&lt;/>&amp;;üäöÜÄÖß– »')
+=> '&amp;lt;/&amp;gt;&amp;amp;;üäöÜÄÖß– »'</code></pre>
 
 
 
-    
-    </div>
-
-    
-
-    
-
-    
-
-     
-
-    
-
-    
-
+        
     
 
     

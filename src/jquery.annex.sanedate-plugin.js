@@ -3,16 +3,16 @@
  * This plugin is the attempt to make JS date objects more sane and thereby usable.
  * The Date object is one of the most badly designed parts of the JS core with so many quirks, inconsistencies and traps to fall into
  * as a developer, that I took it upon me to implement a small framework to deal with dates and timestamps in a less headachy way.
- * 
+ *
  * Think as this as a python inspired little brother of moment.js.
- * 
+ *
  * The core of this plugin is the SaneDate class, wrapping a vanilla Date object. See class and function definitions for further documentation
  * and have a look at /test/core/dates.js for more usage examples.
  *
  * This plugin automatically gets unit-tested via Ava ob build (tests are in /test/core/dates.js).
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 41 developed and tested with jQuery 3.3.1, 2.2.4 and 1.12.4
+ * @version Revision 42 developed and tested with jQuery 3.3.1, 2.2.4 and 1.12.4
  **/
 
 
@@ -66,7 +66,7 @@
 	//--|SOLUTIONS-EXTENSION----------
 
 	/*$.extend($.jqueryAnnexData, {
-		
+
 	});*/
 
 
@@ -153,7 +153,7 @@
 
 	/*$.fn.extend({
 
-		
+
 
 	});*/
 
