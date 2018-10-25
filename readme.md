@@ -33,7 +33,7 @@ Tell that to the jQuery guys! No, but in all honesty:
 You are absolutely right! But this is grown convenience project, so don't judge me too harshly. There will come a time when this lib will be split into
 "Annex" and "jQuery Annex" ... I'll get around to it ... Someday.
 
-Annex supports several jQuery versions explicity and through it's tests. Currently these are jQuery 3, 2 and 1 in their lastest versions (you can find the lastest tested versions in jquery.annex.js right at the top or as files in /examples/lib).
+Annex supports several jQuery versions explicity and through its tests. Currently these are jQuery 3, 2 and 1 in their lastest versions (you can find the lastest tested versions in jquery.annex.js right at the top or as files in /examples/lib).
 You may used older versions at your own risk, but Annex will warn you about this.
 
 
