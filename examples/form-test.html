@@ -135,6 +135,14 @@
 						$('#inputtexttest').deselect();
 					});
 
+					$('#searchtexttest-doselect').on('click', function(){
+						$('#searchtexttest').doselect();
+					});
+
+					$('#searchtexttest-deselect').on('click', function(){
+						$('#searchtexttest').deselect();
+					});
+
 					$('#singleselecttest-doselect').on('click', function(){
 						var index = $.randomInt(1, 5);
 						$('#singleselecttest').children('option').eq(index - 1).doselect();
@@ -250,6 +258,15 @@
 					<input type="text" value="foo bar" id="inputtexttest" name="inputtexttest"/>
 					<button id="inputtexttest-doselect">doselect</button>
 					<button id="inputtexttest-deselect">deselect</button>
+					<button class="disable">disable</button>
+					<button class="enable">enable</button>
+				</fieldset>
+
+				<fieldset>
+					<legend>Search Text Test</legend>
+					<input type="search" value="something something" id="searchtexttest" name="searchtexttest"/>
+					<button id="searchtexttest-doselect">doselect</button>
+					<button id="searchtexttest-deselect">deselect</button>
 					<button class="disable">disable</button>
 					<button class="enable">enable</button>
 				</fieldset>

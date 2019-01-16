@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 42 developed and tested with jQuery 3.3.1, 2.2.4 and 1.12.4
+ * @version Revision 43 developed and tested with jQuery 3.3.1, 2.2.4 and 1.12.4
  **/
 
 
@@ -4370,8 +4370,15 @@
 		 * $(':text').deselect(); // see deselect
 		 **/
 		doselect : function(){
-			if( $(this).is('option, :text, textarea') ){
-				if( $(this).is(':text, textarea') ){
+			var validTextElementsSelector = 'input:text, input[type=password], '
+					+'input[type=email], input[type=number], '
+					+'input[type=search], input[type=tel], '
+					+'input[type=url], textarea',
+				validElementsSelector = 'option, '+validTextElementsSelector
+			;
+
+			if( $(this).is(validElementsSelector) ){
+				if( $(this).is(validTextElementsSelector) ){
 					$(this).each(function(){
 						this.focus();
 						this.select();
@@ -4419,8 +4426,15 @@
 		 * $(':text').deselect();
 		 **/
 		deselect : function(){
-			if( $(this).is('option, :text, textarea') ){
-				if( $(this).is(':text, textarea') ){
+			var validTextElementsSelector = 'input:text, input[type=password], '
+					+'input[type=email], input[type=number], '
+					+'input[type=search], input[type=tel], '
+					+'input[type=url], textarea',
+				validElementsSelector = 'option, '+validTextElementsSelector
+			;
+
+			if( $(this).is(validElementsSelector) ){
+				if( $(this).is(validTextElementsSelector) ){
 					var tmpVal = $(this).val(),
 						stopperFunc = function(){ return false; };
 
@@ -5662,7 +5676,7 @@
 					$('html, body')
 						.stop(true)
 						.animate(
-							{scrollTop: $.isWindow($target.oo()) ? 0 : $target.offset().top - Math.round(vpHeight / 2) + offset},
+							{scrollTop: $.isWindow($target.oo()) ? offset : $target.offset().top - Math.round(vpHeight / 2) + offset},
 							{
 								duration : durationMs,
 								complete : function(){
@@ -5672,7 +5686,8 @@
 									}
 								}
 							}
-						);
+						)
+					;
 				} else {
 					if( !callbackFired ){
 						callback();
@@ -6215,14 +6230,14 @@
 		 **/
 
 		/**
-		 * @namespace Protocols:$fn.registerMailto
+		 * @namespace Protocols:$fn.registerMailTo
 		 **/
 
 		/**
 		 * Register an event handler to open a mailto dialogue without openly writing
 		 * down the mail address. Parameters mixed to complicate parsing.
 		 *
-		 * @param {String} tld - the top level domain to use
+		 * @param {?String} [tld] - the top level domain to use
 		 * @param {String} beforeAt - the address part before the @
 		 * @param {String} afterAtWithoutTld - the address part after the @ but before the tld
 		 * @param {?String} [subject] - the subject the mail should have
@@ -6231,7 +6246,7 @@
 		 * @param {?String} [eventType=click] - the event type to register the call to
 		 * @returns {Object} this
 		 *
-		 * @memberof Protocols:$fn.registerMailto
+		 * @memberof Protocols:$fn.registerMailTo
 		 * @example
 		 * $('a:first').registerMailTo('de', 'recipient', 'gmail', 'Hello there!', 'How are you these days?', 'click');
 		 **/
@@ -6240,12 +6255,14 @@
 			subject = $.orDefault(subject, '', 'string');
 			body = $.orDefault(body, '', 'string');
 
+			tld = $.isSet(tld) ? '.'+tld : '';
+
 			$(this).on(eventType, function(){
-				$.redirect('mailto:'+beforeAt+'\u0040'+afterAtWithoutTld+'.'+tld+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body));
+				$.redirect('mailto:'+beforeAt+'\u0040'+afterAtWithoutTld+tld+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body));
 			});
 
 			if( $.isSet(writeToElem) && writeToElem ){
-				$(this).html((beforeAt+'\u0040'+afterAtWithoutTld+'.'+tld).replace(/(\w{1})/g, '$1&zwnj;'));
+				$(this).html((beforeAt+'\u0040'+afterAtWithoutTld+tld).replace(/(\w{1})/g, '$1&zwnj;'));
 			}
 
 			return this;

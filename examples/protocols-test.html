@@ -22,7 +22,7 @@
 				$(function(){
 					
 					$('#mailto-1').registerMailTo('com', 'no', 'spam', 'Hello there!', 'Dear Mr. Foobar,');
-					$('#mailto-2').registerMailTo('com', 'no', 'spam', 'Hello there!', 'Dear Mr. Foobar,', true);
+					$('#mailto-2').registerMailTo(null, 'no', 'spam', 'Hello there!', 'Dear Mr. Foobar,', true);
 					$('#mailto-3').registerMailTo(
 						$('#mailto-3').data('tld'),
 						$('#mailto-3').data('before-at'),
