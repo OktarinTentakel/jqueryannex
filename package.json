@@ -1,6 +1,6 @@
 {
 	"name": "jqueryannex",
-	"version": "0.43.0",
+	"version": "0.44.0",
 	"homepage": "https://github.com/OktarinTentakel/jqueryannex",
 	"repository": "github:oktarintentakel/jqueryannex",
 	"description": "A mixed bag of jQuery extensions to generally streamline development, make code more semantic and provide solutions to everyday problems and tedious standard constructs.",
@@ -34,10 +34,11 @@
 		"gulp-shell": "^0.5.2",
 		"gulp-sourcemaps": "^1.6.0",
 		"gulp-uglify": "^3.0.1",
-		"jquery-v3": "jquery/jquery#3.3.1",
-		"jquery-v2": "jquery/jquery#2.2.4",
 		"jquery-v1": "jquery/jquery#1.12.4",
+		"jquery-v2": "jquery/jquery#2.2.4",
+		"jquery-v3": "jquery/jquery#3.3.1",
 		"jsdoc": "^3.4.0",
+		"natives": "^1.1.6",
 		"run-sequence": "^1.1.4",
 		"st": "^1.2.2"
 	},

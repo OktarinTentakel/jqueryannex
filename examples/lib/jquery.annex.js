@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 43 developed and tested with jQuery 3.3.1, 2.2.4 and 1.12.4
+ * @version Revision 44 developed and tested with jQuery 3.3.1, 2.2.4 and 1.12.4
  **/
 
 
@@ -3779,6 +3779,7 @@
 
 		/**
 		 * Searches for and returns parameters embedded in the provided url containing a query string (make sure all values are url encoded).
+		 * You may also just provide the query string, but make sure it starts with a ?
 		 *
 		 * Return a single parameter if name is given, otherwise returns dict with all values.
 		 *
@@ -3798,12 +3799,12 @@
 		 * var allTheData = $.urlParameter('?foo=foo&bar=bar&bar=barbar');
 		 **/
 		urlParameter : function(url, paramName){
-			url = $.orDefault(url, '?', 'string');
+			url = $.orDefault(url, '', 'string');
 			paramName = $.orDefault(paramName, null, 'string');
 
 			var qString = url.split('?');
-			qString = ( qString.length > 1 ) ? qString[1] : qString[0];
-			qString = qString.split('&');
+			qString = ( qString.length > 1 ) ? qString[1] : '';
+			qString = qString.split('#')[0].split('&');
 
 			var res = [],
 				resDict = {},
@@ -3876,7 +3877,7 @@
 		 **/
 
 		/**
-		 * Returns the currently set URL-Anchor on given URL.
+		 * Returns the currently set URL-Anchor on given URL (also works with hash alone, but make sure # is included).
 		 *
 		 * @param {String} url - the URL, containing a hash
 		 * @param {?Boolean} [withoutCaret=false] - defines if anchor value should contain leading "#"
@@ -3884,19 +3885,22 @@
 		 *
 		 * @memberof Urls:$.urlAnchor
 		 * @example
-		 * var windowAnchorWithoutCaret = $.urlAnchor($('.foobar').attr('href'), true);
+		 * var hrefAnchorWithoutCaret = $.urlAnchor($('.foobar').attr('href'), true);
 		 * var imgAnchorWithCaret = $.urlAnchor($('img:first').atrr('src'));
+		 * var anchorFromLocation = $.urlAnchor(window.location.hash, true);
 		 **/
 		urlAnchor : function(url, withoutCaret){
 			var urlParts = url.split('#'),
 				anchor = (urlParts.length > 1) ? decodeURIComponent($.trim(urlParts[1])) : null;
 
-			if( !$.isSet(withoutCaret) || !withoutCaret ){
-				anchor = '#'+anchor;
-			}
+			if( $.isSet(anchor) ){
+				if( !$.isSet(withoutCaret) || !withoutCaret ){
+					anchor = '#'+anchor;
+				}
 
-			if( (anchor === '') || (anchor === '#') ){
-				anchor = null;
+				if( (anchor === '') || (anchor === '#') ){
+					anchor = null;
+				}
 			}
 
 			return anchor;
@@ -5464,12 +5468,12 @@
 
 			if( $(this).prop('nodeName') === '#document' ){
 				targetWindow = window;
-			} else if( $.isSet($(this).oo().location) && $.isSet($(this).oo().location.href) && $.isSet($(this).oo().location.search) ){
+			} else if( $.isSet($(this).oo().location) && $.isSet($(this).oo().location.search) ){
 				targetWindow = $(this).oo();
 			}
 
 			if( $.isSet(targetWindow) ){
-				url = targetWindow.location.href+targetWindow.location.search;
+				url = targetWindow.location.search;
 			} else if( $.isSet($(this).attr('src')) ){
 				url = $(this).attr('src');
 			} else if( $.isSet($(this).attr('href')) ){
@@ -5528,12 +5532,12 @@
 
 			if( $(this).prop('nodeName') === '#document' ){
 				targetWindow = window;
-			} else if( $.isSet($(this).oo().location) && $.isSet($(this).oo().location.href) && $.isSet($(this).oo().location.hash) ){
+			} else if( $.isSet($(this).oo().location) && $.isSet($(this).oo().location.hash) ){
 				targetWindow = $(this).oo();
 			}
 
 			if( $.isSet(targetWindow) ){
-				url = targetWindow.location.href+targetWindow.location.hash;
+				url = targetWindow.location.hash;
 			} else if( $.isSet($(this).attr('src')) ){
 				url = $(this).attr('src');
 			} else if( $.isSet($(this).attr('href')) ){
@@ -6353,28 +6357,36 @@
 			var _this_ = this;
 
 			$(this).find(textContentSelector).each(function(){
-				var $parent = ($.trim(textContentParentSelector) !== '') ? $(this).closest(textContentParentSelector) : $(this).parent();
-
 				if( !$(_this_).data('annexMultilineEllipsisOrgText') ){
-					$(_this_).data('annexMultilineEllipsisOrgText', $(this).text());
+					$(_this_).data('annexMultilineEllipsisOrgText', $.trim($(this).text()));
 				}
 
-				var restText = $(_this_).data('annexMultilineEllipsisOrgText');
-				$(this).text(restText);
+				var $parent = ($.trim(textContentParentSelector) !== '') ? $(this).closest(textContentParentSelector) : $(this).parent(),
+					lastFittingIndex = 0,
+					lastUnfittingIndex = $(_this_).data('annexMultilineEllipsisOrgText').length,
+					currentIndex = lastUnfittingIndex - 1,
+					parentHeight = Math.round($parent.height()),
+					parentWidth = Math.round($parent.width());
 
-				for(var i = 0; i < $(_this_).data('annexMultilineEllipsisOrgText').length; i++){
+				$(this).text($(_this_).data('annexMultilineEllipsisOrgText'));
+
+				while( true ){
 					if(
-						($(this).outerHeight() > $parent.height() + 2)
-						|| ($(this).outerWidth() > $parent.width())
+						(Math.round($(this).outerHeight()) > parentHeight)
+						|| (Math.round($(this).outerWidth()) > parentWidth)
 					){
-						restText = restText.slice(0, -1);
-						$(this).text(restText);
-					} else if( restText !== $(_this_).data('annexMultilineEllipsisOrgText') ){
-						restText = restText.slice(0, -(ellipsis.length + 1))+' '+ellipsis;
-						$(this).text(restText);
+						lastUnfittingIndex = currentIndex;
+						currentIndex = currentIndex - Math.ceil(Math.abs(lastFittingIndex - currentIndex) / 2);
+					} else {
+						lastFittingIndex = currentIndex;
+						currentIndex = currentIndex + Math.floor((lastUnfittingIndex - currentIndex) / 2);
+					}
+
+					if( Math.abs(lastFittingIndex - lastUnfittingIndex) <= 1 ){
+						$(this).text($.trim($(_this_).data('annexMultilineEllipsisOrgText').slice(0, lastFittingIndex + 1)).slice(0, -(ellipsis.length + 1))+' '+ellipsis);
 						break;
 					} else {
-						break;
+						$(this).text($.trim($(_this_).data('annexMultilineEllipsisOrgText').slice(0, currentIndex + 1)));
 					}
 				}
 			});

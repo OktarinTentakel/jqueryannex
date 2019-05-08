@@ -12,7 +12,7 @@
  * your browser.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 43 developed and tested with jQuery 3.3.1, 2.2.4 and 1.12.4
+ * @version Revision 44 developed and tested with jQuery 3.3.1, 2.2.4 and 1.12.4
  **/
 
 
