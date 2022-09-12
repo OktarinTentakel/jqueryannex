@@ -12,7 +12,7 @@
  * This plugin automatically gets unit-tested via Ava ob build (tests are in /test/core/dates.js).
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 45 developed and tested with jQuery 3.6.1, 2.2.4 and 1.12.4
+ * @version Revision 46 developed and tested with jQuery 3.6.1, 2.2.4 and 1.12.4
  **/
 
 
