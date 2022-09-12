@@ -24,9 +24,10 @@
 		"test": "./test"
 	},
 
+	"__comment__on_engines" : "please use versions noted here for dev, >= is necessary to avoid errors during yarn installation as a dependency",
 	"engines": {
-		"node" : "^12.22.12",
-		"yarn" : "^1.22.19"
+		"node" : ">=12.22.0",
+		"yarn" : ">=1.22.0"
 	},
 
 	"devDependencies": {
