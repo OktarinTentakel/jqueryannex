@@ -1,8 +1,7 @@
-var BUILD_DEST = 'dist',
-	EXAMPLES_DEST = 'examples',
-	DOC_DEST = 'doc';
+//###[ IMPORTS ]########################################################################################################
 
-var gulp = require('gulp'),
+const
+	gulp = require('gulp'),
 	sequence = require('run-sequence'),
 	rename = require('gulp-rename'),
 	sourcemaps = require('gulp-sourcemaps'),
@@ -10,14 +9,25 @@ var gulp = require('gulp'),
 	connect = require('gulp-connect'),
 	shell = require('gulp-shell'),
 	st = require('st'),
-	ava = require('gulp-ava');
+	ava = require('gulp-ava')
+;
 
 
+
+//###[ CONSTANTS ]######################################################################################################
+
+const
+	BUILD_DEST = 'dist',
+	EXAMPLES_DEST = 'examples',
+	DOC_DEST = 'doc'
+;
+
+
+
+//###[ TASKS ]##########################################################################################################
 
 gulp.task('js', function(){
-	return gulp.src([
-		'./src/**/*.js'
-	])
+	return gulp.src(['./src/**/*.js'])
 		.pipe(sourcemaps.init())
 			.pipe(uglify())
 		.pipe(sourcemaps.write('./'))
@@ -27,21 +37,21 @@ gulp.task('js', function(){
 
 
 gulp.task('examples-lib', function(){
-	gulp.src([
-		'./node_modules/jquery-v1/dist/jquery*.*'
-	]).pipe(gulp.dest(EXAMPLES_DEST+'/lib/jquery-v1/'));
+	gulp.src(['./node_modules/jquery-v1/dist/jquery*.*'])
+		.pipe(gulp.dest(`${EXAMPLES_DEST}/lib/jquery-v1/`))
+	;
 
-	gulp.src([
-		'./node_modules/jquery-v2/dist/jquery*.*'
-	]).pipe(gulp.dest(EXAMPLES_DEST+'/lib/jquery-v2/'));
+	gulp.src(['./node_modules/jquery-v2/dist/jquery*.*'])
+		.pipe(gulp.dest(`${EXAMPLES_DEST}/lib/jquery-v2/`))
+	;
 
-	gulp.src([
-		'./node_modules/jquery-v3/dist/jquery*.*'
-	]).pipe(gulp.dest(EXAMPLES_DEST+'/lib/jquery-v3/'));
+	gulp.src(['./node_modules/jquery-v3/dist/jquery*.*'])
+		.pipe(gulp.dest(`${EXAMPLES_DEST}/lib/jquery-v3/`))
+	;
 
-	return gulp.src([
-		'./src/**/*.js'
-	]).pipe(gulp.dest(EXAMPLES_DEST+'/lib'));
+	return gulp.src(['./src/**/*.js'])
+		.pipe(gulp.dest(`${EXAMPLES_DEST}/lib`))
+		;
 });
 
 
@@ -56,8 +66,8 @@ gulp.task('server', function(){
 	connect.server({
 		host : '0.0.0.0',
 		root : EXAMPLES_DEST,
-		port : 8888,
-		middleware: function (connect, opt) {
+		port : 8000,
+		middleware : function (connect, opt){
 			return [
 				function(req, res, next){
 					// treat POST request like GET during dev
@@ -65,8 +75,8 @@ gulp.task('server', function(){
 					return next();
 				},
 				st({
-					path: 'doc',
-					url: '/doc'
+					path : 'doc',
+					url : '/doc'
 				})
 			];
 		}
@@ -77,9 +87,7 @@ gulp.task('server', function(){
 
 gulp.task('test', function(){
 	return gulp.src('test/core/*.js')
-		.pipe(ava({
-			verbose: true
-		}))
+		.pipe(ava({verbose : true}))
 		.on('error', function(){
 			process.exit(-1);
 		})

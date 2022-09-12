@@ -1,15 +1,12 @@
 {
 	"name": "jqueryannex",
-	"version": "0.44.0",
-	"homepage": "https://github.com/OktarinTentakel/jqueryannex",
-	"repository": "github:oktarintentakel/jqueryannex",
+	"version": "0.45.0",
 	"description": "A mixed bag of jQuery extensions to generally streamline development, make code more semantic and provide solutions to everyday problems and tedious standard constructs.",
+	"authors": ["Sebastian Schlapkohl"],
+	"license": "MIT",
+	"repository": "github:oktarintentakel/jqueryannex",
+	"homepage": "https://github.com/OktarinTentakel/jqueryannex",
 	"private": false,
-	"main": ".src/jquery.annex.js",
-	"directories": {
-		"doc": "./doc",
-		"test": "./test"
-	},
 	"keywords": [
 		"jquery",
 		"additions",
@@ -20,34 +17,46 @@
 		"string manipulation",
 		"sane dates"
 	],
-	"authors": [
-		"Sebastian Schlapkohl"
-	],
-	"license": "MIT",
+
+	"main": ".src/jquery.annex.js",
+	"directories": {
+		"doc": "./doc",
+		"test": "./test"
+	},
+
+	"engines": {
+		"node" : "^12.22.12",
+		"yarn" : "^1.22.19"
+	},
+
 	"devDependencies": {
-		"ava": "^1.0.0-beta.8",
-		"browser-env": "^3.2.5",
-		"gulp": "^3.9.0",
+		"ava": "^1.0.1",
+		"browser-env": "^3.2.6",
+		"gulp": "^3.9.1",
 		"gulp-ava": "^0.19.0",
-		"gulp-connect": "^4.1.0",
-		"gulp-rename": "^1.2.2",
+		"gulp-connect": "^4.2.0",
+		"gulp-rename": "^1.2.3",
 		"gulp-shell": "^0.5.2",
 		"gulp-sourcemaps": "^1.6.0",
-		"gulp-uglify": "^3.0.1",
+		"gulp-uglify": "^3.0.2",
 		"jquery-v1": "jquery/jquery#1.12.4",
 		"jquery-v2": "jquery/jquery#2.2.4",
-		"jquery-v3": "jquery/jquery#3.3.1",
-		"jsdoc": "^3.4.0",
+		"jquery-v3": "jquery/jquery#3.6.1",
+		"jsdoc": "^3.4.3",
 		"natives": "^1.1.6",
-		"run-sequence": "^1.1.4",
+		"run-sequence": "^2.2.1",
 		"st": "^1.2.2"
 	},
+
 	"dependencies": {
-		"jquery": "^3.3.1 || ^2.2.4 || ^1.12.4"
+		"jquery": "^3.6.1 || ^2.2.4 || ^1.12.4"
 	},
+
+	"resolutions": {
+		"graceful-fs": "^4.2.10"
+	},
+
 	"ava": {
-		"require": [
-			"./test/helpers/setup-browserenv.js"
-		]
+		"require": ["./test/helpers/setup-browserenv.js"]
 	}
 }

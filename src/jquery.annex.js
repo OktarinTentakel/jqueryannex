@@ -10,7 +10,7 @@
  * Always use the current version of this add-on with the current version of jQuery and keep an eye on the changes.
  *
  * @author Sebastian Schlapkohl <jqueryannex@ifschleife.de>
- * @version Revision 44 developed and tested with jQuery 3.3.1, 2.2.4 and 1.12.4
+ * @version Revision 45 developed and tested with jQuery 3.6.1, 2.2.4 and 1.12.4
  **/
 
 
@@ -45,7 +45,7 @@
 			requiredVersions = {
 				'1' : '12.4',
 				'2' : '2.4',
-				'3' : '3.1'
+				'3' : '6.1'
 			},
 			versionMayBeDeprecated = false;
 

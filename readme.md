@@ -55,14 +55,7 @@ How do I install this?
 ----------------------
 There are several possibilities, the easiest of course being to just download the zip or the dist files and put it into you project.
 
-If you are using a package manager (which you definitely should) you're also covered.
-
-For old-school fellows still hanging on to *Bower*, just use
-```
-bower install jqueryannex --save
-```
-
-Since Bower is deprecated you can also use *npm* of course, but since I'm not a big fan of npm's publishing process and never really would keep the publishing up to date you have to include the the github repo directly:
+If you are using npm you're also covered.
 
 ```
 npm install oktarintentakel/jqueryannex
@@ -74,7 +67,7 @@ I'd also recommend to specify a version tag to use:
 npm install oktarintentakel/jqueryannex#v0.XX.0
 ```
 
-If you already updated to *Yarn* the process is analogous to npm:
+If you switched to *Yarn* the process is analogous to npm:
 
 ```
 yarn add oktarintentakel/jqueryannex

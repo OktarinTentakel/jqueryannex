@@ -43,8 +43,12 @@
 
 
     <section>
-        <article><h1>jQuery Annex</h1><p>Written by:  Sebastian Schlapkohl<br>eMail:       <a href="mailto:jqueryannex@ifschleife.de">jqueryannex@ifschleife.de</a><br>Sites: <a href="https://github.com/OktarinTentakel/jqueryannex">github</a>, <a href="http://www.ifschleife.de">ifschleife</a></p>
-<h2>What is this?</h2><p>Annex is a jQuery expansion featuring &quot;nice to have&quot; methods to streamline development.</p>
+        <article><h1>jQuery Annex</h1>
+<p>Written by:  Sebastian Schlapkohl<br>
+eMail:       jqueryannex@ifschleife.de<br>
+Sites: <a href="https://github.com/OktarinTentakel/jqueryannex">github</a>, <a href="http://www.ifschleife.de">ifschleife</a></p>
+<h2>What is this?</h2>
+<p>Annex is a jQuery expansion featuring &quot;nice to have&quot; methods to streamline development.</p>
 <p>Think of this as the poor man's jQuery-based lodash/underscore, with a focus on DOM stuff.</p>
 <p>I'm fully aware that this is not a full fledged high-quality framework, but rather a collection of everyday methods I use to make working
 with JS in conjunction with jQuery more bearable.</p>
@@ -60,34 +64,51 @@ capability checks, cookie handling, image and webfont callback helpers, form hel
 &quot;Annex&quot; and &quot;jQuery Annex&quot; ... I'll get around to it ... Someday.</p>
 <p>Annex supports several jQuery versions explicity and through its tests. Currently these are jQuery 3, 2 and 1 in their lastest versions (you can find the lastest tested versions in jquery.annex.js right at the top or as files in /examples/lib).
 You may used older versions at your own risk, but Annex will warn you about this.</p>
-<h2>Is this tested in any way?</h2><p>Yes, it actually is!</p>
+<h2>Is this tested in any way?</h2>
+<p>Yes, it actually is!</p>
 <p>The algorithmic core is tested via <a href="https://github.com/avajs/ava">Ava</a> and all tests are to be found in <code>/test</code>.</p>
 <p>Many features are not really well suited for unit testing but require a real browser as a context. For all those cases I built example pages
 (to be found under <code>/examples</code>, just opening <code>index.hml</code> from the file system should work). In these example pages you can browse
 all topics not covered by unit tests and play around with the functionality. At the top you'll find buttons to quickly switch between
 all supported jQuery versions.</p>
-<h2>How do I install this?</h2><p>There are several possibilities, the easiest of course being to just download the zip or the dist files and put it into you project.</p>
-<p>If you are using a package manager (which you definitely should) you're also covered.</p>
-<p>For old-school fellows still hanging on to <em>Bower</em>, just use</p>
-<pre class="prettyprint source"><code>bower install jqueryannex --save</code></pre><p>Since Bower is deprecated you can also use <em>npm</em> of course, but since I'm not a big fan of npm's publishing process and never really would keep the publishing up to date you have to include the the github repo directly:</p>
-<pre class="prettyprint source"><code>npm install oktarintentakel/jqueryannex</code></pre><p>I'd also recommend to specify a version tag to use:</p>
-<pre class="prettyprint source"><code>npm install oktarintentakel/jqueryannex#v0.XX.0</code></pre><p>If you already updated to <em>Yarn</em> the process is analogous to npm:</p>
-<pre class="prettyprint source"><code>yarn add oktarintentakel/jqueryannex</code></pre><p>or</p>
-<pre class="prettyprint source"><code>yarn add oktarintentakel/jqueryannex#v0.XX.0</code></pre><p>If you are using <em>npm or yarn</em> I recommend installing client dependencies into a subfolder. This can be achieved by adding the module manually to the package.json as documented <a href="https://bower.io/blog/2017/how-to-migrate-away-from-bower/">here</a> by the Bower team. This would result in a dependency like</p>
+<h2>How do I install this?</h2>
+<p>There are several possibilities, the easiest of course being to just download the zip or the dist files and put it into you project.</p>
+<p>If you are using npm you're also covered.</p>
+<pre class="prettyprint source"><code>npm install oktarintentakel/jqueryannex
+</code></pre>
+<p>I'd also recommend to specify a version tag to use:</p>
+<pre class="prettyprint source"><code>npm install oktarintentakel/jqueryannex#v0.XX.0
+</code></pre>
+<p>If you switched to <em>Yarn</em> the process is analogous to npm:</p>
+<pre class="prettyprint source"><code>yarn add oktarintentakel/jqueryannex
+</code></pre>
+<p>or</p>
+<pre class="prettyprint source"><code>yarn add oktarintentakel/jqueryannex#v0.XX.0
+</code></pre>
+<p>If you are using <em>npm or yarn</em> I recommend installing client dependencies into a subfolder. This can be achieved by adding the module manually to the package.json as documented <a href="https://bower.io/blog/2017/how-to-migrate-away-from-bower/">here</a> by the Bower team. This would result in a dependency like</p>
 <pre class="prettyprint source"><code>&quot;dependencies&quot;: {
     &quot;@client/jqueryannex&quot; : &quot;oktarintentakel/jqueryannex#v0.XX.0&quot;,
     ...
-}</code></pre><p>You can also add the dependency on the command line like this, albeit the command gets a little lengthy now:</p>
-<pre class="prettyprint source"><code>yarn add @client/jqueryannex@oktarintentakel/jqueryannex#v0.XX.0</code></pre><h2>How do I include and use this?</h2><p>Easy as pie. Just include it after jQuery and you're good to go.</p>
+}
+</code></pre>
+<p>You can also add the dependency on the command line like this, albeit the command gets a little lengthy now:</p>
+<pre class="prettyprint source"><code>yarn add @client/jqueryannex@oktarintentakel/jqueryannex#v0.XX.0
+</code></pre>
+<h2>How do I include and use this?</h2>
+<p>Easy as pie. Just include it after jQuery and you're good to go.</p>
 <pre class="prettyprint source lang-html"><code>&lt;script src=&quot;jquery-x.xx.x.js&quot;>&lt;/script>
 &lt;script src=&quot;jquery.annex.js&quot;>&lt;/script>
-&lt;script src=&quot;jquery.annex.xyz-plugin.js&quot;>&lt;/script></code></pre><p>If you use a build tool like grunt/gulp, you could just concatenate all files in the right order and maybe uglify them.</p>
+&lt;script src=&quot;jquery.annex.xyz-plugin.js&quot;>&lt;/script>
+</code></pre>
+<p>If you use a build tool like grunt/gulp, you could just concatenate all files in the right order and maybe uglify them.</p>
 <p>If you need some pointers about the possibilities, in the &quot;/doc&quot;-folder there's an expansive documentation (open index.html),
 where each method also includes examples.</p>
-<h2>And if I want to load this as an AMD?</h2><p>Just use it the same as you would with jQuery. Define it as a package in your paths/maps and require it. jQuery,
+<h2>And if I want to load this as an AMD?</h2>
+<p>Just use it the same as you would with jQuery. Define it as a package in your paths/maps and require it. jQuery,
 of course, is an automatic dependency. Plugins are working accordingly and require jquery and annex in the right order
 by directly requiring &quot;jqueryannex&quot;, which in turn requires &quot;jquery&quot;.</p>
-<h2>I wanna be fancy and use ES6 through Babel, what now?</h2><p>Pure ES6 is still a problem for libs like jQuery and lodash at the moment, but if you are using Babel we're all in luck and that goes for
+<h2>I wanna be fancy and use ES6 through Babel, what now?</h2>
+<p>Pure ES6 is still a problem for libs like jQuery and lodash at the moment, but if you are using Babel we're all in luck and that goes for
 Annex as well. Babel internally uses Common JS modules when transpiling ES6 to ES5 which is helpful since jQuery and Annex offer Common JS support.</p>
 <p>So, executing Babel-transpiled ES6 inside a normal browser window, this should work (considering that your module paths are configured, so your importer
 may find the packages, otherwise use the appropriate path to import from):</p>
@@ -95,46 +116,57 @@ may find the packages, otherwise use the appropriate path to import from):</p>
 import jQueryAnnex from 'jqueryannex';
 import jQueryWithPlugin from 'jqueryannex/dist/jquery.annex.xyz-plugin';
 // without plugin this would be = jQueryAnnex
-const $ = jQuery = jQueryWithPlugin;</code></pre><p>If for some reason Annex cannot find window.jQuery or window.$ it returns a factory function you can use to initialize Annex yourself:</p>
+const $ = jQuery = jQueryWithPlugin;
+</code></pre>
+<p>If for some reason Annex cannot find window.jQuery or window.$ it returns a factory function you can use to initialize Annex yourself:</p>
 <pre class="prettyprint source lang-javascript"><code>import jQueryOriginal from 'jquery';
 import jQueryAnnexFactory from 'jqueryannex';
 import jQueryWithPluginFactory from 'jqueryannex/dist/jquery.annex.xyz-plugin';
 // leave out the plugin if none is needed
 const jQuery = jQueryWithPluginFactory(jQueryAnnexFactory(jQueryOriginal));
-const $ = jQuery;</code></pre><p>If you want to use jQuery and annex in an environment without a proper browser window jQuery also falls back to a factory, in those cases
+const $ = jQuery;
+</code></pre>
+<p>If you want to use jQuery and annex in an environment without a proper browser window jQuery also falls back to a factory, in those cases
 you can still use both like this (as I do in my Ava tests):</p>
 <pre class="prettyprint source lang-javascript"><code>import jQueryOriginalFactory from 'jquery';
 import jQueryAnnexFactory from 'jqueryannex';
 import jQueryWithPluginFactory from 'jqueryannex/dist/jquery.annex.xyz-plugin';
 // provide global object to hold jQuery as window here, leave out the plugin if none is needed
 const jQuery = jQueryWithPluginFactory(jQueryAnnexFactory(jQueryOriginalFactory(window)));
-const $ = jQuery;</code></pre><h2>Strange versioning you got there...</h2><p>Yes. Currently this is not a package with the classic major/minor scheme, but is a permanently evolving package, trying to keep up with the development
+const $ = jQuery;
+</code></pre>
+<h2>Strange versioning you got there...</h2>
+<p>Yes. Currently this is not a package with the classic major/minor scheme, but is a permanently evolving package, trying to keep up with the development
 of jQuery. So, in essence, currently I use a system of incrementing independent revisions.</p>
 <p>So using a fixed revision in your package management is always a good idea. Updating during development is always manually possible,
 breaking changes should always be covered in the release notes, but do not configure your package definition to always auto-update to the latest
 revision, especially not on production systems.</p>
-<h2>Is this any good, why should I use this?</h2><p>That's a tough one.</p>
+<h2>Is this any good, why should I use this?</h2>
+<p>That's a tough one.</p>
 <p>The answers are: &quot;that depends&quot; and &quot;maybe&quot;.</p>
 <p>This is not a framework to be the backbone of a large project, but a personal selection of helpers. If you consider the functions on offer and the source
 &quot;good&quot; is a matter of your needs, personal code style (if you think and work a little like I do) and the willingness to browse and try the solutions on
 offer in your project.</p>
-<p>This does not offer you a project structure, but tries to free you from seemingly simple, but viewed in detail, incredibly tedious tasks like specifically 
+<p>This does not offer you a project structure, but tries to free you from seemingly simple, but viewed in detail, incredibly tedious tasks like specifically
 finding out when an image or a webfont is not only loaded, but actually rendered to a page, while providing some syntactic sugar to your JS/jQuery code
 making standard stuff more readble and less tedious to write and look at.</p>
 <p>If you search for something like that, using this sounds reasonable to me! But even if you'd rather not include the whole shebang you are absolutely free
 to use this project for reference and steal shamelessly from it.</p>
 <p>So in summary: Annex is a good addition for small to medium projects with a heavy focus on jQuery.</p>
-<h2>What's this validation plugin stuff?</h2><p>A while ago I wrote <a href="https://github.com/OktarinTentakel/htmlform">HtmlForm</a>, which is a form definition framework for PHP5. One result of this project was complex javascript form validation. When I moved away from server-side code to the client I suddenly needed form validation without the PHP context and decided to move the javascript validation part into an Annex-plugin.</p>
+<h2>What's this validation plugin stuff?</h2>
+<p>A while ago I wrote <a href="https://github.com/OktarinTentakel/htmlform">HtmlForm</a>, which is a form definition framework for PHP5. One result of this project was complex javascript form validation. When I moved away from server-side code to the client I suddenly needed form validation without the PHP context and decided to move the javascript validation part into an Annex-plugin.</p>
 <p>This little piece of code is the result.</p>
 <p>You can do quite advanced stuff with this plugin and I already used this for quite complex, bigger projects with knockout for example, but the API is still a little strange and convoluted for my taste, which is a result of the original validation structure of HtmlForm.</p>
 <p>Nonetheless, this is quite mighty and the example implementation in <code>plugin-validation-example</code> will give you a good idea about the general workings.</p>
 <p>By the way: this is a <strong>form</strong> validator, not an <strong>object</strong> or <strong>schema</strong> validator. If you don't have an actual form to validate, do yourself a favour and use <a href="https://github.com/Atinux/schema-inspector">SchemaInspector</a> or, to be JSON schema compatible, use <a href="https://github.com/bugventure/jsen">JSEN</a>.</p>
-<h2>What is the solution plugin about?</h2><p>Annex is a very long running project indeed and over the years some implementations have found their way into the core that did not prove as common as I
+<h2>What is the solution plugin about?</h2>
+<p>Annex is a very long running project indeed and over the years some implementations have found their way into the core that did not prove as common as I
 initially thought. Since the methods are there, working and fully documented, I decided to move those exotic solutions to an own plugin to keep the
 implementations as references. Be aware that these methods are not as thoroughly tested as the core, but the might still be helpful or at least a good
 starting point for anyone trying to build an own implementation. Since the methods are just simple jQuery extensions you could even copy methods
 selectively pretty easy.</p>
-<h2>The SaneDate plugin sounds interesting, what's that about?</h2><p>Date objects in JS are a nightmare. Working with date objects in JS cross-browser is a nightmare. Date objects in JS are insane.</p>
+<h2>The SaneDate plugin sounds interesting, what's that about?</h2>
+<p>Date objects in JS are a nightmare. Working with date objects in JS cross-browser is a nightmare. Date objects in JS are insane.</p>
 <p>This plugin tries to offer &quot;sane&quot; date objects to be able to actually work with dates and times without constantly stumbling over
 some inconsistent implementation or browser issue. Additionally SaneDates offer extended possibilities of comparing dates, setting
 attributes, validating them and converting them from local to UTC and back.</p>
@@ -157,7 +189,7 @@ for your everyday needs of time handling in JS.</p></article>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Wed May 08 2019 15:06:35 GMT+0200 (GMT+02:00)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a> on Mon Sep 12 2022 13:30:35 GMT+0200 (GMT+02:00)
 </footer>
 
 <script> prettyPrint(); </script>
